@@ -30,3 +30,7 @@ pnpm-debug.log*
 
 # vercel
 .vercel
+
+# tracked files
+/tracked_files
+/tracked_files/*
