@@ -1,0 +1,27 @@
+/* apps/react-quest-app/src/App.css */
+
+.app-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+.empty-app-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  gap: 20px;
+}
+
+.importer-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.import-error {
+  color: #ff4d4d;
+  font-size: 14px;
+}

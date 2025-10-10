@@ -1,25 +1,23 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// Import library components and types
-import { 
-  QuestPlayer, 
+// Import library components and types from the single entry point
+import {
+  QuestPlayer,
+  Dialog,
+  QuestImporter,
+  LanguageSelector,
   type Quest,
-  type QuestCompletionResult
+  type QuestCompletionResult,
+  type SolutionConfig,
+  type GameState
 } from '@repo/quest-player';
 
-// Import local app components (we'll move them from the library)
-import { Dialog } from '@repo/quest-player/components/Dialog';
-import { QuestImporter } from '@repo/quest-player/components/QuestImporter';
-import { LanguageSelector } from '@repo/quest-player/components/LanguageSelector';
+// Import the library's bundled CSS file
+// NOTE: You may need to run `pnpm build` in the root once for this file to be generated.
+// import '@repo/quest-player/dist/index.css';
 
 import './App.css';
-
-// Copy CSS from the original App.css
-// You might want to create a shared CSS package later
-import '@repo/quest-player/App.css';
-import '@repo/quest-player/components/Dialog/Dialog.css';
-import '@repo/quest-player/components/QuestImporter/QuestImporter.css';
 
 interface DialogState {
   isOpen: boolean;
@@ -29,6 +27,12 @@ interface DialogState {
   optimalBlocks?: number;
   code?: string;
 }
+
+// A helper type guard for the solution config
+function solutionHasOptimalBlocks(solution: SolutionConfig): solution is SolutionConfig & { optimalBlocks: number } {
+    return solution.optimalBlocks !== undefined;
+}
+
 
 function App() {
   const { t } = useTranslation();
@@ -42,24 +46,26 @@ function App() {
   };
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
-    if (result.isSuccess) {
+    if (result.isSuccess && result.finalState.solution) {
+      const unitLabel = result.unitLabel === 'block' ? 'blockCount' : 'lineCount';
       setDialogState({
         isOpen: true,
         title: t('Games.dialogCongratulations'),
-        message: t('Games.dialogGoodJob', { [result.unitLabel === 'block' ? 'blockCount' : 'lineCount']: result.unitCount }),
+        message: t('Games.dialogGoodJob', { [unitLabel]: result.unitCount }),
         stars: result.stars,
-        optimalBlocks: result.finalState.solution?.optimalBlocks,
+        optimalBlocks: solutionHasOptimalBlocks(result.finalState.solution) ? result.finalState.solution.optimalBlocks : undefined,
         code: result.userCode,
       });
     } else {
-      const reasonKey = `Games.result${(result.finalState.result as string).charAt(0).toUpperCase() + (result.finalState.result as string).slice(1)}`;
-      const translatedReason = t(reasonKey, { defaultValue: result.finalState.result as string });
+        const resultType = (result.finalState as GameState & { result?: string }).result ?? 'failure';
+        const reasonKey = `Games.result${resultType.charAt(0).toUpperCase() + resultType.slice(1)}`;
+        const translatedReason = t(reasonKey, { defaultValue: resultType });
       
-      setDialogState({ 
-        isOpen: true, 
-        title: t('Games.dialogTryAgain'), 
-        message: `${t('Games.dialogReason')}: ${translatedReason}`
-      });
+        setDialogState({ 
+            isOpen: true, 
+            title: t('Games.dialogTryAgain'), 
+            message: `${t('Games.dialogReason')}: ${translatedReason}`
+        });
     }
   }, [t]);
 
@@ -97,7 +103,6 @@ function App() {
       
       {questData ? (
         <QuestPlayer 
-          isStandalone={false}
           questData={questData}
           onQuestComplete={handleQuestComplete}
         />
