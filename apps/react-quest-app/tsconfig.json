@@ -5,7 +5,7 @@
     "types": ["vite/client"],
     "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src","App.tsx"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "../../packages/quest-player" }]
 }

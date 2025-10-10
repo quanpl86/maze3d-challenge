@@ -24,7 +24,6 @@ import { getFailureMessage, processToolbox, createBlocklyTheme } from './utils';
 import { useQuestLoader } from './hooks/useQuestLoader';
 import { useEditorManager } from './hooks/useEditorManager';
 import { useGameLoop } from './hooks/useGameLoop';
-import '../../App.css';
 import './QuestPlayer.css';
 
 type StandaloneProps = {
