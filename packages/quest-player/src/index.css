@@ -1,0 +1,12 @@
+/* packages/quest-player/src/index.css */
+
+/* Import all component and game styles for the library */
+@import url('./components/Dialog/Dialog.css');
+@import url('./components/DocumentationPanel/DocumentationPanel.css');
+@import url('./components/EditorToolbar/EditorToolbar.css');
+@import url('./components/QuestImporter/QuestImporter.css');
+@import url('./components/QuestPlayer/QuestPlayer.css');
+@import url('./components/SettingsPanel/SettingsPanel.css');
+@import url('./games/maze/Maze.css');
+@import url('./games/pond/Pond.css');
+@import url('./games/turtle/Turtle.css');
