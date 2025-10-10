@@ -1,8 +1,12 @@
-// src/i18n.ts
+// packages/quest-player/src/i18n.ts
 
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+
+// Import Blockly's core language messages inside the library
+import 'blockly/msg/en';
+import 'blockly/msg/vi';
 
 // Import the translation files
 import translationEN from './i18n/en.json';
