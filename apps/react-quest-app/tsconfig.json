@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
-    "jsx": "react-jsx",
+    "types": ["vite/client"],
     "noEmit": true
   },
   "include": ["src"],
