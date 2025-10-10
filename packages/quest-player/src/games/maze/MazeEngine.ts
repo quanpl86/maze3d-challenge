@@ -1,7 +1,7 @@
 // src/games/maze/MazeEngine.ts
 
 import Interpreter from 'js-interpreter';
-import type { IGameEngine, GameConfig, GameState, MazeConfig, SolutionConfig, StepResult, PlayerConfig, Block, Portal, Direction } from '../../../types';
+import type { IGameEngine, GameConfig, GameState, MazeConfig, SolutionConfig, StepResult, PlayerConfig, Block, Portal, Direction } from '../../types';
 import type { MazeGameState, PlayerState, WorldGridCell } from './types';
 
 export interface IMazeEngine extends IGameEngine {

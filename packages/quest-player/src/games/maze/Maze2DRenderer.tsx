@@ -1,7 +1,7 @@
 // src/games/maze/Maze2DRenderer.tsx
 
 import React, { useMemo, useEffect } from 'react';
-import type { IGameRenderer, MazeConfig, Block } from '../../../types';
+import type { IGameRenderer, MazeConfig, Block } from '../../types';
 import type { MazeGameState, Direction } from './types';
 import './Maze.css';
 

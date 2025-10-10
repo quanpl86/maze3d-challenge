@@ -1,4 +1,4 @@
-// src/components/QuestPlayer/index.tsx
+// packages/quest-player/src/components/QuestPlayer/index.tsx
 
 import React, { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,7 @@ import { javascriptGenerator } from 'blockly/javascript';
 import { BlocklyWorkspace } from 'react-blockly';
 import { transform } from '@babel/standalone';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import type { Quest, GameState, ExecutionMode, CameraMode, MazeConfig, Interactive, ToolboxJSON, ToolboxItem } from '../../../types';
+import type { Quest, ExecutionMode, CameraMode, ToolboxJSON, ToolboxItem, QuestPlayerSettings, QuestCompletionResult } from '../../types';
 import { Visualization } from '../Visualization';
 import { QuestImporter } from '../QuestImporter';
 import { Dialog } from '../Dialog';
@@ -17,7 +17,6 @@ import { EditorToolbar } from '../EditorToolbar';
 import { DocumentationPanel } from '../DocumentationPanel';
 import { BackgroundMusic } from '../BackgroundMusic';
 import { SettingsPanel } from '../SettingsPanel';
-import { countLinesOfCode } from '../../games/codeUtils';
 import { usePrefersColorScheme } from '../../hooks/usePrefersColorScheme';
 import { useSoundManager } from '../../hooks/useSoundManager';
 import type { TurtleRendererHandle } from '../../games/turtle/TurtleRenderer';
@@ -25,66 +24,63 @@ import { getFailureMessage, processToolbox, createBlocklyTheme } from './utils';
 import { useQuestLoader } from './hooks/useQuestLoader';
 import { useEditorManager } from './hooks/useEditorManager';
 import { useGameLoop } from './hooks/useGameLoop';
-import type { PondGameState } from '../../games/pond/types';
-import type { MazeGameState } from '../../games/maze/types';
 import '../../App.css';
 import './QuestPlayer.css';
 
-type ColorSchemeMode = 'auto' | 'light' | 'dark';
-type ToolboxMode = 'default' | 'simple' | 'test';
-type BlocklyThemeName = 'zelos' | 'classic';
+type StandaloneProps = {
+  isStandalone?: true;
+  initialSettings?: QuestPlayerSettings;
+  onQuestLoad?: (quest: Quest) => void;
+  onQuestComplete?: (result: QuestCompletionResult) => void;
+};
 
-interface DialogState {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  stars?: number;
-  optimalBlocks?: number;
-  code?: string;
-}
+type LibraryProps = {
+  isStandalone: false;
+  questData: Quest;
+  initialSettings?: QuestPlayerSettings;
+  onQuestComplete: (result: QuestCompletionResult) => void;
+  onQuestLoad?: (quest: Quest) => void; // onQuestLoad is not used in library mode but good to have for type consistency
+};
 
-interface DisplayStats {
-  blockCount?: number;
-  maxBlocks?: number;
-  crystalsCollected?: number;
-  totalCrystals?: number;
-  switchesToggled?: number;
-  totalSwitches?: number;
-}
+export type QuestPlayerProps = StandaloneProps | LibraryProps;
 
 const START_BLOCK_TYPE = 'maze_start';
 
-export const QuestPlayer: React.FC = () => {
+export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const { t, i18n } = useTranslation();
-  const prefersColorScheme = usePrefersColorScheme();
+  
+  const isStandalone = props.isStandalone !== false;
 
-  const [questData, setQuestData] = useState<Quest | null>(null);
+  // Internal state for standalone mode
+  const [internalQuestData, setInternalQuestData] = useState<Quest | null>(null);
+  // Effective quest data depends on the mode
+  const questData = isStandalone ? internalQuestData : props.questData;
+  
   const [importError, setImportError] = useState<string>('');
-  const [dialogState, setDialogState] = useState<DialogState>({ isOpen: false, title: '', message: '' });
+  const [dialogState, setDialogState] = useState({ isOpen: false, title: '', message: '' });
   const [isDocsOpen, setIsDocsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
-  const [blockCount, setBlockCount] = useState(0);
   const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
-  const [displayStats, setDisplayStats] = useState<DisplayStats>({});
-
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
   
+  // Settings States
   const [renderer, setRenderer] = useState<'geras' | 'zelos'>('zelos');
-  const [blocklyThemeName, setBlocklyThemeName] = useState<BlocklyThemeName>('zelos');
+  const [blocklyThemeName, setBlocklyThemeName] = useState<'zelos' | 'classic'>('zelos');
   const [gridEnabled, setGridEnabled] = useState(true);
   const [soundsEnabled, setSoundsEnabled] = useState(true);
-  const [colorSchemeMode, setColorSchemeMode] = useState<ColorSchemeMode>('auto');
-  const [toolboxMode, setToolboxMode] = useState<ToolboxMode>('default');
+  const [colorSchemeMode, setColorSchemeMode] = useState<'auto' | 'light' | 'dark'>('auto');
+  const [toolboxMode, setToolboxMode] = useState<'default' | 'simple' | 'test'>('default');
   const [cameraMode, setCameraMode] = useState<CameraMode>('Follow');
-
   const [executionMode, setExecutionMode] = useState<ExecutionMode>('run');
 
+  // Refs
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
   const rendererRef = useRef<TurtleRendererHandle>(null);
   const initialToolboxConfigRef = useRef<ToolboxJSON | null>(null);
 
-
+  // Hooks
+  const prefersColorScheme = usePrefersColorScheme();
   const effectiveColorScheme = useMemo(() => {
     if (colorSchemeMode === 'auto') return prefersColorScheme;
     return colorSchemeMode;
@@ -95,50 +91,48 @@ export const QuestPlayer: React.FC = () => {
     document.body.classList.add(`theme-${effectiveColorScheme}`);
   }, [effectiveColorScheme]);
 
+  const handleGameEnd = useCallback((result: QuestCompletionResult) => {
+    if (isStandalone) {
+      if (result.isSuccess) {
+        const unitLabel = result.unitLabel === 'block' ? 'blockCount' : 'lineCount';
+        setDialogState({ 
+            isOpen: true, 
+            title: t('Games.dialogCongratulations'), 
+            message: t('Games.dialogGoodJob', { [unitLabel]: result.unitCount }) 
+        });
+      } else {
+        setDialogState({ 
+            isOpen: true, 
+            title: t('Games.dialogTryAgain'), 
+            message: getFailureMessage(t, (result.finalState as any).result) 
+        });
+      }
+    } else {
+      props.onQuestComplete(result);
+    }
+    // Also call onQuestComplete in standalone mode if it was provided
+    if (isStandalone && props.onQuestComplete) {
+      props.onQuestComplete(result);
+    }
+  }, [isStandalone, props, t]);
+  
   const { GameRenderer, engineRef, solutionCommands, error: questLoaderError } = useQuestLoader(questData);
   const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef);
   const { playSound } = useSoundManager(questData?.sounds, soundsEnabled);
   
-  const handleGameEnd = useCallback(({ isSuccess, finalState }: { isSuccess: boolean, finalState: GameState }) => {
-    if (isSuccess && questData) {
-      const code = currentEditor === 'blockly' && workspaceRef.current 
-        ? javascriptGenerator.workspaceToCode(workspaceRef.current) 
-        : aceCode;
-
-      const usedUnits = currentEditor === 'blockly' && workspaceRef.current
-        ? workspaceRef.current.getAllBlocks(false).filter(b => b.isDeletable() && b.isEditable() && !b.getInheritedDisabled()).length
-        : countLinesOfCode(code);
-
-      const unitLabel = currentEditor === 'blockly' ? 'blockCount' : 'lineCount';
-      
-      const { optimalBlocks, solutionMaxBlocks } = questData.solution;
-      let stars = 1;
-      if (currentEditor === 'blockly' && optimalBlocks !== undefined) {
-        if (usedUnits <= optimalBlocks) {
-          stars = 3;
-        } else if (solutionMaxBlocks !== undefined && usedUnits <= solutionMaxBlocks) {
-          stars = 2;
+  // Generate userCode string for useGameLoop dependency
+  const userCodeForLoop = useMemo(() => {
+    if (currentEditor === 'monaco') return aceCode;
+    if (workspaceRef.current) {
+        const startBlock = workspaceRef.current.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
+        if (startBlock) {
+            const code = javascriptGenerator.blockToCode(startBlock);
+            return Array.isArray(code) ? code[0] : (code || '');
         }
-      }
-
-      setDialogState({
-        isOpen: true,
-        title: t('Games.dialogCongratulations'),
-        message: t('Games.dialogGoodJob', { [unitLabel]: usedUnits }),
-        stars,
-        optimalBlocks,
-        code,
-      });
-
-    } else {
-      setDialogState({ 
-        isOpen: true, 
-        title: t('Games.dialogTryAgain'), 
-        message: getFailureMessage(t, (finalState as any).result) 
-      });
     }
-  }, [t, questData, currentEditor, aceCode]);
-  
+    return '';
+  }, [currentEditor, aceCode, workspaceRef.current]);
+
   const { 
     currentGameState, 
     playerStatus, 
@@ -149,7 +143,7 @@ export const QuestPlayer: React.FC = () => {
     stepForward,
     handleActionComplete,
     handleTeleportComplete
-  } = useGameLoop(engineRef, questData, rendererRef, handleGameEnd, playSound, setHighlightedBlockId);
+  } = useGameLoop(engineRef, questData, rendererRef, handleGameEnd, playSound, setHighlightedBlockId, currentEditor, userCodeForLoop, workspaceRef);
 
   useEffect(() => {
     if (questData?.blocklyConfig) {
@@ -161,115 +155,42 @@ export const QuestPlayer: React.FC = () => {
 
   useLayoutEffect(() => {
     if (questData?.translations) {
-      const translations = questData.translations;
-      Object.keys(translations).forEach((langCode) => {
-        i18n.addResourceBundle(langCode, 'translation', translations[langCode], true, true);
+      Object.keys(questData.translations).forEach((langCode) => {
+        i18n.addResourceBundle(langCode, 'translation', questData.translations![langCode], true, true);
       });
       i18n.changeLanguage(i18n.language);
     }
   }, [questData, i18n]);
 
-  useEffect(() => {
-    if (questLoaderError) setImportError(questLoaderError);
-  }, [questLoaderError]);
-  
-  useEffect(() => {
-    if (engineRef.current) resetGame();
-  }, [engineRef.current, resetGame]);
-
-  useEffect(() => {
-    const newStats: DisplayStats = {};
-
-    if (questData) {
-        if (currentEditor === 'blockly' && questData.blocklyConfig?.maxBlocks) {
-            newStats.blockCount = blockCount;
-            newStats.maxBlocks = questData.blocklyConfig.maxBlocks;
-        }
-
-        if (questData.gameType === 'maze' && currentGameState) {
-            const mazeConfig = questData.gameConfig as MazeConfig;
-            const mazeState = currentGameState as MazeGameState;
-            
-            if (mazeConfig.collectibles && mazeConfig.collectibles.length > 0) {
-                newStats.totalCrystals = mazeConfig.collectibles.length;
-                newStats.crystalsCollected = mazeState.collectedIds.length;
-            }
-
-            const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
-            if (switches && switches.length > 0) {
-                newStats.totalSwitches = switches.length;
-                newStats.switchesToggled = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
-            }
-        }
-    }
-    setDisplayStats(newStats);
-
-  }, [questData, currentGameState, blockCount, currentEditor]);
-
-  useEffect(() => {
-    if (questData?.gameType === 'pond' && currentGameState) {
-      const pondState = currentGameState as PondGameState;
-      if (pondState.events && pondState.events.length > 0) {
-        for (const event of pondState.events) {
-          switch (event.type) {
-            case 'BOOM':
-              playSound('boom', event.damage / 25);
-              break;
-            case 'CRASH':
-              playSound('crash', event.damage / 10);
-              break;
-            case 'DIE':
-              playSound('splash');
-              break;
-          }
-        }
-      }
-    }
-  }, [currentGameState, questData?.gameType, playSound]);
-
-  useEffect(() => {
-    workspaceRef.current?.highlightBlock(highlightedBlockId);
-  }, [highlightedBlockId]);
-
-  const blocklyTheme = useMemo(() => createBlocklyTheme(blocklyThemeName, effectiveColorScheme), [blocklyThemeName, effectiveColorScheme]);
-  
-  const handleBlocklyPanelResize = useCallback(() => {
-    setTimeout(() => {
-      if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
-    }, 0);
-  }, []);
+  useEffect(() => { if (questLoaderError) setImportError(questLoaderError); }, [questLoaderError]);
+  useEffect(() => { if (engineRef.current) resetGame(); }, [engineRef.current, resetGame]);
 
   const handleRun = (mode: ExecutionMode) => {
     setExecutionMode(mode);
-    let userCode = '';
+    let codeToRun = '';
     if (currentEditor === 'monaco') {
       try {
         const es5Code = transform(aceCode, { presets: ['env'] }).code;
         if (!es5Code) throw new Error("Babel transpilation failed.");
-        userCode = es5Code;
+        codeToRun = es5Code;
       } catch (e: any) {
-        setDialogState({ isOpen: true, title: 'Syntax Error', message: e.message });
+        if (isStandalone) setDialogState({ isOpen: true, title: 'Syntax Error', message: e.message });
         return;
       }
-    } else if (workspaceRef.current) {
-        const startBlock = workspaceRef.current.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
-        if (startBlock) {
-            const code = javascriptGenerator.blockToCode(startBlock);
-            userCode = Array.isArray(code) ? code[0] : code;
-        }
+    } else {
+        codeToRun = userCodeForLoop;
     }
-    runGame(userCode, mode);
+    runGame(codeToRun, mode);
   };
   
   const handleQuestLoad = (loadedQuest: Quest) => {
-    setQuestData(loadedQuest);
+    if (isStandalone) setInternalQuestData(loadedQuest);
+    if (props.onQuestLoad) props.onQuestLoad(loadedQuest);
     setImportError('');
   };
 
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
-    setBlockCount(workspace.getAllBlocks(false).length);
-
     if (!initialToolboxConfigRef.current) return;
 
     const startBlockExists = workspace.getTopBlocks(true).some(b => b.type === START_BLOCK_TYPE);
@@ -290,6 +211,8 @@ export const QuestPlayer: React.FC = () => {
   
   const is3DRenderer = questData?.gameConfig.type === 'maze' && questData.gameConfig.renderer === '3d';
 
+  const blocklyTheme = useMemo(() => createBlocklyTheme(blocklyThemeName, effectiveColorScheme), [blocklyThemeName, effectiveColorScheme]);
+
   const workspaceConfiguration = useMemo(() => ({
     theme: blocklyTheme,
     renderer: renderer,
@@ -299,33 +222,15 @@ export const QuestPlayer: React.FC = () => {
     sounds: soundsEnabled,
   }), [blocklyTheme, renderer, gridEnabled, soundsEnabled]);
 
+  const handleBlocklyPanelResize = useCallback(() => {
+    setTimeout(() => {
+      if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
+    }, 0);
+  }, []);
+
   return (
     <>
-      <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}>
-        {dialogState.stars !== undefined && dialogState.stars > 0 ? (
-          <div className="completion-dialog-content">
-            <div className="stars-header">{t('Games.dialogStarsHeader')}</div>
-            <div className="stars-container">
-              {[...Array(3)].map((_, i) => (
-                <i key={i} className={`star ${i < (dialogState.stars || 0) ? 'fas fa-star' : 'far fa-star'}`}></i>
-              ))}
-            </div>
-            <p className="completion-message">{dialogState.message}</p>
-            {dialogState.stars < 3 && dialogState.optimalBlocks && (
-              <p className="optimal-solution-info">{t('Games.dialogOptimalSolution', { optimalBlocks: dialogState.optimalBlocks })}</p>
-            )}
-            {dialogState.stars === 3 && <p className="excellent-solution">{t('Games.dialogExcellentSolution')}</p>}
-            {dialogState.code && (
-              <details className="code-details">
-                <summary>{t('Games.dialogShowCode')}</summary>
-                <pre><code>{dialogState.code}</code></pre>
-              </details>
-            )}
-          </div>
-        ) : (
-          <p>{dialogState.message}</p>
-        )}
-      </Dialog>
+      {isStandalone && <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}><p>{dialogState.message}</p></Dialog>}
       <DocumentationPanel isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} gameType={questData?.gameType} />
       <BackgroundMusic src={questData?.backgroundMusic} play={playerStatus === 'running' && soundsEnabled} />
       
@@ -344,9 +249,7 @@ export const QuestPlayer: React.FC = () => {
                                 </>
                             ) : null}
 
-                            {playerStatus === 'running' && executionMode === 'debug' && (
-                                <button className="primaryButton" onClick={pauseGame}>Pause</button>
-                            )}
+                            {playerStatus === 'running' && executionMode === 'debug' && ( <button className="primaryButton" onClick={pauseGame}>Pause</button> )}
                             
                             {playerStatus === 'paused' && (
                                 <>
@@ -359,20 +262,13 @@ export const QuestPlayer: React.FC = () => {
                         </>
                         )}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div>
                         {is3DRenderer && (
-                            <div>
-                                <label htmlFor="camera-mode-select" style={{ marginRight: '5px', fontSize: '14px' }}>Camera:</label>
-                                <select 
-                                    id="camera-mode-select"
-                                    value={cameraMode} 
-                                    onChange={(e) => setCameraMode(e.target.value as CameraMode)}
-                                >
-                                    <option value="Follow">Follow</option>
-                                    <option value="TopDown">Top Down</option>
-                                    <option value="Free">Free</option>
-                                </select>
-                            </div>
+                            <select value={cameraMode} onChange={(e) => setCameraMode(e.target.value as CameraMode)}>
+                                <option value="Follow">Follow</option>
+                                <option value="TopDown">Top Down</option>
+                                <option value="Free">Free</option>
+                            </select>
                         )}
                     </div>
                     </div>
@@ -388,36 +284,19 @@ export const QuestPlayer: React.FC = () => {
                                 onActionComplete={handleActionComplete}
                                 onTeleportComplete={handleTeleportComplete}
                             />
-                            <div className="stats-overlay">
-                                {displayStats.blockCount != null && displayStats.maxBlocks != null && (
-                                    <div className="stat-item">
-                                        Blocks: {displayStats.blockCount} / {displayStats.maxBlocks}
-                                    </div>
-                                )}
-                                {displayStats.totalCrystals != null && displayStats.totalCrystals > 0 && (
-                                    <div className="stat-item">
-                                        Crystals: {displayStats.crystalsCollected ?? 0} / {displayStats.totalCrystals}
-                                    </div>
-                                )}
-                                {displayStats.totalSwitches != null && displayStats.totalSwitches > 0 && (
-                                    <div className="stat-item">
-                                        Switches: {displayStats.switchesToggled ?? 0} / {displayStats.totalSwitches}
-                                    </div>
-                                )}
-                            </div>
                         </div>
                     ) : (
-                    <div className="emptyState"><h2>Load quest to play</h2></div>
+                    <div className="emptyState"><h2>{ isStandalone ? t('Games.loadQuest') : t('Games.waitingForQuest')}</h2></div>
                     )}
-                    {questData && (
-                    <div className="descriptionArea">Task: {t(questData.descriptionKey)}</div>
-                    )}
+                    {questData && ( <div className="descriptionArea">Task: {t(questData.descriptionKey)}</div> )}
                 </div>
-                <div className="importer-container">
-                    <QuestImporter onQuestLoad={handleQuestLoad} onError={setImportError} />
-                    <LanguageSelector />
-                    {importError && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>{importError}</p>}
-                </div>
+                {isStandalone && (
+                  <div className="importer-container">
+                      <QuestImporter onQuestLoad={handleQuestLoad} onError={setImportError} />
+                      <LanguageSelector />
+                      {importError && <p style={{ color: 'red' }}>{importError}</p>}
+                  </div>
+                )}
             </div>
         </Panel>
         <PanelResizeHandle />
@@ -469,8 +348,8 @@ export const QuestPlayer: React.FC = () => {
                     )
                 ) : (
                     <div className="emptyState">
-                      <h2>Coding area</h2>
-                      <p>Waiting for a Quest</p>
+                      <h2>{t('Games.blocklyArea')}</h2>
+                      <p>{t('Games.waitingForQuest')}</p>
                     </div>
                 )}
             </div>

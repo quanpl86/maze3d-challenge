@@ -1,17 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@repo/quest-player": ["../../packages/quest-player/src"],
-      "@repo/quest-player/*": ["../../packages/quest-player/src/*"]
-    },
-    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
-    "types": ["vite/client"],
-    "allowImportingTsExtensions": true,
-    "jsx": "react-jsx"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../../packages/quest-player" }]
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  }
 }

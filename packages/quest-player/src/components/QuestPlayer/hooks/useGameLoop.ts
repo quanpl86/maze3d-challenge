@@ -1,10 +1,12 @@
 // src/components/QuestPlayer/hooks/useGameLoop.ts
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import type { IGameEngine, GameState, Quest, StepResult, ExecutionMode } from '../../../../types';
+import * as Blockly from 'blockly/core';
+import type { IGameEngine, GameState, Quest, StepResult, ExecutionMode, QuestCompletionResult, EditorType } from '../../../types';
 import type { TurtleEngine } from '../../../games/turtle/TurtleEngine';
 import type { TurtleRendererHandle } from '../../../games/turtle/TurtleRenderer';
 import type { IMazeEngine } from '../../../games/maze/MazeEngine';
+import { countLinesOfCode } from '../../../games/codeUtils';
 
 const BATCH_FRAME_DELAY = 50;
 const STEP_FRAME_DELAY = 10;
@@ -12,18 +14,17 @@ const DEBUG_FRAME_DELAY = 500;
 
 type PlayerStatus = 'idle' | 'running' | 'paused' | 'finished';
 
-interface GameLoopResult {
-  isSuccess: boolean;
-  finalState: GameState;
-}
-
 export const useGameLoop = (
   engineRef: React.RefObject<IGameEngine>,
   questData: Quest | null,
   rendererRef: React.RefObject<TurtleRendererHandle>,
-  onGameEnd: (result: GameLoopResult) => void,
+  onGameEnd: (result: QuestCompletionResult) => void,
   playSound: (name: string, volume?: number) => void,
   setHighlightedBlockId: (id: string | null) => void,
+  // Thêm các tham số mới để tính toán kết quả
+  currentEditor: EditorType,
+  userCode: string,
+  workspaceRef: React.RefObject<Blockly.WorkspaceSvg>
 ) => {
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>('idle');
   const [currentGameState, setCurrentGameState] = useState<GameState | null>(null);
@@ -42,10 +43,10 @@ export const useGameLoop = (
     const handleGameOver = (finalEngineState: GameState) => {
       let isSuccess = false;
       
-      if (engine.gameType === 'turtle' && rendererRef.current?.getCanvasData) {
+      if (engine.gameType === 'turtle' && rendererRef.current?.getCanvasData && questData.solution.pixelTolerance !== undefined) {
         const { userImageData, solutionImageData } = rendererRef.current.getCanvasData();
         if (userImageData && solutionImageData) {
-          isSuccess = (engine as TurtleEngine).verifySolution(userImageData, solutionImageData, questData.solution.pixelTolerance || 0);
+          isSuccess = (engine as TurtleEngine).verifySolution(userImageData, solutionImageData, questData.solution.pixelTolerance);
         }
       } else {
         isSuccess = engine.checkWinCondition(finalEngineState, questData.solution);
@@ -53,11 +54,34 @@ export const useGameLoop = (
 
       if (isSuccess) playSound('win'); else playSound('fail');
       
-      const finalState = { ...finalEngineState, result: isSuccess ? 'success' : 'failure' };
-      setCurrentGameState(finalState);
+      const finalStateWithSolution = { ...finalEngineState, solution: questData.solution, result: isSuccess ? 'success' : 'failure' };
+      setCurrentGameState(finalStateWithSolution);
       setPlayerStatus('finished');
       setHighlightedBlockId(null);
-      onGameEnd({ isSuccess, finalState });
+
+      // --- BUILD THE COMPLETION RESULT OBJECT ---
+      const unitLabel = currentEditor === 'blockly' ? 'block' : 'line';
+      const unitCount = currentEditor === 'blockly' && workspaceRef.current
+        ? workspaceRef.current.getAllBlocks(false).filter((b: Blockly.Block) => b.isDeletable() && b.isEditable() && !b.getInheritedDisabled()).length
+        : countLinesOfCode(userCode);
+      
+      let stars = 1;
+      if (isSuccess && currentEditor === 'blockly' && questData.solution.optimalBlocks !== undefined) {
+          if (unitCount <= questData.solution.optimalBlocks) {
+              stars = 3;
+          } else if (questData.solution.solutionMaxBlocks !== undefined && unitCount <= questData.solution.solutionMaxBlocks) {
+              stars = 2;
+          }
+      }
+
+      onGameEnd({
+          isSuccess,
+          finalState: finalStateWithSolution,
+          userCode: userCode,
+          unitCount,
+          unitLabel,
+          stars
+      });
     };
 
     if (engine.step) {
@@ -73,10 +97,8 @@ export const useGameLoop = (
         setCurrentGameState(result.state);
 
         if (posesThatRequireWaiting.includes(newPose)) {
-            console.log(`%c[GameLoop] Received ACTIVE state [${newPose}]. Setting isWaitingForAnimation=true`, 'color: #f39c12; font-weight: bold;');
             isWaitingForAnimation.current = true;
         } else {
-            console.log(`%c[GameLoop] Received PASSIVE state [${newPose}]. Not waiting.`, 'color: #1abc9c; font-weight: bold;');
             isWaitingForAnimation.current = false;
         }
 
@@ -104,10 +126,9 @@ export const useGameLoop = (
       }
     }
     return true;
-  }, [engineRef, questData, executionLog, rendererRef, onGameEnd, playSound, setHighlightedBlockId]);
+  }, [engineRef, questData, executionLog, rendererRef, onGameEnd, playSound, setHighlightedBlockId, currentEditor, userCode, workspaceRef]);
 
   const handleActionComplete = useCallback(() => {
-    console.log(`%c[GameLoop] handleActionComplete() CALLED.`, 'color: #2ecc71; font-weight: bold;');
     const engine = engineRef.current;
 
     if (engine?.gameType === 'maze') {
@@ -115,7 +136,6 @@ export const useGameLoop = (
       const interactionState = mazeEngine.triggerInteraction();
 
       if (interactionState) {
-        console.log(`%c[GameLoop] Interaction triggered. Updating state to 'TeleportOut' and waiting.`, 'color: #8e44ad; font-weight: bold;');
         setCurrentGameState(interactionState);
         isWaitingForAnimation.current = true;
         return;
@@ -134,7 +154,7 @@ export const useGameLoop = (
     }
   }, [engineRef]);
 
-  const runGame = useCallback((userCode: string, mode: ExecutionMode) => {
+  const runGame = useCallback((codeToRun: string, mode: ExecutionMode) => {
     const engine = engineRef.current;
     if (!engine || playerStatus === 'running' || playerStatus === 'paused') return;
 
@@ -144,7 +164,7 @@ export const useGameLoop = (
     frameIndex.current = 0;
     lastStepTime.current = 0;
     
-    engine.execute(userCode); 
+    engine.execute(codeToRun); 
 
     if (engine.step) {
       setExecutionLog(null);

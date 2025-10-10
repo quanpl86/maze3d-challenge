@@ -1,6 +1,6 @@
 // src/games/bird/types.ts
 
-import type { GameState } from '../../../types';
+import type { GameState } from '../../types';
 
 export interface Coordinate {
   x: number;

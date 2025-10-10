@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { gsap } from 'gsap';
-import type { CameraMode } from '../../../../types';
+import type { CameraMode } from '../../../types';
 
 const FOLLOW_LERP_FACTOR = 0.08;
 const TRANSITION_DURATION = 0.75;

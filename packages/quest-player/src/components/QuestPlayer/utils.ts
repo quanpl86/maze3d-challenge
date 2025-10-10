@@ -3,7 +3,7 @@
 import * as Blockly from 'blockly/core';
 import type { TFunction } from 'i18next';
 import type { ResultType } from '../../games/maze/types';
-import type { ToolboxJSON, ToolboxItem } from '../../../types';
+import type { ToolboxJSON, ToolboxItem } from '../../types';
 
 // Define a simple theme to control category colors
 export const createBlocklyTheme = (themeName: 'zelos' | 'classic', colorScheme: 'light' | 'dark') => {

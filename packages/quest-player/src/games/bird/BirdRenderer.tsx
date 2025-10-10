@@ -1,7 +1,7 @@
 // src/games/bird/BirdRenderer.tsx
 
 import { useEffect, useReducer } from 'react';
-import type { IGameRenderer, BirdConfig } from '../../../types';
+import type { IGameRenderer, BirdConfig } from '../../types';
 import type { BirdGameState } from './types';
 
 const BIRD_ICON_SIZE = 120;

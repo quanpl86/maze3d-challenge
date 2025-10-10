@@ -1,6 +1,6 @@
 // src/games/pond/types.ts
 
-import type { GameState } from '../../../types';
+import type { GameState } from '../../types';
 
 export interface AvatarState {
   id: string;

@@ -1,7 +1,7 @@
 // src/games/turtle/TurtleRenderer.tsx
 
 import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
-import type { IGameRenderer, TurtleConfig } from '../../../types';
+import type { IGameRenderer, TurtleConfig } from '../../types';
 import type { TurtleGameState, DrawingCommand } from './types';
 import './Turtle.css';
 

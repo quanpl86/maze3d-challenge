@@ -1,8 +1,8 @@
 // src/components/QuestImporter/index.tsx
 
 import React, { useState } from 'react';
-import { questSchema } from '../../../types/schemas';
-import type { Quest } from '../../../types';
+import { questSchema } from '../../types/schemas';
+import type { Quest } from '../../types';
 import './QuestImporter.css'; // Sẽ được tạo ở bước sau
 
 interface QuestImporterProps {

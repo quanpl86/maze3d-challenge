@@ -1,7 +1,7 @@
 // src/games/pond/PondEngine.ts
 
 import Interpreter from 'js-interpreter';
-import type { IGameEngine, GameConfig, PondConfig, SolutionConfig, GameState, StepResult } from '../../../types';
+import type { IGameEngine, GameConfig, PondConfig, SolutionConfig, GameState, StepResult } from '../../types';
 import type { PondGameState, AvatarState, PondEvent } from './types';
 
 type Interpreter = any;

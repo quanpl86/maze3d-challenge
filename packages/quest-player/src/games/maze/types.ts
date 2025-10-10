@@ -1,6 +1,6 @@
 // src/games/maze/types.ts
 
-import type { GameState, Block, Collectible, Interactive, Direction } from '../../../types';
+import type { GameState, Block, Collectible, Interactive, Direction } from '../../types';
 
 /**
  * Defines the possible outcomes of a game execution.

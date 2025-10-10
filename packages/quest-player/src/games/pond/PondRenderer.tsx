@@ -1,7 +1,7 @@
 // src/games/pond/PondRenderer.tsx
 
 import { useRef, useEffect, useMemo, useState } from 'react';
-import type { IGameRenderer } from '../../../types';
+import type { IGameRenderer } from '../../types';
 import type { PondGameState } from './types';
 import { AvatarStats } from './AvatarStats';
 import './Pond.css';

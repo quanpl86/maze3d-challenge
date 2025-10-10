@@ -1,6 +1,6 @@
 // src/games/turtle/types.ts
 
-import type { GameState } from '../../../types';
+import type { GameState } from '../../types';
 
 /**
  * Defines a single drawing command.

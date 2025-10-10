@@ -1,7 +1,7 @@
 // src/games/bird/BirdEngine.ts
 
 import Interpreter from 'js-interpreter';
-import type { IGameEngine, GameConfig, GameState, BirdConfig } from '../../../types';
+import type { IGameEngine, GameConfig, GameState, BirdConfig } from '../../types';
 import type { BirdGameState, ResultType, Line, Coordinate } from './types';
 
 const EXECUTION_TIMEOUT_TICKS = 100000;

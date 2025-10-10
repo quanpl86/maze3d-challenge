@@ -1,7 +1,7 @@
 // src/components/QuestPlayer/hooks/useQuestLoader.ts
 
 import { useState, useEffect, useRef } from 'react';
-import type { Quest, IGameEngine, IGameRenderer, MazeConfig } from '../../../../types';
+import type { Quest, IGameEngine, IGameRenderer, MazeConfig } from '../../../types';
 import { initializeGame } from '../../../games/GameBlockManager';
 import type { TurtleEngine } from '../../../games/turtle/TurtleEngine';
 import type { DrawingCommand } from '../../../games/turtle/types';

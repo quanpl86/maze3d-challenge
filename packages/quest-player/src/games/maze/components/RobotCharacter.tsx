@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import { gsap } from 'gsap';
-import type { Direction } from '../../../../types';
+import type { Direction } from '../../../types';
 
 const ROBOT_MODEL_PATH = '/assets/maze/models/draco-robot.glb';
 

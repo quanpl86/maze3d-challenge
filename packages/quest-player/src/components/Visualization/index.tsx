@@ -1,7 +1,7 @@
 // src/components/Visualization/index.tsx
 
 import { forwardRef } from 'react';
-import type { IGameRenderer, GameState, GameConfig, CameraMode } from '../../../types';
+import type { IGameRenderer, GameState, GameConfig, CameraMode } from '../../types';
 
 interface VisualizationProps {
   GameRenderer: IGameRenderer;

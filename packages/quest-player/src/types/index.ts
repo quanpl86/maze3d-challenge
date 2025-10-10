@@ -203,7 +203,8 @@ export interface SolutionConfig {
 // =================================================================
 
 export interface GameState {
-  // Common properties can be added here if any.
+  solution?: SolutionConfig;
+  result?: string;
 }
 
 export type StepResult = {
@@ -231,3 +232,26 @@ export type IGameRenderer = React.FC<{
   gameConfig: GameConfig;
   [key: string]: any;
 }>;
+
+
+// =================================================================
+// ==                  LIBRARY-SPECIFIC INTERFACES                ==
+// =================================================================
+
+export interface QuestPlayerSettings {
+  renderer?: 'geras' | 'zelos';
+  blocklyThemeName?: 'zelos' | 'classic';
+  gridEnabled?: boolean;
+  soundsEnabled?: boolean;
+  colorSchemeMode?: 'auto' | 'light' | 'dark';
+  cameraMode?: CameraMode;
+}
+
+export interface QuestCompletionResult {
+  isSuccess: boolean;
+  finalState: GameState;
+  userCode?: string;
+  unitCount?: number;
+  unitLabel: 'block' | 'line';
+  stars?: number;
+}

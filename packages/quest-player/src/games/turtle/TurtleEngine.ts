@@ -1,7 +1,7 @@
 // src/games/turtle/TurtleEngine.ts
 
 import Interpreter from 'js-interpreter';
-import type { IGameEngine, GameConfig, GameState, TurtleConfig, SolutionConfig, StepResult } from '../../../types';
+import type { IGameEngine, GameConfig, GameState, TurtleConfig, SolutionConfig, StepResult } from '../../types';
 import type { TurtleGameState, DrawingCommand, TurtleCharacterState } from './types';
 
 type Interpreter = any;

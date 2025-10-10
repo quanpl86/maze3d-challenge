@@ -2,6 +2,7 @@
 
 // Main component export
 export { QuestPlayer } from './components/QuestPlayer';
+export type { QuestPlayerProps } from './components/QuestPlayer';
 
 // Child components (for library mode usage in apps)
 export { Dialog } from './components/Dialog';
@@ -13,8 +14,8 @@ export type {
   Quest,
   QuestPlayerSettings,
   QuestCompletionResult,
-  GameState, // Exporting GameState as it's part of the result
-  SolutionConfig // Exporting SolutionConfig for the same reason
+  GameState,
+  SolutionConfig
 } from './types';
 
 // i18n instance
