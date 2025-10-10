@@ -20,3 +20,6 @@ export type {
 
 // i18n instance
 export { default as i18n } from './i18n';
+
+// NEW: Export the schema for external validation
+export { questSchema } from './types/schemas';

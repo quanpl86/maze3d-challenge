@@ -1,22 +1,19 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// Import library components and types from the single entry point
+// Import library components and types
 import {
   QuestPlayer,
   Dialog,
-  QuestImporter,
-  LanguageSelector,
+  questSchema, // Import schema directly from the library's entry point
   type Quest,
   type QuestCompletionResult,
   type SolutionConfig,
   type GameState
 } from '@repo/quest-player';
 
-// Import the library's bundled CSS file
-// NOTE: You may need to run `pnpm build` in the root once for this file to be generated.
-// import '@repo/quest-player/dist/index.css';
-
+// Import local components
+import { QuestSelector } from './components/QuestSelector';
 import './App.css';
 
 interface DialogState {
@@ -33,16 +30,38 @@ function solutionHasOptimalBlocks(solution: SolutionConfig): solution is Solutio
     return solution.optimalBlocks !== undefined;
 }
 
-
 function App() {
   const { t } = useTranslation();
   const [questData, setQuestData] = useState<Quest | null>(null);
-  const [importError, setImportError] = useState('');
+  const [isLoadingQuest, setIsLoadingQuest] = useState(false); // New loading state
   const [dialogState, setDialogState] = useState<DialogState>({ isOpen: false, title: '', message: '' });
 
-  const handleQuestLoad = (loadedQuest: Quest) => {
-    setQuestData(loadedQuest);
-    setImportError('');
+  const handleQuestSelect = useCallback(async (path: string) => {
+    setIsLoadingQuest(true); // Set loading to true immediately
+    try {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch quest data from ${path}`);
+      }
+      const data = await response.json();
+      const validationResult = questSchema.safeParse(data);
+
+      if (validationResult.success) {
+        setQuestData(validationResult.data as Quest);
+      } else {
+        console.error("Quest validation failed:", validationResult.error);
+        alert(`Error: Invalid quest file format.\n${validationResult.error.issues[0].message}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'An unknown error occurred.');
+    } finally {
+      setIsLoadingQuest(false); // Set loading to false after process completes
+    }
+  }, []);
+
+  const handleBackToSelector = () => {
+    setQuestData(null);
   };
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
@@ -69,13 +88,39 @@ function App() {
     }
   }, [t]);
 
+  const renderContent = () => {
+    if (isLoadingQuest) {
+      // Render a loading indicator
+      return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><h2>Loading Quest...</h2></div>;
+    }
+
+    if (questData) {
+      // Render the QuestPlayer
+      return (
+        <>
+          <button className="back-button" onClick={handleBackToSelector}>
+            &larr; Choose another Quest
+          </button>
+          <QuestPlayer
+            isStandalone={false}
+            questData={questData}
+            onQuestComplete={handleQuestComplete}
+          />
+        </>
+      );
+    }
+    
+    // Render the QuestSelector
+    return <QuestSelector onQuestSelect={handleQuestSelect} />;
+  };
+
   return (
     <div className="app-container">
-        <Dialog 
-          isOpen={dialogState.isOpen} 
-          title={dialogState.title} 
-          onClose={() => setDialogState({ ...dialogState, isOpen: false })}
-        >
+      <Dialog 
+        isOpen={dialogState.isOpen} 
+        title={dialogState.title} 
+        onClose={() => setDialogState({ ...dialogState, isOpen: false })}
+      >
         {dialogState.stars !== undefined && dialogState.stars > 0 ? (
           <div className="completion-dialog-content">
             <div className="stars-header">{t('Games.dialogStarsHeader')}</div>
@@ -101,21 +146,7 @@ function App() {
         )}
       </Dialog>
       
-      {questData ? (
-        <QuestPlayer 
-          questData={questData}
-          onQuestComplete={handleQuestComplete}
-        />
-      ) : (
-        <div className="empty-app-state">
-          <h1>{t('Games.loadQuest')}</h1>
-          <div className="importer-container">
-            <QuestImporter onQuestLoad={handleQuestLoad} onError={setImportError} />
-            <LanguageSelector />
-          </div>
-          {importError && <p className="import-error">{importError}</p>}
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }

@@ -1,49 +1,35 @@
 // src/games/GameBlockManager.ts
 
 /**
- * A map to store the initialization promise for each game type.
- * This prevents race conditions caused by multiple concurrent initialization attempts,
- * especially during React 18's Strict Mode double-invoking useEffect.
- *
- * The key is the gameType (e.g., 'maze'), and the value is the Promise
- * that resolves when that game's blocks are initialized.
+ * A map to keep track of which game types have had their blocks loaded.
+ * The key is the gameType (e.g., 'maze'), and the value is a boolean.
  */
-const initializationPromises = new Map<string, Promise<void>>();
+const loadedBlockSets = new Set<string>();
 
 /**
- * Dynamically imports and initializes the Blockly blocks for a given game type.
- * Ensures that the initialization logic for each game type is only run once,
- * even if called multiple times concurrently.
+ * Dynamically imports and executes the Blockly block definitions for a given game type.
+ * Ensures that the definition logic for each game type is only run once per application lifecycle.
  *
  * @param gameType The type of the game to initialize (e.g., 'maze').
- * @returns A promise that resolves when initialization is complete.
+ * @returns A promise that resolves when the block definitions have been loaded and executed.
  */
-export function initializeGame(gameType: string): Promise<void> {
-  // If an initialization promise already exists for this game, return it.
-  if (initializationPromises.has(gameType)) {
-    console.log(`Initialization for '${gameType}' is already in progress or complete.`);
-    return initializationPromises.get(gameType)!;
+export async function initializeGame(gameType: string): Promise<void> {
+  // If this game's blocks have already been loaded, we don't need to do anything.
+  if (loadedBlockSets.has(gameType)) {
+    return;
   }
 
-  // Otherwise, start a new initialization process and store its promise.
-  const promise = (async () => {
-    try {
-      const blockModule = await import(`./${gameType}/blocks.ts`);
-      if (blockModule.init) {
-        blockModule.init(); // This registers the blocks with Blockly
-        console.log(`Blocks for game '${gameType}' registered successfully.`);
-      } else {
-        throw new Error(`Module for '${gameType}' does not have an 'init' export.`);
-      }
-    } catch (err) {
-      console.error(`Failed to initialize game module for '${gameType}':`, err);
-      // If initialization fails, remove the promise from the map so we can retry.
-      initializationPromises.delete(gameType);
-      // Re-throw the error so the calling component can handle it.
-      throw err;
-    }
-  })();
-
-  initializationPromises.set(gameType, promise);
-  return promise;
+  try {
+    // The dynamic import itself triggers the execution of the top-level code
+    // in the blocks.ts file, which registers the blocks with Blockly.
+    await import(`./${gameType}/blocks.ts`);
+    console.log(`Block definitions for game '${gameType}' loaded and registered.`);
+    
+    // Mark this game type as loaded to prevent re-importing.
+    loadedBlockSets.add(gameType);
+  } catch (err) {
+    console.error(`Failed to load block definitions for game '${gameType}':`, err);
+    // Re-throw the error so the calling component can handle it.
+    throw err;
+  }
 }
