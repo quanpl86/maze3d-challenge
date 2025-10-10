@@ -1,0 +1,81 @@
+{
+    "id": "maze-portals-1",
+    "gameType": "maze",
+    "level": 3,
+    "titleKey": "Games.maze",
+    "descriptionKey": "Quest.maze_portals_1.description",
+    "translations": {
+      "en": {
+        "Quest.maze_portals_1.description": "Step into the portal to travel across the gap and reach the goal."
+      },
+      "vi": {
+        "Quest.maze_portals_1.description": "Bước vào cổng không gian để di chuyển qua khoảng trống và đi tới đích."
+      }
+    },
+    "blocklyConfig": {
+      "toolbox": {
+        "kind": "flyoutToolbox",
+        "contents": [
+          {
+            "kind": "block",
+            "type": "maze_moveForward"
+          },
+          {
+            "kind": "block",
+            "type": "maze_turn",
+            "fields": {
+              "DIR": "turnLeft"
+            }
+          },
+          {
+            "kind": "block",
+            "type": "maze_turn",
+            "fields": {
+              "DIR": "turnRight"
+            }
+          }
+        ]
+      },
+      "maxBlocks": 2
+    },
+    "gameConfig": {
+      "type": "maze",
+      "renderer": "3d",
+      "blocks": [
+        { "modelKey": "ground.normal", "position": { "x": 0, "y": 0, "z": 0 } },
+        { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 0 } },
+        { "modelKey": "ground.normal", "position": { "x": 5, "y": 0, "z": 5 } }
+      ],
+      "players": [
+        {
+          "id": "player1",
+          "start": { "x": 0, "y": 1, "z": 0, "direction": 1 }
+        }
+      ],
+      "interactibles": [
+        {
+            "id": "portal_blue_A",
+            "type": "portal",
+            "color": "blue",
+            "position": { "x": 1, "y": 1, "z": 0 },
+            "targetId": "portal_blue_B"
+        },
+        {
+            "id": "portal_blue_B",
+            "type": "portal",
+            "color": "blue",
+            "position": { "x": 5, "y": 1, "z": 5 },
+            "targetId": "portal_blue_A"
+        }
+      ],
+      "finish": { "x": 5, "y": 1, "z": 5 }
+    },
+    "solution": {
+      "type": "reach_target",
+      "optimalBlocks": 1
+    },
+    "sounds": {
+      "win": "/assets/maze/win.mp3",
+      "fail": "/assets/maze/fail_pegman.mp3"
+    }
+  }

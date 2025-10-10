@@ -1,0 +1,70 @@
+{
+  "id": "turtle-1",
+  "gameType": "turtle",
+  "level": 1,
+  "titleKey": "Games.turtle",
+  "descriptionKey": "Turtle.helpText1",
+  "translations": {
+    "en": {
+      "Turtle.helpText1": "To draw a square, you need to move forward and turn right four times."
+    },
+    "vi": {
+      "Turtle.helpText1": "Để vẽ một hình vuông, bạn cần tiến lên phía trước và rẽ phải bốn lần."
+    }
+  },
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_TURTLE}",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "turtle_move_internal",
+              "fields": { "VALUE": "100" }
+            },
+            {
+              "kind": "block",
+              "type": "turtle_turn_internal",
+              "fields": { "VALUE": "90" }
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOOPS}",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "turtle_repeat_internal",
+              "fields": { "TIMES": "4" }
+            }
+          ]
+        }
+      ]
+    },
+    "startBlocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"turtle_move_internal\" x=\"70\" y=\"70\"><field name=\"VALUE\">100</field></block></xml>"
+  },
+  "gameConfig": {
+    "type": "turtle",
+    "player": {
+      "start": {
+        "x": 200,
+        "y": 200,
+        "direction": 0,
+        "penDown": true
+      }
+    }
+  },
+  "solution": {
+    "type": "match_drawing",
+    "pixelTolerance": 100,
+    "solutionBlocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"turtle_repeat_internal\"><field name=\"TIMES\">4</field><statement name=\"DO\"><block type=\"turtle_move_internal\"><field name=\"VALUE\">100</field><next><block type=\"turtle_turn_internal\"><field name=\"VALUE\">90</field></block></next></block></statement></block></xml>",
+    "solutionScript": "for (var count = 0; count < 4; count++) { moveForward(100); turnRight(90); }"
+  },
+  "sounds": {
+    "win": "/assets/turtle/win.mp3"
+  }
+}

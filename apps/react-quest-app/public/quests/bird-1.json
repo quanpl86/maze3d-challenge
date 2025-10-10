@@ -1,0 +1,43 @@
+{
+    "id": "bird-1",
+    "gameType": "bird",
+    "level": 1,
+    "titleKey": "Games.bird",
+    "descriptionKey": "Bird.helpHeading",
+    "translations": {
+      "en": {
+        "Bird.helpHeading": "Change the heading angle to make the bird get the worm and land in her nest."
+      },
+      "vi": {
+        "Bird.helpHeading": "Thay đổi hướng bay để chim lấy được sâu và tha về tổ của nó."
+      }
+    },
+    "blocklyConfig": {
+      "toolbox": {
+        "kind": "flyoutToolbox",
+        "contents": [
+          {
+            "kind": "block",
+            "type": "bird_heading"
+          }
+        ]
+      },
+      "startBlocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"bird_heading\" deletable=\"false\" x=\"70\" y=\"70\"><field name=\"ANGLE\">90</field></block></xml>"
+    },
+    "gameConfig": {
+      "type": "bird",
+      "start": { "x": 20, "y": 20 },
+      "startAngle": 90,
+      "worm": { "x": 50, "y": 50 },
+      "nest": { "x": 80, "y": 80 },
+      "walls": []
+    },
+    "solution": {
+      "type": "reach_target"
+    },
+    "sounds": {
+      "win": "/assets/bird/quack.mp3",
+      "fail": "/assets/bird/whack.mp3",
+      "worm": "/assets/bird/worm.mp3"
+    }
+  }

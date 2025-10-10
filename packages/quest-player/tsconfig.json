@@ -7,6 +7,6 @@
     "declarationMap": true,
     "emitDeclarationOnly": true
   },
-  "include": ["src"],
+  "include": ["src", "../../apps/react-quest-app/src/main.tsx"],
   "exclude": ["node_modules", "dist"]
 }

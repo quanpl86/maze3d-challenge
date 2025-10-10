@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tài liệu Game Ao hồ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 10px;
+        }
+        h2 {
+            font-size: 1.2em;
+            margin-top: 1.5em;
+        }
+        h3 {
+            font-size: 1.1em;
+            margin-top: 1.5em;
+        }
+        pre, code {
+            background-color: #eee;
+            border-radius: 3px;
+            padding: 2px 4px;
+        }
+        pre {
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tài liệu Game Ao hồ</h1>
+
+    <h2>Góc độ</h2>
+    <p>La bàn được định hướng sao cho hướng đông (phải) là 0 độ, 90 là hướng bắc, 180 là hướng tây, và 270 là hướng nam. Các góc sẽ tự động quay vòng như mong đợi: -90 độ là hướng nam, 450 độ là hướng bắc.</p>
+
+    <h2>Các hàm API</h2>
+
+    <h3><code>cannon(goc, pham_vi)</code></h3>
+    <p>Bắn một viên đạn pháo theo góc và phạm vi đã chỉ định. Góc bắn độc lập với hướng của con vịt. Phạm vi có thể từ 0-70 mét.</p>
+    <pre><code>// Bắn về hướng đông, ở phạm vi 50 mét.
+cannon(0, 50);</code></pre>
+
+    <h3><code>scan(goc, do_phan_giai)</code></h3>
+    <p>Kích hoạt radar của con vịt. Trả về khoảng cách tới đối thủ gần nhất theo một hướng nhất định. Nếu không tìm thấy đối thủ, nó sẽ trả về <code>Infinity</code>. Tham số <code>do_phan_giai</code> (tùy chọn, từ 1-20 độ, mặc định là 5) chỉ định độ rộng của tia quét.</p>
+    <pre><code>var khoang_cach = scan(90); // Quét về hướng bắc
+if (khoang_cach < 70) {
+  cannon(90, khoang_cach);
+}</code></pre>
+
+    <h3><code>swim(goc, toc_do)</code></h3>
+    <p>Bắt đầu cho vịt di chuyển theo hướng đã chỉ định. Nó sẽ tiếp tục di chuyển vô thời hạn. Tham số <code>toc_do</code> (tùy chọn) có thể từ 0 (dừng) đến 100 (nhanh), với giá trị mặc định là 50.</p>
+    <pre><code>// Bơi về hướng tây bắc với tốc độ tối đa.
+swim(135, 100);</code></pre>
+
+    <h3><code>stop()</code></h3>
+    <p>Dừng việc di chuyển của con vịt. Con vịt sẽ từ từ dừng lại.</p>
+    <pre><code>stop();</code></pre>
+
+    <h3><code>getX()</code> và <code>getY()</code></h3>
+    <p>Trả về vị trí theo chiều ngang (X) và chiều dọc (Y) của con vịt. Các giá trị nằm trong khoảng từ 0 đến 100, bắt đầu từ góc dưới bên trái.</p>
+
+    <h3><code>speed()</code></h3>
+    <p>Trả về tốc độ hiện tại của con vịt (0-100).</p>
+
+    <h3><code>health()</code></h3>
+    <p>Trả về mức máu hiện tại của con vịt (0 là bị chìm, 100 là hoàn hảo).</p>
+
+    <h3><code>damage()</code></h3>
+    <p>Trả về mức sát thương hiện tại của con vịt (0 là hoàn hảo, 100 là bị chìm). Tương đương với <code>100 - health()</code>.</p>
+    
+    <h2>Cấu trúc điều khiển</h2>
+    
+    <h3><code>if / else if / else</code></h3>
+    <p>Thực thi mã theo điều kiện.</p>
+    <pre><code>if (getX() < 10) {
+  // Quá gần bức tường bên trái.
+  swim(0, 50); // Đi về hướng đông.
+} else {
+  // An toàn.
+  stop();
+}</code></pre>
+
+    <h3><code>while (dieu_kien)</code></h3>
+    <p>Lặp lại một đoạn mã miễn là điều kiện còn đúng.</p>
+    <pre><code>// Quét theo vòng tròn cho đến khi tìm thấy kẻ thù.
+var goc = 0;
+while (scan(goc) == Infinity) {
+  goc = goc + 10;
+}
+cannon(goc, scan(goc));</code></pre>
+
+</body>
+</html>

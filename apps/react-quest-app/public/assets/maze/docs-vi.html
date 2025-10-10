@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hướng dẫn trò chơi Mê Cung</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { padding: 15px; font-family: sans-serif; line-height: 1.6; }
+        h3, h4 { margin-top: 2em; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .block-explanation { border-left: 3px solid #5dc2a7; padding-left: 15px; margin-top: 20px; }
+        .help-image { max-width: 100%; border: 1px solid #ccc; margin: 10px 0; }
+        code { background-color: #eee; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        ul, ol { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <h3>1. Giao diện trò chơi:</h3>
+    <img src="/assets/maze/UI-overview_vi.png" class="help-image">
+    <p>Giao diện được chia thành các khu vực chính để giúp bạn tương tác và lập trình.</p>
+    <ol>
+      <li><strong>Khu vực Mê cung:</strong> Nơi nhân vật của bạn sẽ di chuyển để hoàn thành thử thách.</li>
+      <li><strong>Thanh công cụ:</strong> Chứa tất cả các khối lệnh bạn có thể sử dụng ở màn chơi hiện tại.</li>
+      <li><strong>Không gian làm việc:</strong> Kéo và thả các khối lệnh vào đây để xây dựng chương trình của bạn.</li>
+      <li><strong>Khu vực điều khiển:</strong> Chứa các nút để chạy chương trình, chơi lại, và xem hướng dẫn.</li>
+      <li><strong>Thanh tiêu đề:</strong> Hiển thị tên trò chơi, các màn chơi và cho phép bạn thay đổi ngôn ngữ.</li>
+    </ol>
+
+    <h3>2. Điểm số:</h3>
+    <p>Mỗi màn chơi bạn có thể đạt được tối đa 3 sao. Số sao phụ thuộc vào số lượng khối lệnh bạn sử dụng so với lời giải tối ưu.</p>
+    <ul>
+      <li><strong>3 sao <i class="fas fa-star" style="color: #fed330;"></i><i class="fas fa-star" style="color: #fed330;"></i><i class="fas fa-star" style="color: #fed330;"></i>:</strong> Lời giải xuất sắc, sử dụng số khối lệnh ít nhất có thể.</li>
+      <li><strong>2 sao <i class="fas fa-star" style="color: #fed330;"></i><i class="fas fa-star" style="color: #fed330;"></i><i class="far fa-star" style="color: #ccc;"></i>:</strong> Lời giải tốt, đã hoàn thành màn chơi.</li>
+      <li><strong>1 sao <i class="fas fa-star" style="color: #fed330;"></i><i class="far fa-star" style="color: #ccc;"></i><i class="far fa-star" style="color: #ccc;"></i>:</strong> Hoàn thành màn chơi, nhưng có thể tối ưu hơn rất nhiều.</li>
+    </ul>
+
+    <h3>3. Thao tác với khối lệnh:</h3>
+    <p>Kéo các khối lệnh từ thanh công cụ và thả vào không gian làm việc để lắp ghép chúng lại với nhau.</p>
+    <img src="/assets/maze/UI1-help_vi.png" class="help-image">
+    <p>Nhấp chuột phải vào một khối lệnh để mở menu thao tác:</p>
+    <img src="/assets/maze/help_right_click_menu_vi.png" class="help-image" style="max-width: 240px; display: block;">
+    <ul>
+      <li><strong>Nhân bản khối lệnh:</strong> Chọn "Tạo Bản Sao" để tạo ra một bản sao của khối lệnh (và các khối con bên trong nó).</li>
+      <li><strong>Xoá khối lệnh:</strong> Chọn "Xoá Khối Lệnh" hoặc kéo khối lệnh vào biểu tượng thùng rác.</li>
+    </ul>
+
+    <h3>4. Các khối lệnh cơ bản:</h3>
+    <div class="block-explanation">
+      <h4>Khối lệnh "đi tới"</h4>
+      <img src="/assets/maze/help_move_vi.png" class="help-image" style="max-width: 80px; display: block;">
+      <p><strong>Mô tả:</strong> Lệnh này ra lệnh cho nhân vật di chuyển thẳng về phía trước một ô theo hướng mà nhân vật đang đối mặt.</p>
+      <p><strong>Cách sử dụng:</strong> Sử dụng khối này mỗi khi bạn muốn nhân vật tiến lên trong mê cung.</p>
+    </div>
+
+    <div class="block-explanation">
+      <h4>Khối lệnh "quay qua"</h4>
+      <img src="/assets/maze/help_turn_vi.png" class="help-image" style="max-width: 180px; display: block;">
+      <p><strong>Mô tả:</strong> Lệnh này dùng để xoay nhân vật tại chỗ một góc 90 độ. Bạn có thể chọn hướng quay là <strong>trái</strong> hoặc <strong>phải</strong>.</p>
+      <p><strong>Cách sử dụng:</strong> Khi nhân vật cần đổi hướng đi, ví dụ như ở một ngã rẽ hoặc khi đối mặt với một bức tường.</p>
+    </div>
+
+    <div class="block-explanation">
+      <h4>Khối lệnh "lặp lại cho đến khi"</h4>
+      <img src="/assets/maze/help_repeat_until_vi.png" class="help-image" style="max-width: 200px; display: block;">
+      <p><strong>Mô tả:</strong> Bất kỳ lệnh nào được đặt bên trong khối này sẽ được thực hiện lặp đi lặp lại cho đến khi nhân vật đến được vị trí đích.</p>
+      <p><strong>Cách sử dụng:</strong> Hữu ích cho việc di chuyển trên một con đường dài mà không cần lặp lại các khối lệnh một cách thủ công.</p>
+    </div>
+
+    <div class="block-explanation">
+      <h4>Khối lệnh "nếu có đường ... hãy"</h4>
+      <img src="/assets/maze/help_if_vi.png" class="help-image" style="max-width: 260px; display: block;">
+      <p><strong>Mô tả:</strong> Khối lệnh điều kiện này cho phép nhân vật "kiểm tra" môi trường xung quanh. Các lệnh bên trong chỉ được thực hiện <strong>nếu</strong> có đường đi ở hướng được chọn.</p>
+      <p><strong>Cách sử dụng:</strong> Giúp nhân vật không bị đâm vào tường và có thể tự tìm đường ở các ngã rẽ.</p>
+      <p><strong>Ví dụ:</strong></p>
+      <img src="/assets/maze/help_if_example_vi.png" class="help-image" style="max-width: 300px; display: block;">
+    </div>
+
+    <div class="block-explanation">
+      <h4>Khối lệnh "lặp lại ... lần"</h4>
+      <img src="/assets/maze/help_repeat_times_vi.png" class="help-image" style="max-width: 160px; display: block;">
+      <p><strong>Mô tả:</strong> Thực hiện các lệnh bên trong một số lần chính xác như bạn đã chỉ định.</p>
+      <p><strong>Cách sử dụng:</strong> Rất hữu ích khi bạn biết trước chính xác cần thực hiện một hành động bao nhiêu lần (ví dụ: đi qua một đoạn đường thẳng dài 5 ô).</p>
+      <p><strong>Ví dụ:</strong></p>
+      <img src="/assets/maze/help_repeat_times_example_vi.png" class="help-image" style="max-width: 300px; display: block;">
+    </div>
+
+    <div class="block-explanation">
+      <h4>Khối lệnh "nếu có đường ... hãy ... nếu không"</h4>
+      <img src="/assets/maze/help_if_else_vi.png" class="help-image" style="max-width: 280px; display: block;">
+      <p><strong>Mô tả:</strong> Đây là phiên bản mở rộng của khối "nếu". Nó sẽ kiểm tra một điều kiện: nếu đúng, nó thực hiện nhóm lệnh đầu tiên (trong phần "hãy"); nếu sai, nó sẽ thực hiện nhóm lệnh thứ hai (trong phần "nếu không").</p>
+      <p><strong>Cách sử dụng:</strong> Rất hữu ích khi bạn muốn nhân vật có hai lựa chọn hành động rõ ràng tại một điểm quyết định. Ví dụ: "nếu có đường phía trước thì đi thẳng, nếu không thì rẽ trái".</p>
+      <p><strong>Ví dụ:</strong></p>
+      <img src="/assets/maze/help_if_else_example_vi.png" class="help-image" style="max-width: 320px; display: block;">
+    </div>
+</body>
+</html>

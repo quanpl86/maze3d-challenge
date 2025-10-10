@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maze Game Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { padding: 15px; font-family: sans-serif; line-height: 1.6; }
+        h3, h4 { margin-top: 2em; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .block-explanation { border-left: 3px solid #5dc2a7; padding-left: 15px; margin-top: 20px; }
+        .help-image { max-width: 100%; border: 1px solid #ccc; margin: 10px 0; }
+        code { background-color: #eee; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        ul, ol { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <h3>1. Game Interface:</h3>
+    <img src="/assets/maze/UI-overview_en.png" class="help-image">
+    <p>The interface is divided into main areas to help you interact and program.</p>
+    <ol>
+      <li><strong>Maze Area:</strong> Where your character will move to complete the challenge.</li>
+      <li><strong>Toolbox:</strong> Contains all the command blocks you can use in the current level.</li>
+      <li><strong>Workspace:</strong> Drag and drop command blocks here to build your program.</li>
+      <li><strong>Control Area:</strong> Contains buttons to run the program, replay, and view instructions.</li>
+      <li><strong>Title Bar:</strong> Displays the game name, levels, and allows you to change the language.</li>
+    </ol>
+
+    <h3>2. Scoring:</h3>
+    <p>For each level, you can earn a maximum of 3 stars. The number of stars depends on the number of blocks you use compared to the optimal solution.</p>
+    <ul>
+      <li><strong>3 stars <i class="fas fa-star" style="color: #fed330;"></i><i class="fas fa-star" style="color: #fed330;"></i><i class="fas fa-star" style="color: #fed330;"></i>:</strong> Excellent solution, using the fewest possible blocks.</li>
+      <li><strong>2 stars <i class="fas fa-star" style="color: #fed330;"></i><i class="fas fa-star" style="color: #fed330;"></i><i class="far fa-star" style="color: #ccc;"></i>:</strong> Good solution, completed the level.</li>
+      <li><strong>1 star <i class="fas fa-star" style="color: #fed330;"></i><i class="far fa-star" style="color: #ccc;"></i><i class="far fa-star" style="color: #ccc;"></i>:</strong> Completed the level, but it could be much more optimized.</li>
+    </ul>
+
+    <h3>3. Working with Blocks:</h3>
+    <p>Drag blocks from the toolbox and drop them into the workspace to connect them.</p>
+    <img src="/assets/maze/UI1-help_en.png" class="help-image">
+    <p>Right-click on a block to open the context menu:</p>
+    <img src="/assets/maze/help_right_click_menu_en.png" class="help-image" style="max-width: 200px; display: block;">
+    <ul>
+      <li><strong>Duplicate Block:</strong> Select "Duplicate" to create a copy of the block (and any blocks inside it).</li>
+      <li><strong>Delete Block:</strong> Select "Delete Block" or drag the block to the trash can icon.</li>
+    </ul>
+
+    <h3>4. Basic Blocks:</h3>
+    <div class="block-explanation">
+      <h4>"move forward" block</h4>
+      <img src="/assets/maze/help_move_en.png" class="help-image" style="max-width: 100px; display: block;">
+      <p><strong>Description:</strong> This command tells the character to move one step forward in the direction it is facing.</p>
+      <p><strong>Usage:</strong> Use this block whenever you want the character to advance in the maze.</p>
+    </div>
+
+    <div class="block-explanation">
+      <h4>"turn" block</h4>
+      <img src="/assets/maze/help_turn_en.png" class="help-image" style="max-width: 120px; display: block;">
+      <p><strong>Description:</strong> This command rotates the character 90 degrees on the spot. You can choose to turn <strong>left</strong> or <strong>right</strong>.</p>
+      <p><strong>Usage:</strong> When the character needs to change direction, for example, at a turn or when facing a wall.</p>
+    </div>
+
+    <div class="block-explanation">
+      <h4>"repeat until" block</h4>
+      <img src="/assets/maze/help_repeat_until_en.png" class="help-image" style="max-width: 200px; display: block;">
+      <p><strong>Description:</strong> Any commands placed inside this block will be executed repeatedly until the character reaches the finish goal.</p>
+      <p><strong>Usage:</strong> Useful for moving along a long path without manually repeating blocks.</p>
+    </div>
+
+    <div class="block-explanation">
+      <h4>"if path ... do" block</h4>
+      <img src="/assets/maze/help_if_en.png" class="help-image" style="max-width: 260px; display: block;">
+      <p><strong>Description:</strong> This conditional block allows the character to "check" its surroundings. The commands inside are only executed <strong>if</strong> there is a path in the chosen direction.</p>
+      <p><strong>Usage:</strong> Helps the character avoid bumping into walls and allows it to navigate turns.</p>
+      <p><strong>Example:</strong></p>
+      <img src="/assets/maze/help_if_example_en.png" class="help-image" style="max-width: 300px; display: block;">
+    </div>
+
+    <div class="block-explanation">
+      <h4>"repeat ... times" block</h4>
+      <img src="/assets/maze/help_repeat_times_en.png" class="help-image" style="max-width: 160px; display: block;">
+      <p><strong>Description:</strong> Executes the commands inside a specified number of times.</p>
+      <p><strong>Usage:</strong> Very useful when you know exactly how many times an action needs to be performed (e.g., moving across a straight path of 5 squares).</p>
+      <p><strong>Example:</strong></p>
+      <img src="/assets/maze/help_repeat_times_example_en.png" class="help-image" style="max-width: 300px; display: block;">
+    </div>
+
+    <div class="block-explanation">
+        <h4>"if path ... do ... else" block</h4>
+        <img src="/assets/maze/help_if_else_en.png" class="help-image" style="max-width: 280px; display: block;">
+        <p><strong>Description:</strong> This is an extension of the "if" block. It checks a condition: if true, it executes the first set of commands (in the "do" section); if false, it executes the second set of commands (in the "else" section).</p>
+        <p><strong>Usage:</strong> Very useful when you want the character to have two clear action choices at a decision point. For example: "if there is a path ahead, move forward, otherwise, turn left".</p>
+        <p><strong>Example:</strong></p>
+        <img src="/assets/maze/help_if_else_example_en.png" class="help-image" style="max-width: 320px; display: block;">
+    </div>
+</body>
+</html>
