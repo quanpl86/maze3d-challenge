@@ -1,0 +1,50 @@
+/* src/games/maze/Maze.css */
+
+.mazeContainer {
+    width: 95%;
+    max-width: 400px;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    border: 1px solid var(--border-color);
+    margin: auto;
+    background-color: #F1EEE7;
+  }
+  
+  .mazeMap {
+    width: 100%;
+    height: 100%;
+    position: relative; /* Anchor for the absolutely positioned cells */
+  }
+  
+  /* This is the 50x50 "viewport" for each tile */
+  .mapCell {
+    width: 12.5%; /* 100% / 8 columns */
+    height: 12.5%; /* 100% / 8 rows */
+    position: absolute;
+    overflow: hidden;
+  }
+  
+  /* This is the large spritesheet image that gets moved inside the viewport */
+  .tileImage {
+    width: 500%; /* Spritesheet is 5 tiles wide */
+    height: 400%; /* Spritesheet is 4 tiles high */
+    background-image: url('/assets/maze/tiles_pegman.png');
+    background-size: 100% 100%;
+    position: absolute;
+  }
+  
+  .pegman {
+    position: absolute;
+    width: 49px;
+    height: 52px;
+    background-image: url('/assets/maze/pegman.png');
+    background-size: calc(49px * 21) 52px;
+    transition: top 0.1s linear, left 0.1s linear;
+    /* transform is not needed for simple direction changes via background-position */
+  }
+  
+  .finishMarker {
+    position: absolute;
+    width: 20px;
+    height: 34px;
+  }

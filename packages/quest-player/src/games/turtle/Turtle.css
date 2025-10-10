@@ -1,0 +1,36 @@
+/* src/games/turtle/Turtle.css */
+
+.turtleContainer {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    border: 1px solid var(--border-color);
+  }
+  
+  .turtleContainer canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* 
+    z-index order:
+    - display (top, visible to user): z-index 2
+    - answer (middle, for reference): z-index 1
+    - scratch (bottom, for drawing): z-index 0
+  */
+  
+  #displayCanvas {
+    z-index: 2;
+    background-color: transparent; /* The top canvas must be transparent */
+  }
+  
+  #answerCanvas {
+    z-index: 1;
+  }
+  
+  #scratchCanvas {
+    z-index: 0;
+  }

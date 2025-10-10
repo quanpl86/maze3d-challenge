@@ -1,0 +1,21 @@
+/* src/components/QuestImporter/QuestImporter.css */
+
+.quest-importer-wrapper input[type="file"] {
+    display: none; /* Ẩn input mặc định */
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--button-bg-color);
+    color: var(--text-color);
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: var(--button-hover-bg-color);
+}

@@ -1,0 +1,58 @@
+/* src/components/EditorToolbar/EditorToolbar.css */
+
+.editorToolbar {
+  display: flex;
+  justify-content: space-between; /* Pushes children to opposite ends */
+  align-items: center;
+  padding: 4px 10px;
+  background-color: var(--button-bg-color);
+  border-bottom: 1px solid var(--border-color);
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.editorToolbar button {
+  padding: 5px 15px;
+  margin-left: 8px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.editorToolbar button.active {
+  background-color: var(--background-color);
+  border-color: var(--border-color);
+  font-weight: bold;
+}
+
+.editorToolbar button:not(.active):hover {
+  background-color: var(--button-hover-bg-color);
+}
+
+.editorLabel {
+  padding: 5px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.settings-button {
+    margin-left: 0;
+    margin-right: 8px;
+    padding: 4px; /* Smaller padding for icon button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-button svg {
+    fill: var(--text-color);
+}

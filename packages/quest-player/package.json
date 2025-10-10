@@ -1,0 +1,42 @@
+{
+  "name": "@repo/quest-player",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@babel/standalone": "^7.28.4",
+    "@blockly/field-angle": "^6.0.3",
+    "@monaco-editor/react": "^4.7.0",
+    "@react-three/drei": "^9.92.3",
+    "@react-three/fiber": "^8.15.11",
+    "gsap": "^3.13.0",
+    "i18next": "^25.5.3",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "js-interpreter": "^6.0.1",
+    "react-blockly": "^9.0.0",
+    "react-i18next": "^16.0.0",
+    "react-resizable-panels": "^3.0.6",
+    "three": "^0.159.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/babel__standalone": "^7.1.9",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/three": "^0.159.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

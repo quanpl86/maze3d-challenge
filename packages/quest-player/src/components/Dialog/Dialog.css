@@ -1,0 +1,123 @@
+/* src/components/Dialog/Dialog.css */
+
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: var(--background-color);
+  color: var(--text-color);
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+}
+
+.dialog-close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.dialog-body {
+  margin-bottom: 20px;
+}
+
+.dialog-footer {
+  text-align: right;
+}
+
+/* --- THÊM MỚI: CSS CHO DIALOG KẾT QUẢ --- */
+
+.completion-dialog-content {
+  text-align: center;
+}
+
+.stars-header {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.stars-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.star {
+  font-size: 2.5em;
+  color: #ffd700; /* Màu vàng cho sao */
+}
+
+/* Kiểu cho sao chưa đạt được (far fa-star) */
+.far.fa-star {
+  color: #ccc;
+}
+
+.completion-message {
+  font-size: 1.1em;
+  margin: 10px 0;
+}
+
+.optimal-solution-info, .excellent-solution {
+  font-style: italic;
+  color: #888;
+  margin-top: 15px;
+}
+
+.code-details {
+  margin-top: 20px;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.code-details summary {
+  cursor: pointer;
+  padding: 8px;
+  background-color: var(--button-bg-color);
+  font-weight: bold;
+}
+
+.code-details pre {
+  background-color: var(--visualization-bg);
+  padding: 10px;
+  margin: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-color);
+}
+
+.code-details code {
+  font-family: monospace;
+  font-size: 0.9em;
+}

@@ -1,0 +1,61 @@
+/* src/components/DocumentationPanel/DocumentationPanel.css */
+
+.docs-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+  
+.docs-panel {
+    background: var(--background-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    width: 60vw;
+    height: 80vh;
+    max-width: 800px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+  
+.docs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 20px;
+}
+  
+.docs-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+  
+.docs-close-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-color);
+    line-height: 1;
+}
+  
+.docs-body {
+    flex-grow: 1;
+    padding: 10px;
+    overflow: hidden;
+}
+  
+.docs-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0 0 8px 8px;
+}

@@ -1,0 +1,58 @@
+/* src/components/SettingsPanel/SettingsPanel.css */
+
+.settings-panel-container {
+    position: absolute;
+    top: 40px; /* Position it right below the EditorToolbar */
+    right: 0;
+    z-index: 30; /* Higher than Blockly's UI elements */
+    padding: 10px;
+    pointer-events: none; /* Allow clicks to go through the container */
+}
+
+.settings-panel {
+    width: 250px;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.1);
+    transform: translateX(calc(100% + 20px)); /* Hide it off-screen */
+    transition: transform 0.3s ease-in-out;
+    visibility: hidden;
+    padding: 15px;
+    box-sizing: border-box;
+    pointer-events: auto; /* Re-enable pointer events for the panel itself */
+}
+  
+.settings-panel-container.open .settings-panel {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.settings-panel h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.setting-item label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.setting-item select,
+.setting-item input {
+    background-color: var(--button-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 5px;
+}

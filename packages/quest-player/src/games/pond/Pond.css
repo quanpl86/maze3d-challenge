@@ -1,0 +1,74 @@
+/* src/games/pond/Pond.css */
+
+.pondContainer {
+    /* This container now wraps both canvas and stats */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .canvasWrapper {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    border: 1px solid var(--border-color);
+  }
+  
+  .canvasWrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  #displayCanvas {
+    z-index: 1;
+  }
+  
+  #scratchCanvas {
+    z-index: 0;
+    display: none;
+  }
+  
+  /* New styles for the stats bar */
+  .statsContainer {
+    display: flex;
+    width: 402px; /* Match canvas width including borders */
+    margin-top: 4px;
+  }
+  
+  .avatarStatCard {
+    flex: 1;
+    border: 1px solid #888;
+    padding: 4px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .avatarStatCard .healthBarBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #555; /* Dark background for the bar */
+    z-index: 1;
+  }
+  
+  .avatarStatCard .healthBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 2;
+    transition: width 0.2s ease;
+  }
+  
+  .avatarStatCard .avatarName {
+    position: relative;
+    z-index: 3;
+  }
