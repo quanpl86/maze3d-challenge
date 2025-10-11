@@ -15,5 +15,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "pnpm": {
+    "overrides": {
+      "blockly": "12.3.1"
+    }
+  }
 }

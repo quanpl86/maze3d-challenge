@@ -1,12 +1,10 @@
-// src/components/QuestPlayer/hooks/useQuestLoader.ts
-
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Quest, IGameEngine, IGameRenderer, MazeConfig } from '../../../types';
 import { initializeGame } from '../../../games/GameBlockManager';
 import { gameRegistry } from '../../../games';
 import type { TurtleEngine } from '../../../games/turtle/TurtleEngine';
 import type { DrawingCommand } from '../../../games/turtle/types';
-import { useTranslation } from 'react-i18next';
 
 export const useQuestLoader = (questData: Quest | null) => {
   const { t } = useTranslation();
@@ -14,21 +12,21 @@ export const useQuestLoader = (questData: Quest | null) => {
   const [solutionCommands, setSolutionCommands] = useState<DrawingCommand[] | null>(null);
   const [error, setError] = useState<string>('');
   const engineRef = useRef<IGameEngine | null>(null);
-  const [isQuestReady, setIsQuestReady] = useState(false); // New state to manage readiness
+  const [isQuestReady, setIsQuestReady] = useState(false);
 
   useEffect(() => {
     if (!questData) {
       setGameRenderer(null);
       engineRef.current = null;
       setError('');
-      setIsQuestReady(false); // Reset readiness
+      setIsQuestReady(false);
       return;
     }
 
     let isMounted = true;
     const loadQuest = async () => {
       try {
-        setIsQuestReady(false); // Set to loading state
+        setIsQuestReady(false);
         setError('');
         
         const gameModule = gameRegistry[questData.gameType];
@@ -36,11 +34,9 @@ export const useQuestLoader = (questData: Quest | null) => {
           throw new Error(`Game module for type "${questData.gameType}" not found in registry.`);
         }
 
-        // Initialize Blockly blocks for the game. This is the critical async step.
         await initializeGame(questData.gameType, t);
         if (!isMounted) return;
 
-        // All subsequent setup is synchronous
         const engine = new gameModule.GameEngine(questData.gameConfig);
         engineRef.current = engine;
 
@@ -62,7 +58,6 @@ export const useQuestLoader = (questData: Quest | null) => {
             throw new Error(`No suitable renderer found for game type "${questData.gameType}".`);
         }
 
-        // Only set to ready after all setup is complete
         setIsQuestReady(true);
 
       } catch (err) {
