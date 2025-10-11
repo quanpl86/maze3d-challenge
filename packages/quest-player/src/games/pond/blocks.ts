@@ -2,14 +2,16 @@
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator, Order } from 'blockly/javascript';
-import i18n from '../../i18n';
 import { FieldAngle } from '@blockly/field-angle';
+import type { TFunction } from 'i18next'; // Import TFunction
+
 
 interface PondMathNumberBlock extends Blockly.Block {
   updateField_(isAngle: boolean): void;
 }
 
-export function init() {
+// Sửa hàm init
+export function init(t: TFunction) { 
   // Idempotency check
   if (Blockly.Blocks['pond_scan']) {
     return;
@@ -27,7 +29,7 @@ export function init() {
       "inputsInline": true,
       "output": "Number",
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.scanTooltip'),
+      "tooltip": t('Pond.scanTooltip'),
     },
     {
       "type": "pond_cannon",
@@ -40,7 +42,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.cannonTooltip'),
+      "tooltip": t('Pond.cannonTooltip'),
     },
     {
       "type": "pond_swim",
@@ -52,7 +54,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.swimTooltip'),
+      "tooltip": t('Pond.swimTooltip'),
     },
     {
       "type": "pond_stop",
@@ -60,35 +62,35 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.stopTooltip'),
+      "tooltip": t('Pond.stopTooltip'),
     },
     {
       "type": "pond_health",
       "message0": "health()",
       "output": "Number",
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.healthTooltip'),
+      "tooltip": t('Pond.healthTooltip'),
     },
     {
       "type": "pond_speed",
       "message0": "speed()",
       "output": "Number",
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.speedTooltip'),
+      "tooltip": t('Pond.speedTooltip'),
     },
     {
       "type": "pond_getX",
       "message0": "getX()",
       "output": "Number",
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.locXTooltip'),
+      "tooltip": t('Pond.locXTooltip'),
     },
     {
       "type": "pond_getY",
       "message0": "getY()",
       "output": "Number",
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.locYTooltip'),
+      "tooltip": t('Pond.locYTooltip'),
     },
     {
       "type": "pond_log",
@@ -100,7 +102,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "colour": POND_COLOUR,
-      "tooltip": i18n.t('Pond.logTooltip'),
+      "tooltip": t('Pond.logTooltip'),
     },
     {
       "type": "pond_math_single",

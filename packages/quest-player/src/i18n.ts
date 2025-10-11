@@ -1,18 +1,10 @@
 // packages/quest-player/src/i18n.ts
 
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-
-// Import Blockly's core language messages inside the library
-import 'blockly/msg/en';
-import 'blockly/msg/vi';
-
-// Import the translation files
 import translationEN from './i18n/en.json';
 import translationVI from './i18n/vi.json';
 
-const resources = {
+// Export các tài nguyên dưới dạng một object có cấu trúc rõ ràng
+export const questPlayerResources = {
   en: {
     translation: translationEN,
   },
@@ -20,24 +12,3 @@ const resources = {
     translation: translationVI,
   },
 };
-
-i18n
-  // Detect user language
-  .use(LanguageDetector)
-  // Pass the i18n instance to react-i18next.
-  .use(initReactI18next)
-  // Init i18next
-  .init({
-    resources,
-    fallbackLng: 'en', // Use English if detected language is not available
-    interpolation: {
-      escapeValue: false, // React already safes from xss
-    },
-    // Optional: add detection options
-    detection: {
-      order: ['queryString', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
-      caches: ['cookie', 'localStorage'],
-    },
-  });
-
-export default i18n;

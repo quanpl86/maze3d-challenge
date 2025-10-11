@@ -2,10 +2,11 @@
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator, Order } from 'blockly/javascript';
-import i18n from '../../i18n';
 import { FieldAngle } from '@blockly/field-angle';
+import type { TFunction } from 'i18next'; // Import TFunction
 
-export function init() {
+// Sửa hàm init
+export function init(t: TFunction) { 
   if (Blockly.Blocks['bird_noWorm']) {
     return;
   }
@@ -13,14 +14,14 @@ export function init() {
   Blockly.defineBlocksWithJsonArray([
     {
       "type": "bird_noWorm",
-      "message0": i18n.t('Bird.noWorm'),
+      "message0": t('Bird.noWorm'),
       "output": "Boolean",
       "style": "variable_category",
-      "tooltip": i18n.t('Bird.noWormTooltip'),
+      "tooltip": t('Bird.noWormTooltip'),
     },
     {
       "type": "bird_heading",
-      "message0": `${i18n.t('Bird.heading')} %1`,
+      "message0": `${t('Bird.heading')} %1`,
       "args0": [
         {
           "type": "field_angle",
@@ -31,7 +32,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "movement_category",
-      "tooltip": i18n.t('Bird.headingTooltip'),
+      "tooltip": t('Bird.headingTooltip'),
     },
     {
       "type": "bird_position",
@@ -45,7 +46,7 @@ export function init() {
       ],
       "output": "Number",
       "style": "variable_category",
-      "tooltip": i18n.t('Bird.positionTooltip'),
+      "tooltip": t('Bird.positionTooltip'),
     },
     {
       "type": "bird_compare",

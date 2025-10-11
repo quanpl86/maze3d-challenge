@@ -2,36 +2,37 @@
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator, Order } from 'blockly/javascript';
-import i18n from '../../i18n';
+import type { TFunction } from 'i18next'; // Import TFunction
 
-export function init() {
+// Sửa hàm init
+export function init(t: TFunction) { 
   if (Blockly.Blocks['maze_moveForward']) {
     return;
   }
 
-  Blockly.Msg['CONTROLS_REPEAT_TITLE'] = i18n.t('Controls.repeatTitle', 'repeat %1 times');
-  Blockly.Msg['CONTROLS_REPEAT_INPUT_DO'] = i18n.t('Controls.repeatInputDo', 'do');
-  Blockly.Msg['DUPLICATE_BLOCK'] = i18n.t('DUPLICATE_BLOCK', 'Duplicate Block');
-  Blockly.Msg['REMOVE_COMMENT'] = i18n.t('REMOVE_COMMENT', 'Remove Comment');
-  Blockly.Msg['ADD_COMMENT'] = i18n.t('ADD_COMMENT', 'Add Comment');
-  Blockly.Msg['EXTERNAL_INPUTS'] = i18n.t('EXTERNAL_INPUTS', 'External Inputs');
-  Blockly.Msg['INLINE_INPUTS'] = i18n.t('INLINE_INPUTS', 'Inline Inputs');
-  Blockly.Msg['DELETE_BLOCK'] = i18n.t('DELETE_BLOCK', 'Delete Block');
-  Blockly.Msg['DELETE_X_BLOCKS'] = i18n.t('DELETE_X_BLOCKS', 'Delete %1 Blocks');
-  Blockly.Msg['HELP'] = i18n.t('Games.help', 'Help');
+  Blockly.Msg['CONTROLS_REPEAT_TITLE'] = t('Controls.repeatTitle', 'repeat %1 times');
+  Blockly.Msg['CONTROLS_REPEAT_INPUT_DO'] = t('Controls.repeatInputDo', 'do');
+  Blockly.Msg['DUPLICATE_BLOCK'] = t('DUPLICATE_BLOCK', 'Duplicate Block');
+  Blockly.Msg['REMOVE_COMMENT'] = t('REMOVE_COMMENT', 'Remove Comment');
+  Blockly.Msg['ADD_COMMENT'] = t('ADD_COMMENT', 'Add Comment');
+  Blockly.Msg['EXTERNAL_INPUTS'] = t('EXTERNAL_INPUTS', 'External Inputs');
+  Blockly.Msg['INLINE_INPUTS'] = t('INLINE_INPUTS', 'Inline Inputs');
+  Blockly.Msg['DELETE_BLOCK'] = t('DELETE_BLOCK', 'Delete Block');
+  Blockly.Msg['DELETE_X_BLOCKS'] = t('DELETE_X_BLOCKS', 'Delete %1 Blocks');
+  Blockly.Msg['HELP'] = t('Games.help', 'Help');
 
   const LEFT_TURN = ' ↺';
   const RIGHT_TURN = ' ↻';
 
   const TURN_DIRECTIONS: [string, string][] = [
-    [i18n.t('Maze.turnLeft'), 'turnLeft'],
-    [i18n.t('Maze.turnRight'), 'turnRight'],
+    [t('Maze.turnLeft'), 'turnLeft'],
+    [t('Maze.turnRight'), 'turnRight'],
   ];
 
   const PATH_DIRECTIONS: [string, string][] = [
-    [i18n.t('Maze.pathAhead'), 'path ahead'],
-    [i18n.t('Maze.pathLeft'), 'path to the left'],
-    [i18n.t('Maze.pathRight'), 'path to the right'],
+    [t('Maze.pathAhead'), 'path ahead'],
+    [t('Maze.pathLeft'), 'path to the left'],
+    [t('Maze.pathRight'), 'path to the right'],
   ];
 
   const ITEM_TYPES: [string, string][] = [
@@ -44,8 +45,8 @@ export function init() {
       const dropdown = this.getField('DIR');
       if (!dropdown || typeof (dropdown as any).getOptions !== 'function') return;
       const options = (dropdown as any).getOptions(false);
-      if (options[0]) options[0][0] = `${i18n.t('Maze.turnLeft')}${LEFT_TURN}`;
-      if (options[1]) options[1][0] = `${i18n.t('Maze.turnRight')}${RIGHT_TURN}`;
+      if (options[0]) options[0][0] = `${t('Maze.turnLeft')}${LEFT_TURN}`;
+      if (options[1]) options[1][0] = `${t('Maze.turnRight')}${RIGHT_TURN}`;
   });
 
   Blockly.defineBlocksWithJsonArray([
@@ -61,11 +62,11 @@ export function init() {
     },
     {
       "type": "maze_moveForward",
-      "message0": i18n.t('Maze.moveForward'),
+      "message0": t('Maze.moveForward'),
       "previousStatement": null,
       "nextStatement": null,
       "style": "movement_category",
-      "tooltip": i18n.t('Maze.moveForwardTooltip'),
+      "tooltip": t('Maze.moveForwardTooltip'),
     },
     {
       "type": "maze_jump",
@@ -82,7 +83,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "movement_category",
-      "tooltip": i18n.t('Maze.turnTooltip'),
+      "tooltip": t('Maze.turnTooltip'),
       "extensions": ["maze_turn_arrows"],
     },
     {
@@ -103,7 +104,7 @@ export function init() {
     },
     {
       "type": "maze_forever",
-      "message0": `${i18n.t('Maze.repeatUntil')} %1 %2 ${i18n.t('Maze.doCode')} %3`,
+      "message0": `${t('Maze.repeatUntil')} %1 %2 ${t('Maze.doCode')} %3`,
       "args0": [
         { "type": "field_image", "src": "/assets/maze/marker.png", "width": 12, "height": 16, "alt": "*" },
         { "type": "input_dummy" },
@@ -111,11 +112,11 @@ export function init() {
       ],
       "previousStatement": null,
       "style": "loops_category",
-      "tooltip": i18n.t('Maze.whileTooltip'),
+      "tooltip": t('Maze.whileTooltip'),
     },
     {
       "type": "maze_repeat",
-      "message0": `${i18n.t('Controls.repeatTitle')} %1 ${i18n.t('Controls.repeatInputDo')}`,
+      "message0": `${t('Controls.repeatTitle')} %1 ${t('Controls.repeatInputDo')}`,
       "args0": [{ "type": "input_value", "name": "TIMES", "check": "Number" }],
       "message1": "%1",
       "args1": [{ "type": "input_statement", "name": "DO" }],

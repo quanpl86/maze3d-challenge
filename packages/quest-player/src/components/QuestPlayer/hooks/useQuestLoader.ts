@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Quest, IGameEngine, IGameRenderer, MazeConfig } from '../../../types';
 import { initializeGame } from '../../../games/GameBlockManager';
-import { gameRegistry } from '../../../games'; // Import the new game registry
+import { gameRegistry } from '../../../games';
 import type { TurtleEngine } from '../../../games/turtle/TurtleEngine';
 import type { DrawingCommand } from '../../../games/turtle/types';
+import { useTranslation } from 'react-i18next';
 
 export const useQuestLoader = (questData: Quest | null) => {
+  const { t } = useTranslation();
   const [GameRenderer, setGameRenderer] = useState<IGameRenderer | null>(null);
   const [solutionCommands, setSolutionCommands] = useState<DrawingCommand[] | null>(null);
   const [error, setError] = useState<string>('');
@@ -35,7 +37,7 @@ export const useQuestLoader = (questData: Quest | null) => {
         }
 
         // Initialize Blockly blocks for the game. This is the critical async step.
-        await initializeGame(questData.gameType);
+        await initializeGame(questData.gameType, t);
         if (!isMounted) return;
 
         // All subsequent setup is synchronous
@@ -75,7 +77,7 @@ export const useQuestLoader = (questData: Quest | null) => {
     loadQuest();
 
     return () => { isMounted = false; };
-  }, [questData]);
+  }, [questData, t]);
 
   return { GameRenderer, engineRef, solutionCommands, error, isQuestReady };
 };

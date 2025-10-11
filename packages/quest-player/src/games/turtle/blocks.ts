@@ -2,9 +2,10 @@
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator, Order } from 'blockly/javascript';
-import i18n from '../../i18n';
+import type { TFunction } from 'i18next'; // Import TFunction
 
-export function init() {
+// Sửa hàm init
+export function init(t: TFunction) { 
   if (Blockly.Blocks['turtle_move']) {
     return;
   }
@@ -13,21 +14,21 @@ export function init() {
   const RIGHT_TURN = ' ↻';
 
   const MOVE_OPTIONS: [string, string][] = [
-    [i18n.t('Turtle.moveForward'), 'moveForward'],
-    [i18n.t('Turtle.moveBackward'), 'moveBackward'],
+    [t('Turtle.moveForward'), 'moveForward'],
+    [t('Turtle.moveBackward'), 'moveBackward'],
   ];
 
   const TURN_OPTIONS: [string, string][] = [
-    [i18n.t('Turtle.turnRight'), 'turnRight'],
-    [i18n.t('Turtle.turnLeft'), 'turnLeft'],
+    [t('Turtle.turnRight'), 'turnRight'],
+    [t('Turtle.turnLeft'), 'turnLeft'],
   ];
 
   Blockly.Extensions.register('turtle_turn_arrows', function(this: Blockly.Block) {
     const dropdown = this.getField('DIR');
     if (!dropdown || typeof (dropdown as any).getOptions !== 'function') return;
     const options = (dropdown as any).getOptions(false);
-    if (options[0]) options[0][0] = `${i18n.t('Turtle.turnRight')}${RIGHT_TURN}`;
-    if (options[1]) options[1][0] = `${i18n.t('Turtle.turnLeft')}${LEFT_TURN}`;
+    if (options[0]) options[0][0] = `${t('Turtle.turnRight')}${RIGHT_TURN}`;
+    if (options[1]) options[1][0] = `${t('Turtle.turnLeft')}${LEFT_TURN}`;
   });
 
   Blockly.defineBlocksWithJsonArray([
@@ -41,7 +42,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.moveTooltip'),
+      "tooltip": t('Turtle.moveTooltip'),
     },
     {
       "type": "turtle_move_internal",
@@ -53,7 +54,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.moveTooltip'),
+      "tooltip": t('Turtle.moveTooltip'),
     },
     {
       "type": "turtle_turn",
@@ -65,7 +66,7 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.turnTooltip'),
+      "tooltip": t('Turtle.turnTooltip'),
       "extensions": ["turtle_turn_arrows"],
     },
     {
@@ -78,87 +79,87 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.turnTooltip'),
+      "tooltip": t('Turtle.turnTooltip'),
       "extensions": ["turtle_turn_arrows"],
     },
     {
       "type": "turtle_width",
-      "message0": i18n.t('Turtle.setWidth') + " %1",
+      "message0": t('Turtle.setWidth') + " %1",
       "args0": [{ "type": "input_value", "name": "WIDTH", "check": "Number" }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.widthTooltip'),
+      "tooltip": t('Turtle.widthTooltip'),
     },
     {
       "type": "turtle_pen",
       "message0": "%1",
       "args0": [{
         "type": "field_dropdown", "name": "PEN",
-        "options": [[i18n.t('Turtle.penUp'), "penUp"], [i18n.t('Turtle.penDown'), "penDown"]]
+        "options": [[t('Turtle.penUp'), "penUp"], [t('Turtle.penDown'), "penDown"]]
       }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.penTooltip'),
+      "tooltip": t('Turtle.penTooltip'),
     },
     {
       "type": "turtle_colour",
-      "message0": i18n.t('Turtle.setColour') + " %1",
+      "message0": t('Turtle.setColour') + " %1",
       "args0": [{ "type": "input_value", "name": "COLOUR", "check": "Colour" }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "colour_category",
-      "tooltip": i18n.t('Turtle.colourTooltip'),
+      "tooltip": t('Turtle.colourTooltip'),
     },
     {
       "type": "turtle_colour_internal",
-      "message0": i18n.t('Turtle.setColour') + " %1",
+      "message0": t('Turtle.setColour') + " %1",
       "args0": [{ "type": "field_colour", "name": "COLOUR", "colour": "#ff0000" }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "colour_category",
-      "tooltip": i18n.t('Turtle.colourTooltip'),
+      "tooltip": t('Turtle.colourTooltip'),
     },
     {
       "type": "turtle_visibility",
       "message0": "%1",
       "args0": [{
         "type": "field_dropdown", "name": "VISIBILITY",
-        "options": [[i18n.t('Turtle.hideTurtle'), "hideTurtle"], [i18n.t('Turtle.showTurtle'), "showTurtle"]]
+        "options": [[t('Turtle.hideTurtle'), "hideTurtle"], [t('Turtle.showTurtle'), "showTurtle"]]
       }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.turtleVisibilityTooltip'),
+      "tooltip": t('Turtle.turtleVisibilityTooltip'),
     },
     {
       "type": "turtle_print",
-      "message0": i18n.t('Turtle.print') + " %1",
+      "message0": t('Turtle.print') + " %1",
       "args0": [{ "type": "input_value", "name": "TEXT" }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.printTooltip'),
+      "tooltip": t('Turtle.printTooltip'),
     },
     {
       "type": "turtle_font",
-      "message0": `${i18n.t('Turtle.font')}%1%2${i18n.t('Turtle.fontSize')}%3%4%5`,
+      "message0": `${t('Turtle.font')}%1%2${t('Turtle.fontSize')}%3%4%5`,
       "args0": [
         { "type": "field_dropdown", "name": "FONT", "options": [['Arial', 'Arial'], ['Courier New', 'Courier New'], ['Georgia', 'Georgia'], ['Impact', 'Impact'], ['Times New Roman', 'Times New Roman'], ['Trebuchet MS', 'Trebuchet MS'], ['Verdana', 'Verdana']]},
         { "type": "input_dummy" },
         { "type": "field_number", "name": "FONTSIZE", "value": 18, "min": 1, "max": 1000 },
         { "type": "input_dummy" },
-        { "type": "field_dropdown", "name": "FONTSTYLE", "options": [[i18n.t('Turtle.fontNormal'), 'normal'], [i18n.t('Turtle.fontItalic'), 'italic'], [i18n.t('Turtle.fontBold'), 'bold']]},
+        { "type": "field_dropdown", "name": "FONTSTYLE", "options": [[t('Turtle.fontNormal'), 'normal'], [t('Turtle.fontItalic'), 'italic'], [t('Turtle.fontBold'), 'bold']]},
       ],
       "previousStatement": null,
       "nextStatement": null,
       "style": "turtle_category",
-      "tooltip": i18n.t('Turtle.fontTooltip'),
+      "tooltip": t('Turtle.fontTooltip'),
     },
     {
       "type": "turtle_repeat_internal",
-      "message0": `${i18n.t('Controls.repeatTitle')} %1 ${i18n.t('Controls.repeatInputDo')} %2`,  
+      "message0": `${t('Controls.repeatTitle')} %1 ${t('Controls.repeatInputDo')} %2`,  
       "args0": [
         { "type": "field_dropdown", "name": "TIMES", "options": [["3", "3"], ["4", "4"], ["5", "5"], ["360", "360"]] },
         { "type": "input_statement", "name": "DO" },  
@@ -166,8 +167,8 @@ export function init() {
       "previousStatement": null,
       "nextStatement": null,
       "style": "loops_category",
-      "tooltip": i18n.t('Controls.repeatTooltip'),  
-      "helpUrl": i18n.t('Controls.repeatHelpUrl')  
+      "tooltip": t('Controls.repeatTooltip'),  
+      "helpUrl": t('Controls.repeatHelpUrl')  
     },
   ]);
 

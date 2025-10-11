@@ -5,12 +5,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// Import the i18next instance from the library.
-// This single import will initialize i18next and also load Blockly's language files.
-import '@repo/quest-player/i18n';
+// Import file i18n trung tâm của app.
+// Thao tác này sẽ khởi tạo i18next với các tài nguyên đã được hợp nhất.
+import './i18n.ts';
 
-// Import the library's source CSS file via the package.json "exports" map.
-// This works in development without needing a build step.
+// Import CSS của thư viện (nếu chưa chuyển sang CSS Modules)
 import '@repo/quest-player/style.css';
 
 
