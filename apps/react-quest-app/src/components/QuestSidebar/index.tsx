@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '@repo/quest-player';
 import './QuestSidebar.css';
 
+// SỬA ĐỔI: Interface mới, không còn 'path'
 export interface QuestInfo {
-  path: string;
+  id: string; // Sử dụng id của quest làm key
   gameType: string;
   titleKey: string;
   level: number;
@@ -14,14 +15,15 @@ export interface QuestInfo {
 
 interface QuestSidebarProps {
   allQuests: QuestInfo[];
-  currentQuestPath: string | null;
-  onQuestSelect: (path: string) => void;
+  currentQuestId: string | null; // Sửa từ currentQuestPath sang currentQuestId
+  onQuestSelect: (id: string) => void; // Truyền lên id thay vì path
 }
 
-export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQuestPath, onQuestSelect }) => {
+export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQuestId, onQuestSelect }) => {
   const { t } = useTranslation();
 
   const groupedQuests = useMemo(() => {
+    // Logic này vẫn giữ nguyên
     return allQuests.reduce((acc, quest) => {
       const { gameType } = quest;
       if (!acc[gameType]) {
@@ -43,9 +45,9 @@ export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQu
             <h3>{t(questList[0].titleKey, gameType)}</h3>
             {questList.map((quest) => (
               <button
-                key={quest.path}
-                className={`quest-item ${currentQuestPath === quest.path ? 'active' : ''}`}
-                onClick={() => onQuestSelect(quest.path)}
+                key={quest.id} // Sử dụng id làm key
+                className={`quest-item ${currentQuestId === quest.id ? 'active' : ''}`}
+                onClick={() => onQuestSelect(quest.id)} // Truyền id lên
               >
                 {t('Games.puzzle')} {quest.level}
               </button>

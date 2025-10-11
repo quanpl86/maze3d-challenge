@@ -1,6 +1,6 @@
 /* apps/react-quest-app/src/App.css */
 
-/* --- CSS Variables for Theming --- */
+/* --- CSS Variables cho toàn bộ ứng dụng --- */
 :root, .theme-light {
   --background-color: #ffffff;
   --text-color: #212121;
@@ -19,87 +19,18 @@
   --visualization-bg: #282828;
 }
 
-/* --- Main Application Layout --- */
+/* --- Layout chính của App --- */
 .app-container {
   width: 100vw;
   height: 100vh;
-  display: flex; /* Changed for sidebar layout */
-  flex-direction: row; /* Changed for sidebar layout */
+  display: flex;
+  flex-direction: row;
   background-color: var(--background-color);
   color: var(--text-color);
 }
 
-.player-wrapper {
-  flex-grow: 1;
+.main-content-area {
+  flex-grow: 1; /* Cho phép khu vực này chiếm hết không gian còn lại */
   height: 100%;
-  min-width: 0; /* Let it shrink */
-}
-
-/* --- Resizable Panel Handle --- */
-[data-resize-handle-id] {
-    width: 6px;
-    background-color: var(--border-color);
-    transition: background-color 0.2s ease;
-}
-
-[data-resize-handle-id]:hover {
-    background-color: #007bff; /* A highlight color on hover */
-}
-
-/* --- Styles required by QuestPlayer component --- */
-.visualizationColumn {
-  height: 100%; /* Changed to 100% to fill flex container */
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-color);
-}
-
-.main-content-wrapper {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.controlsArea {
-  padding: 10px;
-  border-top: 1px solid var(--border-color);
-  background-color: var(--background-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.blocklyColumn {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.descriptionArea {
-  padding: 10px;
-  text-align: center;
-  border-top: 1px solid var(--border-color);
-  background-color: var(--background-color);
-  font-style: italic;
-}
-
-.emptyState {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  text-align: center;
-  color: #888;
-}
-
-.visualization-wrapper {
-  flex-grow: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  min-width: 0; /* Quan trọng để flexbox co giãn đúng */
 }

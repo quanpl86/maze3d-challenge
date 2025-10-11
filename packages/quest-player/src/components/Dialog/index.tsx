@@ -1,7 +1,7 @@
 // src/components/Dialog/index.tsx
 
 import React from 'react';
-import './Dialog.css';
+import styles from './Dialog.module.css';
 
 interface DialogProps {
   isOpen: boolean;
@@ -16,17 +16,17 @@ export const Dialog: React.FC<DialogProps> = ({ isOpen, title, children, onClose
   }
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog-content">
-        <div className="dialog-header">
+    <div className={styles.dialogOverlay}>
+      <div className={styles.dialogContent}>
+        <div className={styles.dialogHeader}>
           <h2>{title}</h2>
-          <button onClick={onClose} className="dialog-close-button">&times;</button>
+          <button onClick={onClose} className={styles.dialogCloseButton}>&times;</button>
         </div>
-        <div className="dialog-body">
+        <div className={styles.dialogBody}>
           {children}
         </div>
-        <div className="dialog-footer">
-          <button onClick={onClose} className="primaryButton">OK</button>
+        <div className={styles.dialogFooter}>
+          <button onClick={onClose} className={styles.primaryButton}>OK</button>
         </div>
       </div>
     </div>

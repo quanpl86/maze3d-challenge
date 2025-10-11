@@ -1,7 +1,7 @@
 /* packages/quest-player/src/index.css */
 
 /* Import all component and game styles for the library */
-@import url('./components/Dialog/Dialog.css');
+@import url('./components/Dialog/Dialog.module.css');
 @import url('./components/DocumentationPanel/DocumentationPanel.css');
 @import url('./components/EditorToolbar/EditorToolbar.css');
 @import url('./components/QuestImporter/QuestImporter.css');

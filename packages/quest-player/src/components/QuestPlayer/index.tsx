@@ -265,7 +265,11 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       <DocumentationPanel isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} gameType={questData.gameType} />
       <BackgroundMusic src={questData.backgroundMusic} play={playerStatus === 'running' && soundsEnabled} />
       
-      <PanelGroup direction="horizontal" className="appContainer" autoSaveId="quest-player-panels">
+      <PanelGroup 
+        direction="horizontal" 
+        className="quest-player-container"
+        autoSaveId="quest-player-panels"
+      >
         <Panel defaultSize={50} minSize={20}>
             <div className="visualizationColumn">
                 <div className="main-content-wrapper">

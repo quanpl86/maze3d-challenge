@@ -4,7 +4,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import '@blockly/field-angle';
 
 // Import the i18next instance from the library.
 // This single import will initialize i18next and also load Blockly's language files.

@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+// apps/react-quest-app/src/App.tsx
 
-// Import library components and types
+import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   QuestPlayer,
   Dialog,
@@ -9,96 +9,78 @@ import {
   type Quest,
   type QuestCompletionResult,
   type SolutionConfig,
-  type GameState
+  type GameState,
 } from '@repo/quest-player';
-
-// Import local components
 import { QuestSidebar, type QuestInfo } from './components/QuestSidebar';
 import './App.css';
-
-interface DialogState {
-  isOpen: boolean;
-  title: string;
-  message: string;
-  stars?: number;
-  optimalBlocks?: number;
-  code?: string;
-}
 
 function solutionHasOptimalBlocks(solution: SolutionConfig): solution is SolutionConfig & { optimalBlocks: number } {
     return solution.optimalBlocks !== undefined;
 }
 
+const questModules: Record<string, { default: Quest }> = import.meta.glob('../quests/*.json', { eager: true });
+
 function App() {
   const { t } = useTranslation();
   
-  // State for the entire app
-  const [allQuests, setAllQuests] = useState<QuestInfo[]>([]);
-  const [currentQuestPath, setCurrentQuestPath] = useState<string | null>(null);
+  const [currentQuestId, setCurrentQuestId] = useState<string | null>(null);
   const [questData, setQuestData] = useState<Quest | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const [dialogState, setDialogState] = useState<DialogState>({ isOpen: false, title: '', message: '' });
+  const [dialogState, setDialogState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    stars?: number;
+    optimalBlocks?: number;
+    code?: string;
+  }>({ isOpen: false, title: '', message: '' });
 
-  // Fetch the list of all quests on initial mount
-  useEffect(() => {
-    const fetchQuestIndex = async () => {
-      try {
-        const response = await fetch('/quests/index.json');
-        if (!response.ok) throw new Error('Failed to fetch quest index.');
-        
-        const data: QuestInfo[] = await response.json();
-        data.sort((a, b) => {
-          if (a.gameType < b.gameType) return -1;
-          if (a.gameType > b.gameType) return 1;
-          return a.level - b.level;
-        });
-        
-        setAllQuests(data);
-        
-        // Automatically load the first quest
-        if (data.length > 0) {
-          handleQuestSelect(data[0].path);
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Failed to load quest list:", error);
-        setIsLoading(false);
-      }
-    };
-    
-    fetchQuestIndex();
-  }, []); // Empty dependency array ensures this runs only once
+  // SỬA ĐỔI 1: Tính toán `sortedQuests` bằng useMemo và trực tiếp sử dụng nó.
+  // Không cần state `allQuests` nữa.
+  const sortedQuests = useMemo<QuestInfo[]>(() => {
+    const quests: QuestInfo[] = Object.values(questModules).map(module => ({
+      id: module.default.id,
+      level: module.default.level,
+      gameType: module.default.gameType,
+      titleKey: module.default.titleKey,
+    }));
 
-  const handleQuestSelect = useCallback(async (path: string) => {
-    if (currentQuestPath === path && questData) return; // Don't reload the same quest
+    quests.sort((a, b) => {
+      if (a.gameType < b.gameType) return -1;
+      if (a.gameType > b.gameType) return 1;
+      return a.level - b.level;
+    });
 
+    return quests;
+  }, []); // Chạy một lần duy nhất
+
+  const handleQuestSelect = useCallback((id: string) => {
+    // Không cần check currentQuestId nữa, vì việc re-render sẽ được xử lý bởi React.
     setIsLoading(true);
-    setCurrentQuestPath(path);
-    setQuestData(null); // Clear previous quest data
+    setCurrentQuestId(id);
+    setQuestData(null); 
 
-    try {
-      const response = await fetch(path);
-      if (!response.ok) throw new Error(`Failed to fetch quest data from ${path}`);
-      
-      const data = await response.json();
-      const validationResult = questSchema.safeParse(data);
+    // Sử dụng setTimeout để đảm bảo UI kịp cập nhật sang trạng thái "Loading"
+    // trước khi bắt đầu công việc có thể làm block thread (dù ở đây là nhanh).
+    setTimeout(() => {
+        const targetModule = Object.values(questModules).find(module => module.default.id === id);
 
-      if (validationResult.success) {
-        setQuestData(validationResult.data as Quest);
-      } else {
-        console.error("Quest validation failed:", validationResult.error);
-        alert(`Error: Invalid quest file format.\n${validationResult.error.issues[0].message}`);
-      }
-    } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : 'An unknown error occurred.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentQuestPath, questData]);
-
+        if (targetModule) {
+            const validationResult = questSchema.safeParse(targetModule.default);
+            if (validationResult.success) {
+                setQuestData(validationResult.data as Quest);
+            } else {
+                console.error("Quest validation failed:", validationResult.error);
+                alert(`Error: Invalid quest file format.\n${validationResult.error.issues[0].message}`);
+            }
+        } else {
+            console.error(`Quest with id "${id}" not found.`);
+            alert(`Could not find quest with id: ${id}`);
+        }
+        setIsLoading(false);
+    }, 10); // Một khoảng trễ nhỏ
+  }, []);
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
     if (result.isSuccess && result.finalState.solution) {
@@ -124,6 +106,22 @@ function App() {
     }
   }, [t]);
 
+  const renderMainContent = () => {
+    if (isLoading) {
+      return <div className="emptyState"><h2>Loading...</h2></div>;
+    }
+    if (!questData) {
+      return <div className="emptyState"><h2>Select a Quest</h2></div>;
+    }
+    return (
+      <QuestPlayer 
+        isStandalone={false}
+        questData={questData}
+        onQuestComplete={handleQuestComplete}
+      />
+    );
+  };
+
   return (
     <div className="app-container">
       <Dialog 
@@ -131,7 +129,6 @@ function App() {
         title={dialogState.title} 
         onClose={() => setDialogState({ ...dialogState, isOpen: false })}
       >
-        {/* Dialog content remains the same */}
         {dialogState.stars !== undefined && dialogState.stars > 0 ? (
           <div className="completion-dialog-content">
             <div className="stars-header">{t('Games.dialogStarsHeader')}</div>
@@ -158,23 +155,13 @@ function App() {
       </Dialog>
       
       <QuestSidebar 
-        allQuests={allQuests}
-        currentQuestPath={currentQuestPath}
+        allQuests={sortedQuests}
+        currentQuestId={currentQuestId}
         onQuestSelect={handleQuestSelect}
       />
 
       <main className="main-content-area">
-        {isLoading || !questData ? (
-          <div className="emptyState">
-            <h2>{isLoading ? "Loading..." : "Select a Quest"}</h2>
-          </div>
-        ) : (
-          <QuestPlayer 
-            isStandalone={false}
-            questData={questData}
-            onQuestComplete={handleQuestComplete}
-          />
-        )}
+        {renderMainContent()}
       </main>
     </div>
   );
