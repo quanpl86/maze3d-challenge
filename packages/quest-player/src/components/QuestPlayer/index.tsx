@@ -1,5 +1,3 @@
-// packages/quest-player/src/components/QuestPlayer/index.tsx
-
 import React, { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
@@ -74,6 +72,11 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const rendererRef = useRef<TurtleRendererHandle>(null);
   const initialToolboxConfigRef = useRef<ToolboxJSON | null>(null);
 
+  const { GameRenderer, engineRef, solutionCommands, error: questLoaderError, isQuestReady } = useQuestLoader(questData);
+  const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef);
+  
+  const [currentUserCode, setCurrentUserCode] = useState('');
+
   const prefersColorScheme = usePrefersColorScheme();
   const effectiveColorScheme = useMemo(() => {
     return colorSchemeMode === 'auto' ? prefersColorScheme : colorSchemeMode;
@@ -108,27 +111,13 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
   }, [isStandalone, props, t]);
   
-  const { GameRenderer, engineRef, solutionCommands, error: questLoaderError, isQuestReady } = useQuestLoader(questData);
-  const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef);
   const { playSound } = useSoundManager(questData?.sounds, soundsEnabled);
   
-  const userCodeForLoop = useMemo(() => {
-    if (currentEditor === 'monaco') return aceCode;
-    if (workspaceRef.current) {
-        const startBlock = workspaceRef.current.getTopBlocks(true).find((b: Blockly.Block) => b.type === START_BLOCK_TYPE);
-        if (startBlock) {
-            const code = javascriptGenerator.blockToCode(startBlock);
-            return Array.isArray(code) ? code[0] : (code || '');
-        }
-    }
-    return '';
-  }, [currentEditor, aceCode, isQuestReady]);
-
   const { 
     currentGameState, playerStatus, runGame, resetGame, 
     pauseGame, resumeGame, stepForward,
     handleActionComplete, handleTeleportComplete
-  } = useGameLoop(engineRef, questData, rendererRef, handleGameEnd, playSound, setHighlightedBlockId, currentEditor, userCodeForLoop, workspaceRef);
+  } = useGameLoop(engineRef, questData, rendererRef, handleGameEnd, playSound, setHighlightedBlockId, currentEditor, currentUserCode, workspaceRef);
 
   useEffect(() => {
     if (questData?.blocklyConfig) {
@@ -168,12 +157,8 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
         return;
       }
     } else {
-        codeToRun = userCodeForLoop;
+      codeToRun = currentUserCode;
     }
-
-    // THÊM LOG DEBUG TẠI ĐÂY
-    console.log(`%c[DEBUG] Code to be executed:`, 'color: cyan; font-weight: bold;', `\n---\n${codeToRun}\n---`);
-
     runGame(codeToRun, mode);
   };
   
@@ -185,8 +170,17 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
+
+    const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
+    if (startBlock) {
+        const code = javascriptGenerator.blockToCode(startBlock);
+        setCurrentUserCode(Array.isArray(code) ? code[0] : (code || ''));
+    } else {
+        setCurrentUserCode('');
+    }
+
     if (!initialToolboxConfigRef.current) return;
-    const startBlockExists = workspace.getTopBlocks(true).some((b: Blockly.Block) => b.type === START_BLOCK_TYPE);
+    const startBlockExists = !!startBlock;
     const isStartBlockInToolbox = JSON.stringify(dynamicToolboxConfig).includes(START_BLOCK_TYPE);
 
     if (startBlockExists && isStartBlockInToolbox) {
@@ -313,7 +307,11 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                   currentEditor === 'monaco' ? (
                     <MonacoEditor
                         initialCode={aceCode}
-                        onChange={(value) => setAceCode(value || '')}
+                        onChange={(value) => {
+                            const code = value || '';
+                            setAceCode(code);
+                            setCurrentUserCode(code);
+                        }}
                     />
                   ) : (
                     <>
