@@ -1,29 +1,5 @@
 [
     {
-      "path": "/quests/bird-1.json",
-      "gameType": "bird",
-      "titleKey": "Games.bird",
-      "level": 1
-    },
-    {
-      "path": "/quests/maze-1.json",
-      "gameType": "maze",
-      "titleKey": "Games.maze",
-      "level": 1
-    },
-    {
-      "path": "/quests/maze-3d-1.json",
-      "gameType": "maze",
-      "titleKey": "Games.maze",
-      "level": 1
-    },
-    {
-      "path": "/quests/maze-3d-2.json",
-      "gameType": "maze",
-      "titleKey": "Games.maze",
-      "level": 2
-    },
-    {
       "path": "/quests/maze-3d-3.json",
       "gameType": "maze",
       "titleKey": "Games.maze",
@@ -46,35 +22,5 @@
       "gameType": "maze",
       "titleKey": "Games.maze",
       "level": 4
-    },
-    {
-      "path": "/quests/pond-tutor-1.json",
-      "gameType": "pond",
-      "titleKey": "Games.pondTutor",
-      "level": 1
-    },
-    {
-      "path": "/quests/pond-tutor-2.json",
-      "gameType": "pond",
-      "titleKey": "Games.pondTutor",
-      "level": 2
-    },
-    {
-      "path": "/quests/pond-duck.json",
-      "gameType": "pond",
-      "titleKey": "Games.pond",
-      "level": 10
-    },
-    {
-      "path": "/quests/turtle-1.json",
-      "gameType": "turtle",
-      "titleKey": "Games.turtle",
-      "level": 1
-    },
-    {
-      "path": "/quests/turtle-2.json",
-      "gameType": "turtle",
-      "titleKey": "Games.turtleStar",
-      "level": 2
     }
   ]

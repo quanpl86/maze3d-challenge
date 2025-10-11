@@ -5,7 +5,6 @@ import { javascriptGenerator, Order } from 'blockly/javascript';
 import i18n from '../../i18n';
 
 export function init() {
-  // Idempotency check: If the block is already defined, skip re-definition.
   if (Blockly.Blocks['maze_moveForward']) {
     return;
   }
@@ -20,12 +19,6 @@ export function init() {
   Blockly.Msg['DELETE_BLOCK'] = i18n.t('DELETE_BLOCK', 'Delete Block');
   Blockly.Msg['DELETE_X_BLOCKS'] = i18n.t('DELETE_X_BLOCKS', 'Delete %1 Blocks');
   Blockly.Msg['HELP'] = i18n.t('Games.help', 'Help');
-
-  const MOVEMENT_COLOUR = '#CF63CF';
-  const LOOPS_COLOUR = '#5BA55B';
-  const LOGIC_COLOUR = '#5B80A5';
-  const ACTION_COLOUR = '#A5745B';
-  const EVENTS_COLOUR = '#FFBF00'; // Màu mới cho các khối sự kiện
 
   const LEFT_TURN = ' ↺';
   const RIGHT_TURN = ' ↻';
@@ -55,15 +48,7 @@ export function init() {
       if (options[1]) options[1][0] = `${i18n.t('Maze.turnRight')}${RIGHT_TURN}`;
   });
 
-  const helpClickHandler = () => {
-    const helpButton = document.querySelector('.help-button');
-    if (helpButton instanceof HTMLElement) {
-      helpButton.click();
-    }
-  };
-
   Blockly.defineBlocksWithJsonArray([
-    // --- NEW EVENT BLOCK ---
     {
       "type": "maze_start",
       "message0": "when Run clicked %1 %2",
@@ -71,29 +56,24 @@ export function init() {
         { "type": "input_dummy" },
         { "type": "input_statement", "name": "DO" }
       ],
-      "colour": EVENTS_COLOUR,
+      "style": "events_category",
       "tooltip": "This block is the starting point for your program.",
-      "helpUrl": helpClickHandler,
-
     },
-    // --- Movement & Action Blocks (Unchanged) ---
     {
       "type": "maze_moveForward",
       "message0": i18n.t('Maze.moveForward'),
       "previousStatement": null,
       "nextStatement": null,
-      "colour": MOVEMENT_COLOUR,
+      "style": "movement_category",
       "tooltip": i18n.t('Maze.moveForwardTooltip'),
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_jump",
       "message0": "jump",
       "previousStatement": null,
       "nextStatement": null,
-      "colour": MOVEMENT_COLOUR,
+      "style": "movement_category",
       "tooltip": "Jumps forward and up one block.",
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_turn",
@@ -101,30 +81,26 @@ export function init() {
       "args0": [{ "type": "field_dropdown", "name": "DIR", "options": TURN_DIRECTIONS, }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": MOVEMENT_COLOUR,
+      "style": "movement_category",
       "tooltip": i18n.t('Maze.turnTooltip'),
       "extensions": ["maze_turn_arrows"],
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_collect",
       "message0": "collect item",
       "previousStatement": null,
       "nextStatement": null,
-      "colour": ACTION_COLOUR,
+      "style": "actions_category",
       "tooltip": "Collects the item at the current location.",
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_toggle_switch",
       "message0": "toggle switch",
       "previousStatement": null,
       "nextStatement": null,
-      "colour": ACTION_COLOUR,
+      "style": "actions_category",
       "tooltip": "Toggles the switch at the current location.",
-      "helpUrl": helpClickHandler,
     },
-    // --- Loop Blocks ---
     {
       "type": "maze_forever",
       "message0": `${i18n.t('Maze.repeatUntil')} %1 %2 ${i18n.t('Maze.doCode')} %3`,
@@ -134,9 +110,8 @@ export function init() {
         { "type": "input_statement", "name": "DO" }
       ],
       "previousStatement": null,
-      "colour": LOOPS_COLOUR,
+      "style": "loops_category",
       "tooltip": i18n.t('Maze.whileTooltip'),
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_repeat",
@@ -146,11 +121,9 @@ export function init() {
       "args1": [{ "type": "input_statement", "name": "DO" }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": LOOPS_COLOUR,
+      "style": "loops_category",
       "tooltip": "Thực hiện các lệnh bên trong một số lần nhất định.",
-      "helpUrl": helpClickHandler,
     },
-    // --- NEW SENSING BLOCKS (BOOLEAN OUTPUT) ---
     {
       "type": "maze_is_path",
       "message0": "%1",
@@ -158,9 +131,8 @@ export function init() {
         { "type": "field_dropdown", "name": "DIR", "options": PATH_DIRECTIONS }
       ],
       "output": "Boolean",
-      "colour": LOGIC_COLOUR,
+      "style": "logic_category",
       "tooltip": "Returns true if there is a path in the specified direction.",
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_is_item_present",
@@ -169,9 +141,8 @@ export function init() {
         { "type": "field_dropdown", "name": "TYPE", "options": ITEM_TYPES }
       ],
       "output": "Boolean",
-      "colour": LOGIC_COLOUR,
+      "style": "logic_category",
       "tooltip": "Returns true if an item of the specified type is at the current location.",
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_is_switch_state",
@@ -180,19 +151,16 @@ export function init() {
         { "type": "field_dropdown", "name": "STATE", "options": [["on", "on"], ["off", "off"]] }
       ],
       "output": "Boolean",
-      "colour": LOGIC_COLOUR,
+      "style": "logic_category",
       "tooltip": "Returns true if a switch at the current location is in the specified state.",
-      "helpUrl": helpClickHandler,
     },
     {
       "type": "maze_at_finish",
       "message0": "at finish location",
       "output": "Boolean",
-      "colour": LOGIC_COLOUR,
+      "style": "logic_category",
       "tooltip": "Returns true if the player is at the finish location.",
-      "helpUrl": helpClickHandler,
     },
-    // --- Value Blocks (Unchanged) ---
     {
       "type": "maze_item_count",
       "message0": "count of %1",
@@ -200,18 +168,15 @@ export function init() {
         { "type": "field_dropdown", "name": "TYPE", "options": ITEM_TYPES }
       ],
       "output": "Number",
-      "colour": ACTION_COLOUR,
+      "style": "actions_category",
       "tooltip": "Returns the number of collected items of the specified type.",
-      "helpUrl": helpClickHandler,
     },
   ]);
 
-  // --- NEW JAVASCRIPT GENERATOR FOR START BLOCK ---
   javascriptGenerator.forBlock['maze_start'] = function(block: Blockly.Block) {
     return javascriptGenerator.statementToCode(block, 'DO');
   };
 
-  // --- Unchanged Generators ---
   javascriptGenerator.forBlock['maze_moveForward'] = function(block: Blockly.Block) {
     return `moveForward('block_id_${block.id}');\n`;
   };
@@ -244,7 +209,6 @@ export function init() {
     return [code, Order.FUNCTION_CALL];
   };
 
-  // --- RESTORED JAVASCRIPT GENERATOR ---
   javascriptGenerator.forBlock['maze_forever'] = function(block: Blockly.Block) {
     let branch = javascriptGenerator.statementToCode(block, 'DO');
     if ((javascriptGenerator as any).INFINITE_LOOP_TRAP) {
@@ -254,7 +218,6 @@ export function init() {
     return `while (notDone('block_id_${block.id}')) {\n${branch}}\n`;
   };
 
-  // --- NEW JAVASCRIPT GENERATORS FOR SENSING BLOCKS ---
   type PathDirectionKey = 'path ahead' | 'path to the left' | 'path to the right';
   javascriptGenerator.forBlock['maze_is_path'] = function(block: Blockly.Block) {
     const dir = block.getFieldValue('DIR') as PathDirectionKey;

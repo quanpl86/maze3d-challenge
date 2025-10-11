@@ -5,12 +5,9 @@ import { javascriptGenerator, Order } from 'blockly/javascript';
 import i18n from '../../i18n';
 
 export function init() {
-  // Idempotency check
   if (Blockly.Blocks['turtle_move']) {
     return;
   }
-
-  const TURTLE_COLOUR = '#5B995B';
   
   const LEFT_TURN = ' ↺';
   const RIGHT_TURN = ' ↻';
@@ -43,7 +40,7 @@ export function init() {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.moveTooltip'),
     },
     {
@@ -55,7 +52,7 @@ export function init() {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.moveTooltip'),
     },
     {
@@ -67,7 +64,7 @@ export function init() {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.turnTooltip'),
       "extensions": ["turtle_turn_arrows"],
     },
@@ -80,7 +77,7 @@ export function init() {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.turnTooltip'),
       "extensions": ["turtle_turn_arrows"],
     },
@@ -90,7 +87,7 @@ export function init() {
       "args0": [{ "type": "input_value", "name": "WIDTH", "check": "Number" }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.widthTooltip'),
     },
     {
@@ -102,7 +99,7 @@ export function init() {
       }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.penTooltip'),
     },
     {
@@ -111,7 +108,7 @@ export function init() {
       "args0": [{ "type": "input_value", "name": "COLOUR", "check": "Colour" }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": "%{BKY_COLOUR_HUE}",
+      "style": "colour_category",
       "tooltip": i18n.t('Turtle.colourTooltip'),
     },
     {
@@ -120,7 +117,7 @@ export function init() {
       "args0": [{ "type": "field_colour", "name": "COLOUR", "colour": "#ff0000" }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": "%{BKY_COLOUR_HUE}",
+      "style": "colour_category",
       "tooltip": i18n.t('Turtle.colourTooltip'),
     },
     {
@@ -132,7 +129,7 @@ export function init() {
       }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.turtleVisibilityTooltip'),
     },
     {
@@ -141,7 +138,7 @@ export function init() {
       "args0": [{ "type": "input_value", "name": "TEXT" }],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.printTooltip'),
     },
     {
@@ -156,7 +153,7 @@ export function init() {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": TURTLE_COLOUR,
+      "style": "turtle_category",
       "tooltip": i18n.t('Turtle.fontTooltip'),
     },
     {
@@ -168,7 +165,7 @@ export function init() {
       ],
       "previousStatement": null,
       "nextStatement": null,
-      "colour": "%{BKY_LOOPS_HUE}",
+      "style": "loops_category",
       "tooltip": i18n.t('Controls.repeatTooltip'),  
       "helpUrl": i18n.t('Controls.repeatHelpUrl')  
     },

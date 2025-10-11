@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // Import library components and types
 import {
   QuestPlayer,
   Dialog,
-  questSchema, // Import schema directly from the library's entry point
+  questSchema,
   type Quest,
   type QuestCompletionResult,
   type SolutionConfig,
@@ -13,7 +13,7 @@ import {
 } from '@repo/quest-player';
 
 // Import local components
-import { QuestSelector } from './components/QuestSelector';
+import { QuestSidebar, type QuestInfo } from './components/QuestSidebar';
 import './App.css';
 
 interface DialogState {
@@ -25,24 +25,63 @@ interface DialogState {
   code?: string;
 }
 
-// A helper type guard for the solution config
 function solutionHasOptimalBlocks(solution: SolutionConfig): solution is SolutionConfig & { optimalBlocks: number } {
     return solution.optimalBlocks !== undefined;
 }
 
 function App() {
   const { t } = useTranslation();
+  
+  // State for the entire app
+  const [allQuests, setAllQuests] = useState<QuestInfo[]>([]);
+  const [currentQuestPath, setCurrentQuestPath] = useState<string | null>(null);
   const [questData, setQuestData] = useState<Quest | null>(null);
-  const [isLoadingQuest, setIsLoadingQuest] = useState(false); // New loading state
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [dialogState, setDialogState] = useState<DialogState>({ isOpen: false, title: '', message: '' });
 
+  // Fetch the list of all quests on initial mount
+  useEffect(() => {
+    const fetchQuestIndex = async () => {
+      try {
+        const response = await fetch('/quests/index.json');
+        if (!response.ok) throw new Error('Failed to fetch quest index.');
+        
+        const data: QuestInfo[] = await response.json();
+        data.sort((a, b) => {
+          if (a.gameType < b.gameType) return -1;
+          if (a.gameType > b.gameType) return 1;
+          return a.level - b.level;
+        });
+        
+        setAllQuests(data);
+        
+        // Automatically load the first quest
+        if (data.length > 0) {
+          handleQuestSelect(data[0].path);
+        } else {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Failed to load quest list:", error);
+        setIsLoading(false);
+      }
+    };
+    
+    fetchQuestIndex();
+  }, []); // Empty dependency array ensures this runs only once
+
   const handleQuestSelect = useCallback(async (path: string) => {
-    setIsLoadingQuest(true); // Set loading to true immediately
+    if (currentQuestPath === path && questData) return; // Don't reload the same quest
+
+    setIsLoading(true);
+    setCurrentQuestPath(path);
+    setQuestData(null); // Clear previous quest data
+
     try {
       const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch quest data from ${path}`);
-      }
+      if (!response.ok) throw new Error(`Failed to fetch quest data from ${path}`);
+      
       const data = await response.json();
       const validationResult = questSchema.safeParse(data);
 
@@ -56,13 +95,10 @@ function App() {
       console.error(error);
       alert(error instanceof Error ? error.message : 'An unknown error occurred.');
     } finally {
-      setIsLoadingQuest(false); // Set loading to false after process completes
+      setIsLoading(false);
     }
-  }, []);
+  }, [currentQuestPath, questData]);
 
-  const handleBackToSelector = () => {
-    setQuestData(null);
-  };
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
     if (result.isSuccess && result.finalState.solution) {
@@ -88,32 +124,6 @@ function App() {
     }
   }, [t]);
 
-  const renderContent = () => {
-    if (isLoadingQuest) {
-      // Render a loading indicator
-      return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><h2>Loading Quest...</h2></div>;
-    }
-
-    if (questData) {
-      // Render the QuestPlayer
-      return (
-        <>
-          <button className="back-button" onClick={handleBackToSelector}>
-            &larr; Choose another Quest
-          </button>
-          <QuestPlayer
-            isStandalone={false}
-            questData={questData}
-            onQuestComplete={handleQuestComplete}
-          />
-        </>
-      );
-    }
-    
-    // Render the QuestSelector
-    return <QuestSelector onQuestSelect={handleQuestSelect} />;
-  };
-
   return (
     <div className="app-container">
       <Dialog 
@@ -121,6 +131,7 @@ function App() {
         title={dialogState.title} 
         onClose={() => setDialogState({ ...dialogState, isOpen: false })}
       >
+        {/* Dialog content remains the same */}
         {dialogState.stars !== undefined && dialogState.stars > 0 ? (
           <div className="completion-dialog-content">
             <div className="stars-header">{t('Games.dialogStarsHeader')}</div>
@@ -146,7 +157,25 @@ function App() {
         )}
       </Dialog>
       
-      {renderContent()}
+      <QuestSidebar 
+        allQuests={allQuests}
+        currentQuestPath={currentQuestPath}
+        onQuestSelect={handleQuestSelect}
+      />
+
+      <main className="main-content-area">
+        {isLoading || !questData ? (
+          <div className="emptyState">
+            <h2>{isLoading ? "Loading..." : "Select a Quest"}</h2>
+          </div>
+        ) : (
+          <QuestPlayer 
+            isStandalone={false}
+            questData={questData}
+            onQuestComplete={handleQuestComplete}
+          />
+        )}
+      </main>
     </div>
   );
 }

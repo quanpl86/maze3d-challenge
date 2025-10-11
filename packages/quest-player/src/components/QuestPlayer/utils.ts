@@ -14,16 +14,20 @@ export const createBlocklyTheme = (themeName: 'zelos' | 'classic', colorScheme: 
       name: `custom-${themeName}-${colorScheme}`,
       base: baseTheme,
       categoryStyles: {
-        'pond_category': { 'colour': '290' },
-        'turtle_category': { 'colour': '160' },
-        'loops_category': { 'colour': '%{BKY_LOOPS_HUE}' },
-        'colour_category': { 'colour': '%{BKY_COLOUR_HUE}' },
-        'logic_category': { 'colour': '%{BKY_LOGIC_HUE}' },
+        'events_category': { 'colour': '#FFBF00' },
+        'movement_category': { 'colour': '#CF63CF' },
+        'loops_category': { 'colour': '#5BA55B' },
+        'logic_category': { 'colour': '#5B80A5' },
+        'actions_category': { 'colour': '#A5745B' },
         'math_category': { 'colour': '%{BKY_MATH_HUE}' },
         'text_category': { 'colour': '%{BKY_TEXTS_HUE}' },
         'list_category': { 'colour': '%{BKY_LISTS_HUE}' },
+        'colour_category': { 'colour': '%{BKY_COLOUR_HUE}' },
         'variable_category': { 'colour': '%{BKY_VARIABLES_HUE}' },
         'procedure_category': { 'colour': '%{BKY_PROCEDURES_HUE}' },
+        // Aliases for other games
+        'pond_category': { 'colour': '#CF63CF' }, // Same as movement
+        'turtle_category': { 'colour': '#5BA55B' }, // Same as loops
       },
       componentStyles: isDark ? {
         'workspaceBackgroundColour': '#1e1e1e',
@@ -54,6 +58,7 @@ export const processToolbox = (toolbox: ToolboxJSON, t: TFunction): ToolboxJSON 
         if (item.contents && Array.isArray(item.contents)) {
           processedSubContents = processToolbox({ ...toolbox, contents: item.contents }, t).contents;
         }
+        
         const newName = item.name.replace(/%{BKY_([^}]+)}/g, (_match: string, key: string) => {
           let i18nKey: string;
           if (key.startsWith('GAMES_CAT')) {
@@ -64,18 +69,25 @@ export const processToolbox = (toolbox: ToolboxJSON, t: TFunction): ToolboxJSON 
           }
           return t(i18nKey);
         });
-        let categoryTheme = '';
-        if (item.name.includes('POND')) categoryTheme = 'pond_category';
-        if (item.name.includes('TURTLE')) categoryTheme = 'turtle_category';
-        if (item.name.includes('LOOPS')) categoryTheme = 'loops_category';
-        if (item.name.includes('COLOUR')) categoryTheme = 'colour_category';
-        if (item.name.includes('LOGIC')) categoryTheme = 'logic_category';
-        if (item.name.includes('MATH')) categoryTheme = 'math_category';
-        if (item.name.includes('TEXT')) categoryTheme = 'text_category';
-        if (item.name.includes('LISTS')) categoryTheme = 'list_category';
-        if (item.name.includes('VARIABLES')) categoryTheme = 'variable_category';
-        if (item.name.includes('PROCEDURES')) categoryTheme = 'procedure_category';
-        return { ...item, name: newName, contents: processedSubContents, categorystyle: categoryTheme };
+
+        // Assign categorystyle based on name
+        let categorystyle = item.categorystyle || '';
+        const upperName = item.name.toUpperCase();
+        if (upperName.includes('EVENTS')) categorystyle = 'events_category';
+        else if (upperName.includes('MOVEMENT')) categorystyle = 'movement_category';
+        else if (upperName.includes('LOOPS')) categorystyle = 'loops_category';
+        else if (upperName.includes('LOGIC')) categorystyle = 'logic_category';
+        else if (upperName.includes('ACTIONS')) categorystyle = 'actions_category';
+        else if (upperName.includes('MATH')) categorystyle = 'math_category';
+        else if (upperName.includes('TEXT')) categorystyle = 'text_category';
+        else if (upperName.includes('LISTS')) categorystyle = 'list_category';
+        else if (upperName.includes('COLOUR')) categorystyle = 'colour_category';
+        else if (upperName.includes('VARIABLES')) categorystyle = 'variable_category';
+        else if (upperName.includes('PROCEDURES') || newName.toUpperCase().includes('FUNCTIONS')) categorystyle = 'procedure_category';
+        else if (upperName.includes('POND')) categorystyle = 'pond_category';
+        else if (upperName.includes('TURTLE')) categorystyle = 'turtle_category';
+        
+        return { ...item, name: newName, contents: processedSubContents, categorystyle };
       }
       return item;
     });

@@ -19,33 +19,23 @@
   --visualization-bg: #282828;
 }
 
-/* --- Basic Layout --- */
+/* --- Main Application Layout --- */
 .app-container {
   width: 100vw;
   height: 100vh;
-  position: relative; /* Needed for absolute positioning of the back button */
+  display: flex; /* Changed for sidebar layout */
+  flex-direction: row; /* Changed for sidebar layout */
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
-/* --- Back Button --- */
-.back-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1001; /* Must be higher than QuestPlayer's UI */
-  padding: 8px 12px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
+.player-wrapper {
+  flex-grow: 1;
+  height: 100%;
+  min-width: 0; /* Let it shrink */
 }
 
-.back-button:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-/* --- Resizable Panel Handle (from original CSS) --- */
+/* --- Resizable Panel Handle --- */
 [data-resize-handle-id] {
     width: 6px;
     background-color: var(--border-color);
@@ -56,9 +46,9 @@
     background-color: #007bff; /* A highlight color on hover */
 }
 
-/* --- Other layout styles from original CSS --- */
+/* --- Styles required by QuestPlayer component --- */
 .visualizationColumn {
-  height: 100vh;
+  height: 100%; /* Changed to 100% to fill flex container */
   display: flex;
   flex-direction: column;
   background-color: var(--background-color);
