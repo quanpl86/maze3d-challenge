@@ -5,40 +5,83 @@ import type { TFunction } from 'i18next';
 import type { ResultType } from '../../games/maze/types';
 import type { ToolboxJSON, ToolboxItem } from '../../types';
 
-// Define a simple theme to control category colors
+// Define a theme to control category colors
 export const createBlocklyTheme = (themeName: 'zelos' | 'classic', colorScheme: 'light' | 'dark') => {
-    const isDark = colorScheme === 'dark';
-    const baseTheme = themeName === 'zelos' ? Blockly.Themes.Zelos : Blockly.Themes.Classic;
-    
-    return Blockly.Theme.defineTheme(`custom-${themeName}-${colorScheme}`, {
-      name: `custom-${themeName}-${colorScheme}`,
-      base: baseTheme,
-      categoryStyles: {
-        'events_category': { 'colour': '#FFBF00' },
-        'movement_category': { 'colour': '#CF63CF' },
-        'loops_category': { 'colour': '#5BA55B' },
-        'logic_category': { 'colour': '#5B80A5' },
-        'actions_category': { 'colour': '#A5745B' },
-        'math_category': { 'colour': '%{BKY_MATH_HUE}' },
-        'text_category': { 'colour': '%{BKY_TEXTS_HUE}' },
-        'list_category': { 'colour': '%{BKY_LISTS_HUE}' },
-        'colour_category': { 'colour': '%{BKY_COLOUR_HUE}' },
-        'variable_category': { 'colour': '%{BKY_VARIABLES_HUE}' },
-        'procedure_category': { 'colour': '%{BKY_PROCEDURES_HUE}' },
-        // Aliases for other games
-        'pond_category': { 'colour': '#CF63CF' }, // Same as movement
-        'turtle_category': { 'colour': '#5BA55B' }, // Same as loops
-      },
-      componentStyles: isDark ? {
-        'workspaceBackgroundColour': '#1e1e1e',
-        'toolboxBackgroundColour': '#252526',
-        'toolboxForegroundColour': '#fff',
-        'flyoutBackgroundColour': '#252526',
-        'flyoutForegroundColour': '#ccc',
-        'scrollbarColour': '#797979',
-      } : {},
-      'startHats': true,
-    });
+  const isDark = colorScheme === 'dark';
+  
+  // Get base theme from Blockly
+  const baseTheme = themeName === 'zelos' ? Blockly.Themes.Zelos : Blockly.Themes.Classic;
+
+  // Define custom block styles that match category colors
+  const customBlockStyles = {
+    'events_blocks': {
+      'colourPrimary': '#FFBF00',
+      'colourSecondary': '#FFD966',
+      'colourTertiary': '#E6AC00'
+    },
+    'movement_blocks': {
+      'colourPrimary': '#CF63CF',
+      'colourSecondary': '#E8A0E8',
+      'colourTertiary': '#B84CB8'
+    },
+    'loops_blocks': {
+      'colourPrimary': '#5BA55B',
+      'colourSecondary': '#8FD18F',
+      'colourTertiary': '#458A45'
+    },
+    'logic_blocks': {
+      'colourPrimary': '#5B80A5',
+      'colourSecondary': '#8FA9C4',
+      'colourTertiary': '#446688'
+    },
+    'actions_blocks': {
+      'colourPrimary': '#A5745B',
+      'colourSecondary': '#C49880',
+      'colourTertiary': '#8A5A42'
+    }
+  };
+
+  // Create a proper Blockly Theme instance
+  const customTheme = new Blockly.Theme('customTheme', {
+    // Block styles - merge base with custom
+    ...baseTheme.blockStyles,
+    ...customBlockStyles,
+  }, {
+    // Category styles - merge base with custom
+    ...baseTheme.categoryStyles,
+    'events_category': { 'colour': '#FFBF00' },
+    'movement_category': { 'colour': '#CF63CF' },
+    'loops_category': { 'colour': '#5BA55B' },
+    'logic_category': { 'colour': '#5B80A5' },
+    'actions_category': { 'colour': '#A5745B' },
+    'math_category': { 'colour': '%{BKY_MATH_HUE}' },
+    'text_category': { 'colour': '%{BKY_TEXTS_HUE}' },
+    'list_category': { 'colour': '%{BKY_LISTS_HUE}' },
+    'colour_category': { 'colour': '%{BKY_COLOUR_HUE}' },
+    'variable_category': { 'colour': '%{BKY_VARIABLES_HUE}' },
+    'procedure_category': { 'colour': '%{BKY_PROCEDURES_HUE}' },
+    'pond_category': { 'colour': '#CF63CF' },
+    'turtle_category': { 'colour': '#5BA55B' },
+  }, {
+    // Component styles
+    ...(isDark ? {
+      'workspaceBackgroundColour': '#1e1e1e',
+      'toolboxBackgroundColour': '#252526',
+      'toolboxForegroundColour': '#fff',
+      'flyoutBackgroundColour': '#252526',
+      'flyoutForegroundColour': '#ccc',
+      'scrollbarColour': '#797979',
+      'scrollbarOpacity': 0.5,
+    } : baseTheme.componentStyles),
+  });
+
+  // Set font style
+  customTheme.setFontStyle(baseTheme.fontStyle);
+  
+  // Enable start hats
+  customTheme.setStartHats(true);
+
+  return customTheme;
 };
 
 export const getFailureMessage = (t: TFunction, result: ResultType): string => {

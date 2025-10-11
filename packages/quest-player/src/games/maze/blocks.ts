@@ -2,13 +2,10 @@
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator, Order } from 'blockly/javascript';
-import type { TFunction } from 'i18next'; // Import TFunction
+import type { TFunction } from 'i18next'; 
 
 // Sửa hàm init
 export function init(t: TFunction) { 
-  if (Blockly.Blocks['maze_moveForward']) {
-    return;
-  }
 
   Blockly.Msg['CONTROLS_REPEAT_TITLE'] = t('Controls.repeatTitle', 'repeat %1 times');
   Blockly.Msg['CONTROLS_REPEAT_INPUT_DO'] = t('Controls.repeatInputDo', 'do');
@@ -41,13 +38,15 @@ export function init(t: TFunction) {
     ['key', 'key'],
   ];
 
-  Blockly.Extensions.register('maze_turn_arrows', function(this: Blockly.Block) {
-      const dropdown = this.getField('DIR');
-      if (!dropdown || typeof (dropdown as any).getOptions !== 'function') return;
-      const options = (dropdown as any).getOptions(false);
-      if (options[0]) options[0][0] = `${t('Maze.turnLeft')}${LEFT_TURN}`;
-      if (options[1]) options[1][0] = `${t('Maze.turnRight')}${RIGHT_TURN}`;
-  });
+  if (!Blockly.Extensions.isRegistered('maze_turn_arrows')) {
+    Blockly.Extensions.register('maze_turn_arrows', function(this: Blockly.Block) {
+        const dropdown = this.getField('DIR');
+        if (!dropdown || typeof (dropdown as any).getOptions !== 'function') return;
+        const options = (dropdown as any).getOptions(false);
+        if (options[0]) options[0][0] = `${t('Maze.turnLeft')}${LEFT_TURN}`;
+        if (options[1]) options[1][0] = `${t('Maze.turnRight')}${RIGHT_TURN}`;
+    });
+  };
 
   Blockly.defineBlocksWithJsonArray([
     {
