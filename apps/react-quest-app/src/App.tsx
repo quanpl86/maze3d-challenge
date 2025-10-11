@@ -26,6 +26,7 @@ function App() {
   const [currentQuestId, setCurrentQuestId] = useState<string | null>(null);
   const [questData, setQuestData] = useState<Quest | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   const [dialogState, setDialogState] = useState<{
     isOpen: boolean;
@@ -42,7 +43,7 @@ function App() {
       level: module.default.level,
       gameType: module.default.gameType,
       titleKey: module.default.titleKey,
-      title: module.default.title, // THÊM MỚI
+      title: module.default.title,
     }));
 
     quests.sort((a, b) => {
@@ -76,6 +77,14 @@ function App() {
         }
         setIsLoading(false);
     }, 10);
+  }, []);
+
+  const handleToggleSidebar = useCallback(() => {
+    setIsSidebarCollapsed(prev => !prev);
+    // Thêm một khoảng trễ nhỏ để Blockly có thời gian render lại sau khi animation của sidebar hoàn tất
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 250); // 250ms phải khớp với thời gian transition trong CSS
   }, []);
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
@@ -154,6 +163,8 @@ function App() {
         allQuests={sortedQuests}
         currentQuestId={currentQuestId}
         onQuestSelect={handleQuestSelect}
+        isCollapsed={isSidebarCollapsed}
+        onToggle={handleToggleSidebar}
       />
 
       <main className="main-content-area">

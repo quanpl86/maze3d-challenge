@@ -10,16 +10,18 @@ export interface QuestInfo {
   gameType: string;
   titleKey: string;
   level: number;
-  title?: string; // THÊM MỚI
+  title?: string;
 }
 
 interface QuestSidebarProps {
   allQuests: QuestInfo[];
   currentQuestId: string | null;
   onQuestSelect: (id: string) => void;
+  isCollapsed: boolean;
+  onToggle: () => void;
 }
 
-export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQuestId, onQuestSelect }) => {
+export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQuestId, onQuestSelect, isCollapsed, onToggle }) => {
   const { t } = useTranslation();
 
   const groupedQuests = useMemo(() => {
@@ -34,28 +36,36 @@ export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQu
   }, [allQuests]);
 
   return (
-    <aside className="quest-sidebar">
+    <aside className={`quest-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
-        {t('Games.puzzle')}
+        {!isCollapsed && <span>{t('Games.puzzle')}</span>}
+        <button onClick={onToggle} className="sidebar-toggle-button" aria-label="Toggle Sidebar">
+          {isCollapsed ? '»' : '«'}
+        </button>
       </div>
       <div className="quest-list-scrollable">
         {Object.entries(groupedQuests).map(([gameType, questList]) => (
           <div key={gameType} className="game-group">
-            <h3>{t(questList[0].titleKey, gameType)}</h3>
+            {!isCollapsed && <h3>{t(questList[0].titleKey, gameType)}</h3>}
             {questList.map((quest) => (
               <button
                 key={quest.id}
                 className={`quest-item ${currentQuestId === quest.id ? 'active' : ''}`}
                 onClick={() => onQuestSelect(quest.id)}
+                title={isCollapsed ? (quest.title || t('Games.defaultQuestTitle', { level: quest.level })) : ''}
               >
-                {t('Games.puzzle')} {quest.level}
+                {isCollapsed ? (
+                  <span className="quest-level-bubble">{quest.level}</span>
+                ) : (
+                  quest.title || t('Games.defaultQuestTitle', { level: quest.level })
+                )}
               </button>
             ))}
           </div>
         ))}
       </div>
       <div className="sidebar-footer">
-        <LanguageSelector />
+        {!isCollapsed && <LanguageSelector />}
       </div>
     </aside>
   );
