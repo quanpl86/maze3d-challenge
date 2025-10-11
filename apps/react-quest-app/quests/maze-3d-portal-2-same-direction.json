@@ -1,7 +1,8 @@
 {
     "id": "maze-3d-portal-2-same-direction",
     "gameType": "maze",
-    "level": 3,
+    "level": 2,
+    "title": "Mê cung Sandbox 2",
     "titleKey": "Games.maze",
     "descriptionKey": "Quest.maze_portals_1.description",
     "translations": {

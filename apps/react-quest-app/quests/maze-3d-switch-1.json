@@ -1,7 +1,8 @@
 {
     "id": "maze-3d-switch-1",
     "gameType": "maze",
-    "level": 4,
+    "level": 3,
+    "title": "Mê cung Sandbox 3",
     "titleKey": "Games.maze",
     "descriptionKey": "Quest.maze_switch_1.description",
     "translations": {
