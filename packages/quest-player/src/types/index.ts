@@ -1,10 +1,10 @@
-// src/types/index.ts
+// packages/quest-player/src/types/index.ts
 
 // =================================================================
 // ==                      QUEST DEFINITIONS                      ==
 // =================================================================
 
-// --- Toolbox Definition Types (to match react-blockly expectations) ---
+// --- Toolbox Definition Types ---
 
 interface ToolboxBlock {
   kind: 'block';
@@ -66,10 +66,6 @@ export interface Quest {
   backgroundMusic?: string;
 }
 
-export type ExecutionMode = 'run' | 'debug';
-
-export type CameraMode = 'Follow' | 'TopDown' | 'Free';
-
 // =================================================================
 // ==                 GAME-SPECIFIC CONFIGURATIONS                ==
 // =================================================================
@@ -86,8 +82,6 @@ export interface Block {
   modelKey: string;
   position: Position3D;
 }
-
-// --- New Interfaces for Maze Game Features ---
 
 export interface Collectible {
   id: string;
@@ -124,23 +118,17 @@ export interface PlayerConfig {
   };
 }
 
-// --- Updated MazeConfig ---
-
 export interface MazeConfig {
   type: 'maze';
   renderer?: '2d' | '3d';
   map?: number[][]; 
   blocks?: Block[];
-  
   player?: PlayerConfig;
   players?: PlayerConfig[];
-  
   collectibles?: Collectible[];
   interactibles?: Interactive[];
-
   finish: { x: number, y: number, z?: number };
 }
-
 
 export interface TurtleConfig {
   type: 'turtle';
@@ -186,7 +174,7 @@ export interface BirdConfig {
 // export interface MusicConfig { /* To be defined */ }
 
 // =================================================================
-// ==                   SOLUTION CONFIGURATIONS                   ==
+// ==                   SOLUTION & CORE TYPES                     ==
 // =================================================================
 
 export interface SolutionConfig {
@@ -207,6 +195,31 @@ export interface GameState {
   result?: string;
 }
 
+export type ExecutionMode = 'run' | 'debug';
+export type CameraMode = 'Follow' | 'TopDown' | 'Free';
+
+// The Main Quest Interface
+export interface Quest {
+  id: string;
+  gameType: 'maze' | 'bird' | 'turtle' | 'movie' | 'music' | 'pond' | 'puzzle';
+  level: number;
+  titleKey: string;
+  title?: string; // Trường title mới
+  descriptionKey: string;
+  supportedEditors?: ('blockly' | 'monaco')[];
+  translations?: Record<string, Record<string, string>>;
+  blocklyConfig?: BlocklyConfig;
+  monacoConfig?: MonacoConfig;
+  gameConfig: GameConfig;
+  solution: SolutionConfig;
+  sounds?: Record<string, string>;
+  backgroundMusic?: string;
+}
+
+// =================================================================
+// ==                  ENGINE & RENDERER INTERFACES               ==
+// =================================================================
+
 export type StepResult = {
     done: boolean;
     state: GameState;
@@ -217,11 +230,8 @@ export interface IGameEngine {
   readonly gameType: string;
   reset?(): void;
   getInitialState(): GameState;
-  
   execute(userCode: string): void;
-
   step?(): StepResult;
-
   checkWinCondition(finalState: GameState, solutionConfig: SolutionConfig): boolean;
 }
 
@@ -232,7 +242,6 @@ export type IGameRenderer = React.FC<{
   gameConfig: GameConfig;
   [key: string]: any;
 }>;
-
 
 // =================================================================
 // ==                  LIBRARY-SPECIFIC INTERFACES                ==

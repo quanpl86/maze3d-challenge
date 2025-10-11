@@ -1,6 +1,7 @@
-// src/components/Dialog/index.tsx
+// packages/quest-player/src/components/Dialog/index.tsx
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Dialog.module.css';
 
 interface DialogProps {
@@ -11,16 +12,25 @@ interface DialogProps {
 }
 
 export const Dialog: React.FC<DialogProps> = ({ isOpen, title, children, onClose }) => {
-  if (!isOpen) {
+  // State để đảm bảo component chỉ được render ở phía client, tránh lỗi SSR
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
+  // Chỉ render khi isOpen và đã được mount ở client
+  if (!isOpen || !isMounted) {
     return null;
   }
 
-  return (
+  const dialogContent = (
     <div className={styles.dialogOverlay}>
       <div className={styles.dialogContent}>
         <div className={styles.dialogHeader}>
           <h2>{title}</h2>
-          <button onClick={onClose} className={styles.dialogCloseButton}>&times;</button>
+          <button onClick={onClose} className={styles.dialogCloseButton} aria-label="Close">&times;</button>
         </div>
         <div className={styles.dialogBody}>
           {children}
@@ -31,4 +41,8 @@ export const Dialog: React.FC<DialogProps> = ({ isOpen, title, children, onClose
       </div>
     </div>
   );
+
+  // Sử dụng createPortal để render dialog vào cuối thẻ body
+  // Điều này đảm bảo nó không bị ảnh hưởng bởi CSS của các phần tử cha
+  return createPortal(dialogContent, document.body);
 };

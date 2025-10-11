@@ -1,6 +1,7 @@
-// src/types/schemas.ts
+// packages/quest-player/src/types/schemas.ts
 
 import { z } from 'zod';
+import type { Quest } from './index'; // THÊM MỚI: Import Quest interface
 
 const toolboxJsonSchema = z.object({
   kind: z.enum(['flyoutToolbox', 'categoryToolbox']),
@@ -31,12 +32,11 @@ const collectibleSchema = z.object({
   position: position3DSchema,
 });
 
-// New discriminated union for interactive objects
 const switchSchema = z.object({
   type: z.literal('switch'),
   id: z.string(),
   position: position3DSchema,
-  toggles: z.array(z.string()).optional(), // For future use, e.g., toggling doors
+  toggles: z.array(z.string()).optional(),
   initialState: z.enum(['on', 'off']).default('off'),
 });
 
@@ -156,11 +156,13 @@ const solutionConfigSchema = z.object({
   solutionMaxBlocks: z.number().optional(),
 });
 
-export const questSchema = z.object({
+// THAY ĐỔI: Thêm kiểu tường minh z.ZodType<Quest>
+export const questSchema: z.ZodType<Quest> = z.object({
   id: z.string(),
   gameType: z.enum(['maze', 'bird', 'turtle', 'movie', 'music', 'pond', 'puzzle']),
   level: z.number(),
   titleKey: z.string(),
+  title: z.string().optional(), // Trường title mới
   descriptionKey: z.string(),
   
   supportedEditors: z.array(z.enum(['blockly', 'monaco'])).default(['blockly']),
@@ -175,23 +177,3 @@ export const questSchema = z.object({
   sounds: z.record(z.string(), z.string()).optional(),
   backgroundMusic: z.string().optional(),
 });
-
-export interface QuestPlayerSettings {
-  renderer?: 'geras' | 'zelos';
-  blocklyThemeName?: 'zelos' | 'classic';
-  gridEnabled?: boolean;
-  soundsEnabled?: boolean;
-  colorSchemeMode?: 'auto' | 'light' | 'dark';
-  cameraMode?: CameraMode;
-}
-
-export interface QuestCompletionResult {
-  isSuccess: boolean;
-  finalState: GameState;
-  userCode?: string;
-  unitCount?: number;
-  unitLabel: 'block' | 'line';
-  stars?: number;
-}
-
-export type Quest = z.infer<typeof questSchema>;

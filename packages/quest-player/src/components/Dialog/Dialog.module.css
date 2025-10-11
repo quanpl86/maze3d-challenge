@@ -1,72 +1,101 @@
-/* src/components/Dialog/Dialog.css */
+/* packages/quest-player/src/components/Dialog/Dialog.module.css */
 
-.dialog-overlay {
+.dialogOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999; /* Đảm bảo luôn ở trên cùng */
+  backdrop-filter: blur(2px);
 }
 
-.dialog-content {
-  background: var(--background-color);
-  color: var(--text-color);
+.dialogContent {
+  background: var(--background-color, #fff);
+  color: var(--text-color, #212121);
   padding: 20px;
   border-radius: 8px;
   min-width: 300px;
   max-width: 500px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
+  text-align: left; /* Đảm bảo nội dung luôn căn trái */
 }
 
-.dialog-header {
+.dialogHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #ddd);
   padding-bottom: 10px;
   margin-bottom: 15px;
 }
 
-.dialog-header h2 {
+.dialogHeader h2 {
   margin: 0;
+  font-size: 1.5rem;
 }
 
-.dialog-close-button {
+.dialogCloseButton {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  line-height: 1;
   cursor: pointer;
-  color: var(--text-color);
+  color: var(--text-color, #aaa);
+  padding: 0 5px;
+  transition: color 0.2s;
+}
+.dialogCloseButton:hover {
+  color: var(--text-color, #000);
 }
 
-.dialog-body {
+.dialogBody {
   margin-bottom: 20px;
+  max-height: 70vh; /* Ngăn nội dung quá dài làm vỡ layout */
+  overflow-y: auto;
 }
 
-.dialog-footer {
+.dialogFooter {
   text-align: right;
+  border-top: 1px solid var(--border-color, #eee);
+  padding-top: 15px;
+  margin-top: auto; /* Đẩy footer xuống dưới cùng */
 }
 
-/* --- THÊM MỚI: CSS CHO DIALOG KẾT QUẢ --- */
+.primaryButton {
+  padding: 8px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+.primaryButton:hover {
+  background-color: #0056b3;
+}
 
-.completion-dialog-content {
+/* --- CSS CHO DIALOG KẾT QUẢ --- */
+
+.completion-dialog-content { /* Chuẩn hóa tên class */
   text-align: center;
 }
 
-.stars-header {
+.stars-header { /* Chuẩn hóa tên class */
   font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-.stars-container {
+.stars-container { /* Chuẩn hóa tên class */
   display: flex;
   justify-content: center;
   gap: 10px;
@@ -75,10 +104,9 @@
 
 .star {
   font-size: 2.5em;
-  color: #ffd700; /* Màu vàng cho sao */
+  color: #ffd700;
 }
 
-/* Kiểu cho sao chưa đạt được (far fa-star) */
 .far.fa-star {
   color: #ccc;
 }
@@ -97,24 +125,25 @@
 .code-details {
   margin-top: 20px;
   text-align: left;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color, #ddd);
   border-radius: 4px;
+  overflow: hidden; /* Tránh viền bị tràn */
 }
 
 .code-details summary {
   cursor: pointer;
   padding: 8px;
-  background-color: var(--button-bg-color);
+  background-color: var(--button-bg-color, #f0f0f0);
   font-weight: bold;
 }
 
 .code-details pre {
-  background-color: var(--visualization-bg);
+  background-color: var(--visualization-bg, #f5f5f5);
   padding: 10px;
   margin: 0;
   max-height: 150px;
   overflow-y: auto;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color, #ddd);
 }
 
 .code-details code {

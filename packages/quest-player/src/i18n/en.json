@@ -4,6 +4,7 @@
 		"locale": "en",
 		"messagedocumentation": "qqq"
 	},
+	"Games.defaultQuestTitle": "Challenge {{level}}",
 	"Games.resultFailure": "The program did not solve the puzzle.",
 	"Games.resultTimeout": "The program took too long to run.",
 	"Games.resultError": "The program crashed with an error.",

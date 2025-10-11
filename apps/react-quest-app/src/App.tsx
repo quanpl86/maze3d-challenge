@@ -42,6 +42,7 @@ function App() {
       level: module.default.level,
       gameType: module.default.gameType,
       titleKey: module.default.titleKey,
+      title: module.default.title, // THÊM MỚI
     }));
 
     quests.sort((a, b) => {
@@ -64,13 +65,6 @@ function App() {
         if (targetModule) {
             const validationResult = questSchema.safeParse(targetModule.default);
             if (validationResult.success) {
-                // THÊM LOG QUAN TRỌNG TẠI ĐÂY
-                console.log(
-                  '%c[DEBUG] QUEST DATA LOADED AND VALIDATED. THIS IS THE SOURCE OF TRUTH:',
-                  'color: yellow; font-weight: bold; font-size: 14px;'
-                );
-                console.log(JSON.stringify(validationResult.data, null, 2));
-
                 setQuestData(validationResult.data as Quest);
             } else {
                 console.error("Quest validation failed:", validationResult.error);

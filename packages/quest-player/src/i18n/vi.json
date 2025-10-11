@@ -12,6 +12,7 @@
 			"Withoutaname"
 		]
 	},
+	"Games.defaultQuestTitle": "Thử thách {{level}}",
 	"Games.resultFailure": "Chương trình chưa giải được câu đố.",
 	"Games.resultTimeout": "Chương trình chạy quá lâu.",
 	"Games.resultError": "Chương trình đã gặp lỗi và bị dừng.",

@@ -5,7 +5,8 @@ import * as Blockly from 'blockly/core';
 import { BlocklyWorkspace } from 'react-blockly';
 import { transform } from '@babel/standalone';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import type { Quest, ExecutionMode, CameraMode, ToolboxJSON, ToolboxItem, QuestPlayerSettings, QuestCompletionResult } from '../../types';
+import type { Quest, ExecutionMode, CameraMode, ToolboxJSON, ToolboxItem, QuestPlayerSettings, QuestCompletionResult, MazeConfig, Interactive } from '../../types';
+import type { MazeGameState } from '../../games/maze/types';
 import { Visualization } from '../Visualization';
 import { QuestImporter } from '../QuestImporter';
 import { Dialog } from '../Dialog';
@@ -41,6 +42,16 @@ type LibraryProps = {
 
 export type QuestPlayerProps = (StandaloneProps | LibraryProps);
 
+// KHÔI PHỤC: Interface cho state hiển thị thông số
+interface DisplayStats {
+  blockCount?: number;
+  maxBlocks?: number;
+  crystalsCollected?: number;
+  totalCrystals?: number;
+  switchesOn?: number;
+  totalSwitches?: number;
+}
+
 const START_BLOCK_TYPE = 'maze_start';
 
 export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
@@ -59,6 +70,10 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
   
+  // KHÔI PHỤC: State cho thông số
+  const [blockCount, setBlockCount] = useState(0);
+  const [displayStats, setDisplayStats] = useState<DisplayStats>({});
+
   const [renderer, setRenderer] = useState<'geras' | 'zelos'>('zelos');
   const [blocklyThemeName, setBlocklyThemeName] = useState<'zelos' | 'classic'>('zelos');
   const [gridEnabled, setGridEnabled] = useState(true);
@@ -144,6 +159,33 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
   }, [isQuestReady, engineRef, resetGame]);
   
+  // KHÔI PHỤC: useEffect để tính toán và cập nhật thông số hiển thị
+  useEffect(() => {
+    const newStats: DisplayStats = {};
+    if (questData) {
+        if (currentEditor === 'blockly' && questData.blocklyConfig?.maxBlocks) {
+            newStats.blockCount = blockCount;
+            newStats.maxBlocks = questData.blocklyConfig.maxBlocks;
+        }
+        if (questData.gameType === 'maze' && currentGameState) {
+            const mazeConfig = questData.gameConfig as MazeConfig;
+            const mazeState = currentGameState as MazeGameState;
+            
+            if (mazeConfig.collectibles && mazeConfig.collectibles.length > 0) {
+                newStats.totalCrystals = mazeConfig.collectibles.length;
+                newStats.crystalsCollected = mazeState.collectedIds.length;
+            }
+            const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
+            if (switches && switches.length > 0) {
+                newStats.totalSwitches = switches.length;
+                newStats.switchesOn = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
+            }
+        }
+    }
+    setDisplayStats(newStats);
+  }, [questData, currentGameState, blockCount, currentEditor]);
+
+
   const handleRun = (mode: ExecutionMode) => {
     setExecutionMode(mode);
     let codeToRun = '';
@@ -170,14 +212,19 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
+    
+    // KHÔI PHỤC: Cập nhật state blockCount
+    setBlockCount(workspace.getAllBlocks(false).length);
 
     const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
+    let finalCode = '';
     if (startBlock) {
-        const code = javascriptGenerator.blockToCode(startBlock);
-        setCurrentUserCode(Array.isArray(code) ? code[0] : (code || ''));
-    } else {
-        setCurrentUserCode('');
+        javascriptGenerator.init(workspace);
+        const rawCode = javascriptGenerator.blockToCode(startBlock);
+        const mainCode = Array.isArray(rawCode) ? rawCode[0] : (rawCode || '');
+        finalCode = javascriptGenerator.finish(mainCode);
     }
+    setCurrentUserCode(finalCode);
 
     if (!initialToolboxConfigRef.current) return;
     const startBlockExists = !!startBlock;
@@ -234,7 +281,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   return (
     <>
-      {isStandalone && <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}><p>{dialogState.message}</p></Dialog>}
+      <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}>{dialogState.message}</Dialog>
       <DocumentationPanel isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} gameType={questData.gameType} />
       <BackgroundMusic src={questData.backgroundMusic} play={playerStatus === 'running' && soundsEnabled} />
       
@@ -281,6 +328,24 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                               onActionComplete={handleActionComplete}
                               onTeleportComplete={handleTeleportComplete}
                           />
+                          {/* KHÔI PHỤC: JSX để hiển thị thông số */}
+                          <div className="stats-overlay">
+                            {displayStats.blockCount != null && displayStats.maxBlocks != null && (
+                                <div className="stat-item">
+                                    Blocks: {displayStats.blockCount} / {displayStats.maxBlocks}
+                                </div>
+                            )}
+                            {displayStats.totalCrystals != null && displayStats.totalCrystals > 0 && (
+                                <div className="stat-item">
+                                    Crystals: {displayStats.crystalsCollected ?? 0} / {displayStats.totalCrystals}
+                                </div>
+                            )}
+                            {displayStats.totalSwitches != null && displayStats.totalSwitches > 0 && (
+                                <div className="stat-item">
+                                    Switches: {displayStats.switchesOn ?? 0} / {displayStats.totalSwitches}
+                                </div>
+                            )}
+                          </div>
                       </div>
                     ) : (
                       <div className="emptyState">

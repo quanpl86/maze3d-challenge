@@ -3,6 +3,7 @@
   "gameType": "maze",
   "level": 3,
   "titleKey": "Games.maze",
+  "title": "Mê cung Sandbox",
   "descriptionKey": "Quest.maze3d3.sandbox.description",
   "translations": {
     "en": {
