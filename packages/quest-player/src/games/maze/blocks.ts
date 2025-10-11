@@ -1,11 +1,13 @@
-// src/games/maze/blocks.ts
+// packages/quest-player/src/games/maze/blocks.ts
 
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator, Order } from 'blockly/javascript';
 import type { TFunction } from 'i18next'; 
 
-// Sửa hàm init
 export function init(t: TFunction) { 
+  if (Blockly.Blocks['maze_moveForward']) {
+    return;
+  }
 
   Blockly.Msg['CONTROLS_REPEAT_TITLE'] = t('Controls.repeatTitle', 'repeat %1 times');
   Blockly.Msg['CONTROLS_REPEAT_INPUT_DO'] = t('Controls.repeatInputDo', 'do');
@@ -194,7 +196,8 @@ export function init(t: TFunction) {
       branch = (javascriptGenerator as any).INFINITE_LOOP_TRAP.replace(/%1/g, `'block_id_${block.id}'`) + branch;
     }
     const loopVar = javascriptGenerator.nameDB_?.getDistinctName('count', 'variable') || 'count';
-    const code = `for (let ${loopVar} = 0; ${loopVar} < ${repeats}; ${loopVar}++) {\n${branch}}\n`;
+    // SỬA LỖI: Thay 'let' bằng 'var' để tương thích với ES5 (js-interpreter)
+    const code = `for (var ${loopVar} = 0; ${loopVar} < ${repeats}; ${loopVar}++) {\n${branch}}\n`;
     return code;
   };
   javascriptGenerator.forBlock['maze_collect'] = function(block: Blockly.Block) {
