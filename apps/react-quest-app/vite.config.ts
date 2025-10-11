@@ -34,6 +34,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '/assets': path.resolve(__dirname, '../../packages/quest-player/public/assets')
-    }
+    },
+    dedupe: [
+      'blockly'
+    ]
   }
 });

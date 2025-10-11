@@ -24,7 +24,7 @@ export const useQuestLoader = (questData: Quest | null) => {
     }
 
     let isMounted = true;
-    const loadQuest = async () => {
+    const loadQuest = () => {
       try {
         setIsQuestReady(false);
         setError('');
@@ -34,7 +34,7 @@ export const useQuestLoader = (questData: Quest | null) => {
           throw new Error(`Game module for type "${questData.gameType}" not found in registry.`);
         }
 
-        await initializeGame(questData.gameType, t);
+        initializeGame(questData.gameType, t);
         if (!isMounted) return;
 
         const engine = new gameModule.GameEngine(questData.gameConfig);
