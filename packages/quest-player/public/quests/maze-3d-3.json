@@ -1,0 +1,115 @@
+{
+  "id": "maze-3d-3",
+  "gameType": "maze",
+  "level": 3,
+  "titleKey": "Games.maze",
+  "descriptionKey": "Quest.maze3d3.sandbox.description",
+  "translations": {
+    "en": {
+      "Quest.maze3d3.sandbox.description": "Turn on all the switches to reach the goal. Use the full set of blocks, including loops and functions, to find the most efficient solution."
+    },
+    "vi": {
+      "Quest.maze3d3.sandbox.description": "Bật tất cả các công tắc để đi tới đích. Hãy sử dụng bộ khối lệnh đầy đủ, bao gồm cả vòng lặp và hàm, để tìm ra lời giải hiệu quả nhất."
+    }
+  },
+  "supportedEditors": ["blockly", "monaco"],
+"blocklyConfig": {
+      "toolbox": {
+        "kind": "categoryToolbox",
+        "contents": [
+            { "kind": "category", "name": "Events", "categorystyle": "procedure_category", "contents": [
+                { "kind": "block", "type": "maze_start" }
+            ]},
+            { "kind": "category", "name": "Movement", "categorystyle": "turtle_category", "contents": [
+                { "kind": "block", "type": "maze_moveForward" },
+                { "kind": "block", "type": "maze_jump" },
+                { "kind": "block", "type": "maze_turn" }
+            ]},
+            { "kind": "category", "name": "Loops", "categorystyle": "loops_category", "contents": [
+                { "kind": "block", "type": "controls_whileUntil" },
+                { "kind": "block", "type": "maze_repeat", "inputs": { "TIMES": { "shadow": { "type": "math_number", "fields": { "NUM": 5 }}}}}
+            ]},
+            { "kind": "category", "name": "Logic", "categorystyle": "logic_category", "contents": [
+                { "kind": "block", "type": "controls_if" },
+                { "kind": "block", "type": "logic_compare" },
+                { "kind": "block", "type": "logic_operation" },
+                { "kind": "block", "type": "logic_negate" },
+                { "kind": "block", "type": "logic_boolean" },
+                { "kind": "block", "type": "maze_is_path" },
+                { "kind": "block", "type": "maze_is_item_present" },
+                { "kind": "block", "type": "maze_is_switch_state" },
+                { "kind": "block", "type": "maze_at_finish" }
+            ]},
+            { "kind": "category", "name": "Actions", "categorystyle": "pond_category", "contents": [
+                { "kind": "block", "type": "maze_collect" },
+                { "kind": "block", "type": "maze_toggle_switch" }
+            ]},
+            { "kind": "category", "name": "Math", "categorystyle": "math_category", "contents": [
+                { "kind": "block", "type": "maze_item_count" },
+                { "kind": "block", "type": "math_number" },
+                { "kind": "block", "type": "math_arithmetic", "inputs": { "A": { "shadow": { "type": "math_number", "fields": { "NUM": 1 }}}, "B": { "shadow": { "type": "math_number", "fields": { "NUM": 1 }}} }}
+            ]},
+            { "kind": "sep" },
+            { "kind": "category", "name": "%{BKY_GAMES_CATVARIABLES}", "custom": "VARIABLE", "categorystyle": "variable_category" },
+            { "kind": "category", "name": "%{BKY_GAMES_CATPROCEDURES}", "custom": "PROCEDURE", "categorystyle": "procedure_category" }
+        ]
+      },
+      "maxBlocks": 50
+    },
+  "gameConfig": {
+      "type": "maze",
+      "renderer": "3d",
+      "blocks": [
+        { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 1 } },
+        { "modelKey": "ground.normal", "position": { "x": 2, "y": 0, "z": 1 } },
+        { "modelKey": "ground.normal", "position": { "x": 3, "y": 0, "z": 1 } },
+        { "modelKey": "ground.normal", "position": { "x": 4, "y": 0, "z": 1 } },
+        { "modelKey": "ground.normal", "position": { "x": 5, "y": 0, "z": 1 } },
+        { "modelKey": "ground.normal", "position": { "x": 1, "y": 1, "z": 3 } },
+        { "modelKey": "ground.normal", "position": { "x": 2, "y": 1, "z": 3 } },
+        { "modelKey": "ground.normal", "position": { "x": 3, "y": 1, "z": 3 } },
+        { "modelKey": "ground.normal", "position": { "x": 4, "y": 1, "z": 3 } },
+        { "modelKey": "ground.normal", "position": { "x": 5, "y": 1, "z": 3 } }
+      ],
+      "players": [
+        {
+          "id": "player1",
+          "start": { "x": 1, "y": 1, "z": 1, "direction": 1 }
+        }
+      ],
+      "collectibles": [
+        { "id": "c1", "type": "crystal", "position": { "x": 3, "y": 1, "z": 1 } }
+      ],
+      "interactibles": [
+        {
+            "id": "portal_A",
+            "type": "portal",
+            "color": "blue",
+            "position": { "x": 5, "y": 1, "z": 1 },
+            "targetId": "portal_B"
+        },
+        {
+            "id": "portal_B",
+            "type": "portal",
+            "color": "blue",
+            "position": { "x": 1, "y": 2, "z": 3 },
+            "targetId": "portal_A"
+        },
+        {
+            "id": "switch_1",
+            "type": "switch",
+            "position": { "x": 3, "y": 2, "z": 3 },
+            "initialState": "off"
+        }
+      ],
+      "finish": { "x": 5, "y": 2, "z": 3 }
+    },
+  "solution": {
+    "type": "reach_target",
+    "optimalBlocks": 8
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

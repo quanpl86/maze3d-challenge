@@ -1,0 +1,84 @@
+{
+    "id": "maze-3d-switch-1",
+    "gameType": "maze",
+    "level": 4,
+    "titleKey": "Games.maze",
+    "descriptionKey": "Quest.maze_switch_1.description",
+    "translations": {
+      "en": {
+        "Quest.maze_switch_1.description": "Step on each platform to toggle the switches and light them all up."
+      },
+      "vi": {
+        "Quest.maze_switch_1.description": "Bước lên mỗi bục để bật/tắt công tắc và làm tất cả chúng đều sáng lên."
+      }
+    },
+    "blocklyConfig": {
+      "toolbox": {
+        "kind": "flyoutToolbox",
+        "contents": [
+          {
+            "kind": "block",
+            "type": "maze_moveForward"
+          },
+          {
+            "kind": "block",
+            "type": "maze_toggle_switch"
+          },
+          {
+            "kind": "block",
+            "type": "maze_turn",
+            "fields": {
+              "DIR": "turnLeft"
+            }
+          },
+          {
+            "kind": "block",
+            "type": "maze_turn",
+            "fields": {
+              "DIR": "turnRight"
+            }
+          }
+        ]
+      },
+      "maxBlocks": 5
+    },
+    "gameConfig": {
+      "type": "maze",
+      "renderer": "3d",
+      "blocks": [
+        { "modelKey": "ground.normal", "position": { "x": 0, "y": 0, "z": 0 } },
+        { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 0 } },
+        { "modelKey": "ground.normal", "position": { "x": 2, "y": 0, "z": 0 } },
+        { "modelKey": "ground.normal", "position": { "x": 3, "y": 0, "z": 0 } },
+        { "modelKey": "ground.normal", "position": { "x": 4, "y": 0, "z": 0 } }
+      ],
+      "players": [
+        {
+          "id": "player1",
+          "start": { "x": 0, "y": 1, "z": 0, "direction": 1 }
+        }
+      ],
+      "interactibles": [
+        {
+            "id": "switch_1",
+            "type": "switch",
+            "position": { "x": 1, "y": 1, "z": 0 },
+            "initialState": "off"
+        },
+        {
+            "id": "switch_2",
+            "type": "switch",
+            "position": { "x": 3, "y": 1, "z": 0 },
+            "initialState": "on"
+        }
+      ],
+      "finish": { "x": 4, "y": 1, "z": 0 }
+    },
+    "solution": {
+      "type": "reach_target"
+    },
+    "sounds": {
+      "win": "/assets/maze/win.mp3",
+      "fail": "/assets/maze/fail_pegman.mp3"
+    }
+  }

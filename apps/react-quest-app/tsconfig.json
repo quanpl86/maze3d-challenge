@@ -1,11 +1,12 @@
+// apps/react-quest-app/tsconfig.json
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"], // <-- THÊM "node" VÀO ĐÂY
     "noEmit": true
   },
-  "include": ["src","App.tsx"],
+  "include": ["src", "vite.config.ts"], // <-- THÊM vite.config.ts VÀO ĐÂY
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "../../packages/quest-player" }]
 }

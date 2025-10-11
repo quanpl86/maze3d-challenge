@@ -1,0 +1,76 @@
+{
+    "id": "turtle-star",
+    "gameType": "turtle",
+    "level": 2,
+    "titleKey": "Games.turtleStar",
+    "descriptionKey": "Turtle.helpTextStar",
+    "translations": {
+      "en": {
+        "Turtle.helpTextStar": "To draw a star, you need to move forward and turn right five times."
+      },
+      "vi": {
+        "Turtle.helpTextStar": "Để vẽ một hình ngôi sao, bạn cần tiến lên phía trước và rẽ phải năm lần."
+      }
+    },
+    "blocklyConfig": {
+      "toolbox": {
+        "kind": "categoryToolbox",
+        "contents": [
+          {
+            "kind": "category",
+            "name": "%{BKY_GAMES_TURTLE}",
+            "contents": [
+              {
+                "kind": "block",
+                "type": "turtle_move_internal",
+                "fields": {
+                  "VALUE": "100"
+                }
+              },
+              {
+                "kind": "block",
+                "type": "turtle_turn_internal",
+                "fields": {
+                  "VALUE": "144"
+                }
+              }
+            ]
+          },
+          {
+            "kind": "category",
+            "name": "%{BKY_GAMES_CATLOOPS}",
+            "contents": [
+              {
+                "kind": "block",
+                "type": "turtle_repeat_internal",
+                "fields": {
+                  "TIMES": "5"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "startBlocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"turtle_move_internal\" x=\"70\" y=\"70\"><field name=\"VALUE\">100</field></block></xml>"
+    },
+    "gameConfig": {
+      "type": "turtle",
+      "player": {
+        "start": {
+          "x": 200,
+          "y": 200,
+          "direction": 0,
+          "penDown": true
+        }
+      }
+    },
+    "solution": {
+      "type": "match_drawing",
+      "pixelTolerance": 100,
+      "solutionBlocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"turtle_repeat_internal\"><field name=\"TIMES\">5</field><statement name=\"DO\"><block type=\"turtle_move_internal\"><field name=\"VALUE\">100</field><next><block type=\"turtle_turn_internal\"><field name=\"VALUE\">144</field></block></next></block></statement></block></xml>",
+      "solutionScript": "for (var count = 0; count < 5; count++) { moveForward(100); turnRight(144); }"
+    },
+    "sounds": {
+      "win": "/assets/turtle/win.mp3"
+    }
+}

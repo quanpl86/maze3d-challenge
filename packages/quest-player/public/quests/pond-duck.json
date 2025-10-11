@@ -1,0 +1,156 @@
+{
+  "id": "pond-duck",
+  "gameType": "pond",
+  "level": 10,
+  "titleKey": "Games.pond",
+  "descriptionKey": "Pond.duckHelp",
+  "supportedEditors": ["blockly", "monaco"],
+  "translations": {
+    "en": {
+      "Pond.duckHelp": "Program the smartest duck. Use either blocks or JavaScript."
+    },
+    "vi": {
+      "Pond.duckHelp": "Lập trình con vịt thông minh nhất. Sử dụng khối lệnh hoặc JavaScript."
+    }
+  },
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_POND}",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "pond_cannon",
+              "inputs": {
+                "DEGREE": { "shadow": { "type": "pond_math_number", "fields": { "NUM": 0 } } },
+                "RANGE": { "shadow": { "type": "pond_math_number", "fields": { "NUM": 70 } } }
+              }
+            },
+            {
+              "kind": "block",
+              "type": "pond_scan",
+              "inputs": {
+                "DEGREE": { "shadow": { "type": "pond_math_number", "fields": { "NUM": 0 } } }
+              }
+            },
+            {
+              "kind": "block",
+              "type": "pond_swim",
+              "inputs": {
+                "DEGREE": { "shadow": { "type": "pond_math_number", "fields": { "NUM": 0 } } }
+              }
+            },
+            { "kind": "block", "type": "pond_stop" },
+            { "kind": "block", "type": "pond_getX" },
+            { "kind": "block", "type": "pond_getY" },
+            { "kind": "block", "type": "pond_speed" },
+            { "kind": "block", "type": "pond_health" },
+            {
+              "kind": "block",
+              "type": "pond_log",
+              "inputs": {
+                "VALUE": { "shadow": { "type": "pond_math_number", "fields": { "NUM": 123 } } }
+              }
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOGIC}",
+          "contents": [
+            { "kind": "block", "type": "controls_if" },
+            { "kind": "block", "type": "logic_compare" },
+            { "kind": "block", "type": "logic_operation" },
+            { "kind": "block", "type": "logic_boolean" }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOOPS}",
+          "contents": [
+            { "kind": "block", "type": "controls_whileUntil" }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMATH}",
+          "contents": [
+            { "kind": "block", "type": "pond_math_number" },
+            {
+              "kind": "block",
+              "type": "math_arithmetic",
+              "inputs": {
+                "A": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } },
+                "B": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } }
+              }
+            },
+            {
+              "kind": "block",
+              "type": "pond_math_single",
+              "inputs": {
+                "NUM": { "shadow": { "type": "math_number", "fields": { "NUM": 9 } } }
+              }
+            },
+            { "kind": "block", "type": "math_random_float" }
+          ]
+        },
+        { "kind": "sep" },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATVARIABLES}",
+          "custom": "VARIABLE"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE"
+        }
+      ]
+    },
+    "startBlocks": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"pond_cannon\" x=\"70\" y=\"70\"><value name=\"DEGREE\"><shadow type=\"pond_math_number\"><field name=\"NUM\">0</field></shadow></value><value name=\"RANGE\"><shadow type=\"pond_math_number\"><field name=\"NUM\">70</field></shadow></value></block></xml>"
+  },
+  "gameConfig": {
+    "type": "pond",
+    "avatars": [
+      {
+        "name": "Player",
+        "isPlayer": true,
+        "start": { "x": 20, "y": 80 },
+        "damage": 0
+      },
+      {
+        "name": "Rook",
+        "isPlayer": false,
+        "start": { "x": 80, "y": 80 },
+        "damage": 0,
+        "code": "var course=0,boundary=99;drive(0,30);for(;;){look(0),look(90),look(180),look(270),0==course?getX()>boundary&&change():getX()<boundary&&change()};function look(a){for(var b;70>=(b=scan(a,4));)drive(course,0),cannon(a,b)}function change(){0==course?(boundary=1,course=180):(boundary=99,course=0),drive(course,30)};"
+      },
+      {
+        "name": "Counter",
+        "isPlayer": false,
+        "start": { "x": 20, "y": 20 },
+        "damage": 0,
+        "code": "var angle=Math.random()*360,d=damage();for(;;){for(var a;a=scan(angle,2),a!=Infinity;){if(70<a){drive(angle,50);for(var b=1;50>b++;);drive(angle,0)}else for(;!cannon(angle,a););if(d!=damage()){d=damage(),run();break}angle-=10}if(d!=damage()){d=damage(),run();break}angle+=2;angle%=360};function run(){var a=getY();drive(90,100);for(var b=1;a+10>getY()&&50>b++;);drive(90,0)};"
+      },
+      {
+        "name": "Sniper",
+        "isPlayer": false,
+        "start": { "x": 80, "y": 20 },
+        "damage": 0,
+        "code": "var corner=0,sc=0,range,closest=Infinity;new_corner();var d=damage(),dir=sc;for(;;){for(;dir<sc+90;){if(range=scan(dir,2),70>=range){for(;0<range;)closest=range,cannon(dir,range),range=scan(dir,1),d+15>damage()&&(range=0);dir-=10}dir+=2;if(d!=damage()){new_corner(),d=damage(),dir=sc;break}}closest==Infinity?(new_corner(),d=damage(),dir=sc):dir=sc;closest=Infinity};function new_corner(){var a,b,c=Math.floor(4*Math.random());c==corner&&(corner=(c+1)%4);corner=c;0==corner?(a=2,b=2,sc=0):1==corner?(a=2,b=98,sc=270):2==corner?(a=98,b=98,sc=180):(a=98,b=2,sc=90);for(c=plot_course(a,b);15<distance(getX(),getY(),a,b);)drive(c,100);for(;1<distance(getX(),getY(),a,b);)drive(c,20);drive(c,0)}function distance(a,b,c,e){return Math.sqrt((a-c)*(a-c)+(b-e)*(b-e))} function plot_course(a,b){var c,e=getX(),f=getY();a=e-a;b=f-b;return c=0==a?b>f?90:270:b<f?a>e?360+Math.atan_deg(b/a):180+Math.atan_deg(b/a):a>e?Math.atan_deg(b/a):180+Math.atan_deg(b/a)};"
+      }
+    ]
+  },
+  "solution": {
+    "type": "survive_battle"
+  },
+  "sounds": {
+      "boom": "/assets/pond/boom.mp3",
+      "splash": "/assets/pond/splash.mp3",
+      "crash": "/assets/pond/whack.mp3"
+  },
+  "backgroundMusic": "/assets/music/bg_music_1.wav"
+}
