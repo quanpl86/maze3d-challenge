@@ -36,8 +36,6 @@ function App() {
     code?: string;
   }>({ isOpen: false, title: '', message: '' });
 
-  // SỬA ĐỔI 1: Tính toán `sortedQuests` bằng useMemo và trực tiếp sử dụng nó.
-  // Không cần state `allQuests` nữa.
   const sortedQuests = useMemo<QuestInfo[]>(() => {
     const quests: QuestInfo[] = Object.values(questModules).map(module => ({
       id: module.default.id,
@@ -53,22 +51,26 @@ function App() {
     });
 
     return quests;
-  }, []); // Chạy một lần duy nhất
+  }, []);
 
   const handleQuestSelect = useCallback((id: string) => {
-    // Không cần check currentQuestId nữa, vì việc re-render sẽ được xử lý bởi React.
     setIsLoading(true);
     setCurrentQuestId(id);
     setQuestData(null); 
 
-    // Sử dụng setTimeout để đảm bảo UI kịp cập nhật sang trạng thái "Loading"
-    // trước khi bắt đầu công việc có thể làm block thread (dù ở đây là nhanh).
     setTimeout(() => {
         const targetModule = Object.values(questModules).find(module => module.default.id === id);
 
         if (targetModule) {
             const validationResult = questSchema.safeParse(targetModule.default);
             if (validationResult.success) {
+                // THÊM LOG QUAN TRỌNG TẠI ĐÂY
+                console.log(
+                  '%c[DEBUG] QUEST DATA LOADED AND VALIDATED. THIS IS THE SOURCE OF TRUTH:',
+                  'color: yellow; font-weight: bold; font-size: 14px;'
+                );
+                console.log(JSON.stringify(validationResult.data, null, 2));
+
                 setQuestData(validationResult.data as Quest);
             } else {
                 console.error("Quest validation failed:", validationResult.error);
@@ -79,7 +81,7 @@ function App() {
             alert(`Could not find quest with id: ${id}`);
         }
         setIsLoading(false);
-    }, 10); // Một khoảng trễ nhỏ
+    }, 10);
   }, []);
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {

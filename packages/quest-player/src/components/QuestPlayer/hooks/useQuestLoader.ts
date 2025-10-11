@@ -26,6 +26,7 @@ export const useQuestLoader = (questData: Quest | null) => {
     let isMounted = true;
     const loadQuest = () => {
       try {
+        console.log('[DEBUG] 1. useQuestLoader: Starting to load quest for gameType:', questData.gameType);
         setIsQuestReady(false);
         setError('');
         
@@ -34,6 +35,7 @@ export const useQuestLoader = (questData: Quest | null) => {
           throw new Error(`Game module for type "${questData.gameType}" not found in registry.`);
         }
 
+        console.log('[DEBUG] 2. useQuestLoader: initializeGame has been called.');
         initializeGame(questData.gameType, t);
         if (!isMounted) return;
 
@@ -58,6 +60,7 @@ export const useQuestLoader = (questData: Quest | null) => {
             throw new Error(`No suitable renderer found for game type "${questData.gameType}".`);
         }
 
+        console.log('[DEBUG] 3. useQuestLoader: Renderer is set. Quest is now ready.');
         setIsQuestReady(true);
 
       } catch (err) {

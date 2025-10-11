@@ -1,3 +1,5 @@
+// packages/quest-player/src/components/QuestPlayer/index.tsx
+
 import React, { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
@@ -168,6 +170,10 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     } else {
         codeToRun = userCodeForLoop;
     }
+
+    // THÊM LOG DEBUG TẠI ĐÂY
+    console.log(`%c[DEBUG] Code to be executed:`, 'color: cyan; font-weight: bold;', `\n---\n${codeToRun}\n---`);
+
     runGame(codeToRun, mode);
   };
   
