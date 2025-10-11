@@ -1,4 +1,5 @@
 // packages/quest-player/src/components/QuestPlayer/index.tsx
+
 import React, { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
@@ -24,8 +25,6 @@ import { useQuestLoader } from './hooks/useQuestLoader';
 import { useEditorManager } from './hooks/useEditorManager';
 import { useGameLoop } from './hooks/useGameLoop';
 import './QuestPlayer.css';
-
-// ... (các định nghĩa type và hằng số không thay đổi) ...
 
 type StandaloneProps = {
   isStandalone?: true;
@@ -69,20 +68,22 @@ const DEFAULT_SETTINGS: Required<QuestPlayerSettings> = {
 
 export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const { t, i18n } = useTranslation();
-  
+
   const isStandalone = props.isStandalone !== false;
+
+  const [loadedQuestId, setLoadedQuestId] = useState<string | null>(null);
 
   const [internalQuestData, setInternalQuestData] = useState<Quest | null>(null);
   const questData = isStandalone ? internalQuestData : props.questData;
-  
+
   const [importError, setImportError] = useState<string>('');
   const [dialogState, setDialogState] = useState({ isOpen: false, title: '', message: '' });
   const [isDocsOpen, setIsDocsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+
   const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
-  
+
   const [blockCount, setBlockCount] = useState(0);
   const [displayStats, setDisplayStats] = useState<DisplayStats>({});
 
@@ -94,9 +95,9 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const { GameRenderer, engineRef, solutionCommands, error: questLoaderError, isQuestReady } = useQuestLoader(questData);
   const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef);
-  
+
   const [currentUserCode, setCurrentUserCode] = useState('');
-  
+
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
 
   const handleSettingsChange = (newSettings: Partial<QuestPlayerSettings>) => {
@@ -109,16 +110,16 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     if (isStandalone) {
       if (result.isSuccess) {
         const unitLabel = result.unitLabel === 'block' ? 'blockCount' : 'lineCount';
-        setDialogState({ 
-            isOpen: true, 
-            title: t('Games.dialogCongratulations'), 
-            message: t('Games.dialogGoodJob', { [unitLabel]: result.unitCount }) 
+        setDialogState({
+          isOpen: true,
+          title: t('Games.dialogCongratulations'),
+          message: t('Games.dialogGoodJob', { [unitLabel]: result.unitCount })
         });
       } else {
-        setDialogState({ 
-            isOpen: true, 
-            title: t('Games.dialogTryAgain'), 
-            message: getFailureMessage(t, (result.finalState as any).result) 
+        setDialogState({
+          isOpen: true,
+          title: t('Games.dialogTryAgain'),
+          message: getFailureMessage(t, (result.finalState as any).result)
         });
       }
     } else {
@@ -128,20 +129,25 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       props.onQuestComplete(result);
     }
   }, [isStandalone, props, t]);
-  
+
   const { playSound } = useSoundManager(questData?.sounds, settings.soundsEnabled);
-  
-  const { 
-    currentGameState, playerStatus, runGame, resetGame, 
+
+  const {
+    currentGameState, playerStatus, runGame, resetGame,
     pauseGame, resumeGame, stepForward,
     handleActionComplete, handleTeleportComplete
   } = useGameLoop(engineRef, questData, rendererRef, handleGameEnd, playSound, setHighlightedBlockId, currentEditor, currentUserCode, workspaceRef);
 
   useEffect(() => {
     if (questData?.blocklyConfig) {
+      setLoadedQuestId(null);  // Reset để không render Blockly cũ
       const processedToolbox = processToolbox(questData.blocklyConfig.toolbox, t);
       initialToolboxConfigRef.current = processedToolbox;
       setDynamicToolboxConfig(processedToolbox);
+      setLoadedQuestId(questData.id);  // Set lại sau khi toolbox ready
+    } else {
+      setDynamicToolboxConfig(null);
+      setLoadedQuestId(null);
     }
   }, [questData, t]);
 
@@ -154,34 +160,34 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   }, [questData, i18n]);
 
   useEffect(() => { if (questLoaderError) setImportError(questLoaderError); }, [questLoaderError]);
-  
-  useEffect(() => { 
+
+  useEffect(() => {
     if (isQuestReady && engineRef.current) {
-        resetGame(); 
+      resetGame();
     }
   }, [isQuestReady, engineRef, resetGame]);
-  
+
   useEffect(() => {
     const newStats: DisplayStats = {};
     if (questData) {
-        if (currentEditor === 'blockly' && questData.blocklyConfig?.maxBlocks) {
-            newStats.blockCount = blockCount;
-            newStats.maxBlocks = questData.blocklyConfig.maxBlocks;
+      if (currentEditor === 'blockly' && questData.blocklyConfig?.maxBlocks) {
+        newStats.blockCount = blockCount;
+        newStats.maxBlocks = questData.blocklyConfig.maxBlocks;
+      }
+      if (questData.gameType === 'maze' && currentGameState) {
+        const mazeConfig = questData.gameConfig as MazeConfig;
+        const mazeState = currentGameState as MazeGameState;
+
+        if (mazeConfig.collectibles && mazeConfig.collectibles.length > 0) {
+          newStats.totalCrystals = mazeConfig.collectibles.length;
+          newStats.crystalsCollected = mazeState.collectedIds.length;
         }
-        if (questData.gameType === 'maze' && currentGameState) {
-            const mazeConfig = questData.gameConfig as MazeConfig;
-            const mazeState = currentGameState as MazeGameState;
-            
-            if (mazeConfig.collectibles && mazeConfig.collectibles.length > 0) {
-                newStats.totalCrystals = mazeConfig.collectibles.length;
-                newStats.crystalsCollected = mazeState.collectedIds.length;
-            }
-            const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
-            if (switches && switches.length > 0) {
-                newStats.totalSwitches = switches.length;
-                newStats.switchesOn = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
-            }
+        const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
+        if (switches && switches.length > 0) {
+          newStats.totalSwitches = switches.length;
+          newStats.switchesOn = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
         }
+      }
     }
     setDisplayStats(newStats);
   }, [questData, currentGameState, blockCount, currentEditor]);
@@ -203,7 +209,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
     runGame(codeToRun, mode);
   };
-  
+
   const handleQuestLoad = (loadedQuest: Quest) => {
     if (isStandalone) setInternalQuestData(loadedQuest);
     if (props.onQuestLoad) props.onQuestLoad(loadedQuest);
@@ -217,10 +223,10 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
     let finalCode = '';
     if (startBlock) {
-        javascriptGenerator.init(workspace);
-        const rawCode = javascriptGenerator.blockToCode(startBlock);
-        const mainCode = Array.isArray(rawCode) ? rawCode[0] : (rawCode || '');
-        finalCode = javascriptGenerator.finish(mainCode);
+      javascriptGenerator.init(workspace);
+      const rawCode = javascriptGenerator.blockToCode(startBlock);
+      const mainCode = Array.isArray(rawCode) ? rawCode[0] : (rawCode || '');
+      finalCode = javascriptGenerator.finish(mainCode);
     }
     setCurrentUserCode(finalCode);
 
@@ -240,9 +246,9 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       setDynamicToolboxConfig(initialToolboxConfigRef.current);
     }
   }, [dynamicToolboxConfig]);
-  
+
   const is3DRenderer = questData?.gameConfig.type === 'maze' && questData.gameConfig.renderer === '3d';
-  
+
   const effectiveColorScheme = useMemo(() => {
     if (settings.colorSchemeMode === 'auto') {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -269,18 +275,18 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   if (!questData && isStandalone) {
     return (
-      <div className="emptyState" style={{flexDirection: 'column', gap: '20px'}}>
-          <h2>{t('Games.loadQuest')}</h2>
-          <div style={{display: 'flex', gap: '15px'}}>
-            <QuestImporter onQuestLoad={handleQuestLoad} onError={setImportError} />
-          </div>
-          {importError && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>{importError}</p>}
+      <div className="emptyState" style={{ flexDirection: 'column', gap: '20px' }}>
+        <h2>{t('Games.loadQuest')}</h2>
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <QuestImporter onQuestLoad={handleQuestLoad} onError={setImportError} />
+        </div>
+        {importError && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>{importError}</p>}
       </div>
     );
   }
-  
+
   if (!questData) {
-      return <div className="emptyState"><h2>{t('Games.waitingForQuest')}</h2></div>;
+    return <div className="emptyState"><h2>{t('Games.waitingForQuest')}</h2></div>;
   }
 
   return (
@@ -288,135 +294,140 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}>{dialogState.message}</Dialog>
       <DocumentationPanel isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} gameType={questData.gameType} />
       <BackgroundMusic src={questData.backgroundMusic} play={playerStatus === 'running' && settings.soundsEnabled} />
-      
+
       <PanelGroup direction="horizontal" className="quest-player-container" autoSaveId="quest-player-panels">
         <Panel defaultSize={50} minSize={20}>
-            <div className="visualizationColumn">
-                <div className="main-content-wrapper">
-                    <div className="controlsArea">
-                      <div>
-                          {(playerStatus === 'idle' || playerStatus === 'finished') && (
-                              <>
-                                  <button className="primaryButton" onClick={() => handleRun('run')}>Run</button>
-                                  <button className="primaryButton" onClick={() => handleRun('debug')}>Debug</button>
-                              </>
-                          )}
-                          {playerStatus === 'running' && executionMode === 'debug' && ( <button className="primaryButton" onClick={pauseGame}>Pause</button> )}
-                          {playerStatus === 'paused' && (
-                              <>
-                                  <button className="primaryButton" onClick={resumeGame}>Resume</button>
-                                  <button className="primaryButton" onClick={stepForward}>Step Forward</button>
-                              </>
-                          )}
-                          {playerStatus !== 'idle' && <button className="primaryButton" onClick={resetGame}>Reset</button>}
-                      </div>
-                      <div>
-                          {is3DRenderer && (
-                              <select value={settings.cameraMode} onChange={(e) => handleSettingsChange({ cameraMode: e.target.value as CameraMode })}>
-                                  <option value="Follow">Follow</option>
-                                  <option value="TopDown">Top Down</option>
-                                  <option value="Free">Free</option>
-                              </select>
-                          )}
-                      </div>
-                    </div>
-                    {isQuestReady && GameRenderer ? (
-                      <div className="visualization-wrapper">
-                          <Visualization
-                              GameRenderer={GameRenderer}
-                              gameState={currentGameState}
-                              gameConfig={questData.gameConfig}
-                              ref={questData.gameType === 'turtle' ? rendererRef : undefined}
-                              solutionCommands={solutionCommands}
-                              cameraMode={settings.cameraMode}
-                              onActionComplete={handleActionComplete}
-                              onTeleportComplete={handleTeleportComplete}
-                          />
-                          <div className="stats-overlay">
-                            {displayStats.blockCount != null && displayStats.maxBlocks != null && (
-                                <div className="stat-item">
-                                    Blocks: {displayStats.blockCount} / {displayStats.maxBlocks}
-                                </div>
-                            )}
-                            {displayStats.totalCrystals != null && displayStats.totalCrystals > 0 && (
-                                <div className="stat-item">
-                                    Crystals: {displayStats.crystalsCollected ?? 0} / {displayStats.totalCrystals}
-                                </div>
-                            )}
-                            {displayStats.totalSwitches != null && displayStats.totalSwitches > 0 && (
-                                <div className="stat-item">
-                                    Switches: {displayStats.switchesOn ?? 0} / {displayStats.totalSwitches}
-                                </div>
-                            )}
-                          </div>
-                      </div>
-                    ) : (
-                      <div className="emptyState">
-                        <h2>Loading Visualization...</h2>
-                        {questLoaderError && <p style={{ color: 'red' }}>{questLoaderError}</p>}
+          <div className="visualizationColumn">
+            <div className="main-content-wrapper">
+              <div className="controlsArea">
+                <div>
+                  {(playerStatus === 'idle' || playerStatus === 'finished') && (
+                    <>
+                      <button className="primaryButton" onClick={() => handleRun('run')}>Run</button>
+                      <button className="primaryButton" onClick={() => handleRun('debug')}>Debug</button>
+                    </>
+                  )}
+                  {playerStatus === 'running' && executionMode === 'debug' && (<button className="primaryButton" onClick={pauseGame}>Pause</button>)}
+                  {playerStatus === 'paused' && (
+                    <>
+                      <button className="primaryButton" onClick={resumeGame}>Resume</button>
+                      <button className="primaryButton" onClick={stepForward}>Step Forward</button>
+                    </>
+                  )}
+                  {playerStatus !== 'idle' && <button className="primaryButton" onClick={resetGame}>Reset</button>}
+                </div>
+                <div>
+                  {is3DRenderer && (
+                    <select value={settings.cameraMode} onChange={(e) => handleSettingsChange({ cameraMode: e.target.value as CameraMode })}>
+                      <option value="Follow">Follow</option>
+                      <option value="TopDown">Top Down</option>
+                      <option value="Free">Free</option>
+                    </select>
+                  )}
+                </div>
+              </div>
+              {isQuestReady && GameRenderer ? (
+                <div className="visualization-wrapper">
+                  <Visualization
+                    GameRenderer={GameRenderer}
+                    gameState={currentGameState}
+                    gameConfig={questData.gameConfig}
+                    ref={questData.gameType === 'turtle' ? rendererRef : undefined}
+                    solutionCommands={solutionCommands}
+                    cameraMode={settings.cameraMode}
+                    onActionComplete={handleActionComplete}
+                    onTeleportComplete={handleTeleportComplete}
+                  />
+                  <div className="stats-overlay">
+                    {displayStats.blockCount != null && displayStats.maxBlocks != null && (
+                      <div className="stat-item">
+                        Blocks: {displayStats.blockCount} / {displayStats.maxBlocks}
                       </div>
                     )}
-                    <div className="descriptionArea">Task: {t(questData.descriptionKey)}</div>
+                    {displayStats.totalCrystals != null && displayStats.totalCrystals > 0 && (
+                      <div className="stat-item">
+                        Crystals: {displayStats.crystalsCollected ?? 0} / {displayStats.totalCrystals}
+                      </div>
+                    )}
+                    {displayStats.totalSwitches != null && displayStats.totalSwitches > 0 && (
+                      <div className="stat-item">
+                        Switches: {displayStats.switchesOn ?? 0} / {displayStats.totalSwitches}
+                      </div>
+                    )}
+                  </div>
                 </div>
+              ) : (
+                <div className="emptyState">
+                  <h2>Loading Visualization...</h2>
+                  {questLoaderError && <p style={{ color: 'red' }}>{questLoaderError}</p>}
+                </div>
+              )}
+              <div className="descriptionArea">Task: {t(questData.descriptionKey)}</div>
             </div>
+          </div>
         </Panel>
         <PanelResizeHandle />
         <Panel minSize={30} onResize={handleBlocklyPanelResize}>
-            <div className="blocklyColumn">
-                <EditorToolbar
-                  supportedEditors={questData.supportedEditors || ['blockly']}
-                  currentEditor={currentEditor}
-                  onEditorChange={handleEditorChange}
-                  onHelpClick={() => setIsDocsOpen(true)}
-                  onToggleSettings={() => setIsSettingsOpen(!isSettingsOpen)}
+          <div className="blocklyColumn">
+            <EditorToolbar
+              supportedEditors={questData.supportedEditors || ['blockly']}
+              currentEditor={currentEditor}
+              onEditorChange={handleEditorChange}
+              onHelpClick={() => setIsDocsOpen(true)}
+              onToggleSettings={() => setIsSettingsOpen(!isSettingsOpen)}
+            />
+
+            {isQuestReady && dynamicToolboxConfig ? (
+              currentEditor === 'monaco' ? (
+                <MonacoEditor
+                  initialCode={aceCode}
+                  onChange={(value) => {
+                    const code = value || '';
+                    setAceCode(code);
+                    setCurrentUserCode(code);
+                  }}
                 />
-                
-                {isQuestReady && dynamicToolboxConfig ? (
-                  currentEditor === 'monaco' ? (
-                    <MonacoEditor
-                        initialCode={aceCode}
-                        onChange={(value) => {
-                            const code = value || '';
-                            setAceCode(code);
-                            setCurrentUserCode(code);
-                        }}
+              ) : (
+                <>
+                  {questData.blocklyConfig && loadedQuestId === questData.id && (  // <-- Thêm điều kiện này
+                    <BlocklyWorkspace
+                      key={`${questData.id}-${settings.renderer}-${settings.blocklyThemeName}-${effectiveColorScheme}`}
+                      className="fill-container"
+                      toolboxConfiguration={dynamicToolboxConfig}
+                      initialXml={questData.blocklyConfig.startBlocks}
+                      workspaceConfiguration={workspaceConfiguration}
+                      onWorkspaceChange={onWorkspaceChange}
                     />
-                  ) : (
-                    <>
-                      {questData.blocklyConfig && (
-                          <BlocklyWorkspace
-                            key={questData.id}
-                            className="fill-container"
-                            toolboxConfiguration={dynamicToolboxConfig}
-                            initialXml={questData.blocklyConfig.startBlocks}
-                            workspaceConfiguration={workspaceConfiguration}
-                            onWorkspaceChange={onWorkspaceChange}
-                          />
-                      )}
-                      <SettingsPanel 
-                          isOpen={isSettingsOpen}
-                          renderer={settings.renderer}
-                          onRendererChange={value => handleSettingsChange({ renderer: value })}
-                          blocklyThemeName={settings.blocklyThemeName}
-                          onBlocklyThemeNameChange={value => handleSettingsChange({ blocklyThemeName: value })}
-                          gridEnabled={settings.gridEnabled}
-                          onGridChange={value => handleSettingsChange({ gridEnabled: value })}
-                          soundsEnabled={settings.soundsEnabled}
-                          onSoundsChange={value => handleSettingsChange({ soundsEnabled: value })}
-                          colorSchemeMode={settings.colorSchemeMode}
-                          onColorSchemeChange={value => handleSettingsChange({ colorSchemeMode: value })}
-                          toolboxMode={"default"}
-                          onToolboxModeChange={() => {}}
-                      />
-                    </>
-                  )
-                ) : (
-                  <div className="emptyState">
-                    <h2>{questLoaderError ? "Error" : "Loading Editor..."}</h2>
-                    {questLoaderError && <p style={{ color: 'red' }}>{questLoaderError}</p>}
-                  </div>
-                )}
-            </div>
+                  )}
+                  {questData.blocklyConfig && loadedQuestId !== questData.id && (  
+                    <div className="emptyState">
+                      <h2>Loading Editor...</h2>
+                    </div>
+                  )}
+                  <SettingsPanel
+                    isOpen={isSettingsOpen}
+                    renderer={settings.renderer}
+                    onRendererChange={value => handleSettingsChange({ renderer: value })}
+                    blocklyThemeName={settings.blocklyThemeName}
+                    onBlocklyThemeNameChange={value => handleSettingsChange({ blocklyThemeName: value })}
+                    gridEnabled={settings.gridEnabled}
+                    onGridChange={value => handleSettingsChange({ gridEnabled: value })}
+                    soundsEnabled={settings.soundsEnabled}
+                    onSoundsChange={value => handleSettingsChange({ soundsEnabled: value })}
+                    colorSchemeMode={settings.colorSchemeMode}
+                    onColorSchemeChange={value => handleSettingsChange({ colorSchemeMode: value })}
+                    toolboxMode={"default"}
+                    onToolboxModeChange={() => { }}
+                  />
+                </>
+              )
+            ) : (
+              <div className="emptyState">
+                <h2>{questLoaderError ? "Error" : "Loading Editor..."}</h2>
+                {questLoaderError && <p style={{ color: 'red' }}>{questLoaderError}</p>}
+              </div>
+            )}
+          </div>
         </Panel>
       </PanelGroup>
     </>

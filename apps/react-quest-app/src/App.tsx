@@ -123,21 +123,26 @@ function App() {
   useEffect(() => {
     if (currentQuestId) {
       setIsLoading(true);
-      const targetModule = Object.values(questModules).find(module => module.default.id === currentQuestId);
-      if (targetModule) {
-        const validationResult = questSchema.safeParse(targetModule.default);
-        if (validationResult.success) {
-          setQuestData(validationResult.data as Quest);
-        } else {
-          console.error("Initial quest validation failed:", validationResult.error);
+      // Dùng timeout để đảm bảo UI kịp hiển thị "Loading..."
+      setTimeout(() => {
+        const targetModule = Object.values(questModules).find(module => module.default.id === currentQuestId);
+        if (targetModule) {
+          const validationResult = questSchema.safeParse(targetModule.default);
+          if (validationResult.success) {
+            setQuestData(validationResult.data as Quest);
+          } else {
+            console.error("Quest validation failed:", validationResult.error);
+            setQuestData(null);
+          }
         }
-      }
-      setIsLoading(false);
+        setIsLoading(false);
+      }, 50); // Một khoảng trễ nhỏ
     }
   }, [currentQuestId]);
 
   const handleQuestSelect = useCallback((id: string) => {
     if (id === currentQuestId) return;
+    setQuestData(null); // Đặt questData thành null ngay lập tức
     setCurrentQuestId(id);
   }, [currentQuestId]);
   
@@ -177,6 +182,7 @@ function App() {
     }
     return (
       <QuestPlayer 
+        key={questData.id}
         isStandalone={false}
         questData={questData}
         onQuestComplete={handleQuestComplete}
