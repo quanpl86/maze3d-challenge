@@ -1,6 +1,6 @@
 // apps/react-quest-app/src/App.tsx
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   QuestPlayer,
@@ -23,20 +23,6 @@ const questModules: Record<string, { default: Quest }> = import.meta.glob('../qu
 function App() {
   const { t } = useTranslation();
   
-  const [currentQuestId, setCurrentQuestId] = useState<string | null>(null);
-  const [questData, setQuestData] = useState<Quest | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  
-  const [dialogState, setDialogState] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    stars?: number;
-    optimalBlocks?: number;
-    code?: string;
-  }>({ isOpen: false, title: '', message: '' });
-
   const sortedQuests = useMemo<QuestInfo[]>(() => {
     const quests: QuestInfo[] = Object.values(questModules).map(module => ({
       id: module.default.id,
@@ -55,7 +41,37 @@ function App() {
     return quests;
   }, []);
 
+  const [currentQuestId, setCurrentQuestId] = useState<string | null>(sortedQuests[0]?.id || null);
+  const [questData, setQuestData] = useState<Quest | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [dialogState, setDialogState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    stars?: number;
+    optimalBlocks?: number;
+    code?: string;
+  }>({ isOpen: false, title: '', message: '' });
+
+  useEffect(() => {
+    if (currentQuestId && !questData) {
+        const targetModule = Object.values(questModules).find(module => module.default.id === currentQuestId);
+        if (targetModule) {
+            const validationResult = questSchema.safeParse(targetModule.default);
+            if (validationResult.success) {
+                setQuestData(validationResult.data as Quest);
+            } else {
+                console.error("Initial quest validation failed:", validationResult.error);
+            }
+        }
+    }
+  }, [currentQuestId, questData]);
+
+
   const handleQuestSelect = useCallback((id: string) => {
+    if (id === currentQuestId) return;
+
     setIsLoading(true);
     setCurrentQuestId(id);
     setQuestData(null); 
@@ -77,15 +93,15 @@ function App() {
         }
         setIsLoading(false);
     }, 10);
-  }, []);
+  }, [currentQuestId]);
 
   const handleToggleSidebar = useCallback(() => {
     setIsSidebarCollapsed(prev => !prev);
-    // Thêm một khoảng trễ nhỏ để Blockly có thời gian render lại sau khi animation của sidebar hoàn tất
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
-    }, 250); // 250ms phải khớp với thời gian transition trong CSS
+    }, 250);
   }, []);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
     if (result.isSuccess && result.finalState.solution) {
@@ -112,11 +128,8 @@ function App() {
   }, [t]);
 
   const renderMainContent = () => {
-    if (isLoading) {
+    if (isLoading || !questData) {
       return <div className="emptyState"><h2>Loading...</h2></div>;
-    }
-    if (!questData) {
-      return <div className="emptyState"><h2>Select a Quest</h2></div>;
     }
     return (
       <QuestPlayer 

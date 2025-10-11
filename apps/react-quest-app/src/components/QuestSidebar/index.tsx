@@ -35,6 +35,8 @@ export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQu
     }, {} as Record<string, QuestInfo[]>);
   }, [allQuests]);
 
+  let overallIndex = 0;
+
   return (
     <aside className={`quest-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
@@ -47,20 +49,24 @@ export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQu
         {Object.entries(groupedQuests).map(([gameType, questList]) => (
           <div key={gameType} className="game-group">
             {!isCollapsed && <h3>{t(questList[0].titleKey, gameType)}</h3>}
-            {questList.map((quest) => (
-              <button
-                key={quest.id}
-                className={`quest-item ${currentQuestId === quest.id ? 'active' : ''}`}
-                onClick={() => onQuestSelect(quest.id)}
-                title={isCollapsed ? (quest.title || t('Games.defaultQuestTitle', { level: quest.level })) : ''}
-              >
-                {isCollapsed ? (
-                  <span className="quest-level-bubble">{quest.level}</span>
-                ) : (
-                  quest.title || t('Games.defaultQuestTitle', { level: quest.level })
-                )}
-              </button>
-            ))}
+            {questList.map((quest) => {
+              overallIndex++;
+              const questTitle = quest.title || t('Games.defaultQuestTitle', { level: quest.level });
+              return (
+                <button
+                  key={quest.id}
+                  className={`quest-item ${currentQuestId === quest.id ? 'active' : ''}`}
+                  onClick={() => onQuestSelect(quest.id)}
+                  title={isCollapsed ? questTitle : ''}
+                >
+                  {isCollapsed ? (
+                    <span className="quest-level-bubble">{overallIndex}</span>
+                  ) : (
+                    questTitle
+                  )}
+                </button>
+              );
+            })}
           </div>
         ))}
       </div>
