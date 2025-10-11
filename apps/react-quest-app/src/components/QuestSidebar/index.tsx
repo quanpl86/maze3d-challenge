@@ -2,7 +2,6 @@
 
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from '@repo/quest-player';
 import './QuestSidebar.css';
 
 export interface QuestInfo {
@@ -19,9 +18,10 @@ interface QuestSidebarProps {
   onQuestSelect: (id: string) => void;
   isCollapsed: boolean;
   onToggle: () => void;
+  children?: React.ReactNode;
 }
 
-export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQuestId, onQuestSelect, isCollapsed, onToggle }) => {
+export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQuestId, onQuestSelect, isCollapsed, onToggle, children }) => {
   const { t } = useTranslation();
 
   const groupedQuests = useMemo(() => {
@@ -71,7 +71,7 @@ export const QuestSidebar: React.FC<QuestSidebarProps> = ({ allQuests, currentQu
         ))}
       </div>
       <div className="sidebar-footer">
-        {!isCollapsed && <LanguageSelector />}
+        {!isCollapsed && children}
       </div>
     </aside>
   );

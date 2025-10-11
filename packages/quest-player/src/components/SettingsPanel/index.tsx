@@ -1,48 +1,48 @@
-// src/components/SettingsPanel/index.tsx
+// packages/quest-player/src/components/SettingsPanel/index.tsx
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './SettingsPanel.css';
+import type { QuestPlayerSettings } from '../../types';
 
-type ColorSchemeMode = 'auto' | 'light' | 'dark';
-type ToolboxMode = 'default' | 'simple' | 'test';
-type BlocklyThemeName = 'zelos' | 'classic';
+type Renderer = NonNullable<QuestPlayerSettings['renderer']>;
+type BlocklyThemeName = NonNullable<QuestPlayerSettings['blocklyThemeName']>;
+type ColorSchemeMode = NonNullable<QuestPlayerSettings['colorSchemeMode']>;
+type ToolboxMode = 'default' | 'simple' | 'test'; // Giữ lại vì nó là cục bộ cho panel
 
 interface SettingsPanelProps {
   isOpen: boolean;
   
-  renderer: 'geras' | 'zelos';
-  onRendererChange: (renderer: 'geras' | 'zelos') => void;
-  
+  // Các giá trị hiện tại
+  renderer: Renderer;
   blocklyThemeName: BlocklyThemeName;
-  onBlocklyThemeNameChange: (theme: BlocklyThemeName) => void;
-
   gridEnabled: boolean;
-  onGridChange: (enabled: boolean) => void;
-
   soundsEnabled: boolean;
-  onSoundsChange: (enabled: boolean) => void;
-
   colorSchemeMode: ColorSchemeMode;
-  onColorSchemeChange: (mode: ColorSchemeMode) => void;
-
   toolboxMode: ToolboxMode;
+
+  // Các hàm callback để thay đổi giá trị
+  onRendererChange: (renderer: Renderer) => void;
+  onBlocklyThemeNameChange: (theme: BlocklyThemeName) => void;
+  onGridChange: (enabled: boolean) => void;
+  onSoundsChange: (enabled: boolean) => void;
+  onColorSchemeChange: (mode: ColorSchemeMode) => void;
   onToolboxModeChange: (mode: ToolboxMode) => void;
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ 
     isOpen, 
     renderer,
-    onRendererChange,
     blocklyThemeName,
-    onBlocklyThemeNameChange,
     gridEnabled,
-    onGridChange,
     soundsEnabled,
-    onSoundsChange,
     colorSchemeMode,
-    onColorSchemeChange,
     toolboxMode,
+    onRendererChange,
+    onBlocklyThemeNameChange,
+    onGridChange,
+    onSoundsChange,
+    onColorSchemeChange,
     onToolboxModeChange
 }) => {
   const { t } = useTranslation();
@@ -56,7 +56,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           <select 
             id="renderer-select" 
             value={renderer} 
-            onChange={(e) => onRendererChange(e.target.value as 'geras' | 'zelos')}>
+            onChange={(e) => onRendererChange(e.target.value as Renderer)}>
             <option value="zelos">Zelos</option>
             <option value="geras">Geras</option>
           </select>

@@ -1,3 +1,4 @@
+// packages/quest-player/src/components/QuestPlayer/index.tsx
 import React, { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
@@ -16,7 +17,6 @@ import { EditorToolbar } from '../EditorToolbar';
 import { DocumentationPanel } from '../DocumentationPanel';
 import { BackgroundMusic } from '../BackgroundMusic';
 import { SettingsPanel } from '../SettingsPanel';
-import { usePrefersColorScheme } from '../../hooks/usePrefersColorScheme';
 import { useSoundManager } from '../../hooks/useSoundManager';
 import type { TurtleRendererHandle } from '../../games/turtle/TurtleRenderer';
 import { getFailureMessage, processToolbox, createBlocklyTheme } from './utils';
@@ -25,24 +25,27 @@ import { useEditorManager } from './hooks/useEditorManager';
 import { useGameLoop } from './hooks/useGameLoop';
 import './QuestPlayer.css';
 
+// ... (các định nghĩa type và hằng số không thay đổi) ...
+
 type StandaloneProps = {
   isStandalone?: true;
   initialSettings?: QuestPlayerSettings;
   onQuestLoad?: (quest: Quest) => void;
   onQuestComplete?: (result: QuestCompletionResult) => void;
+  onSettingsChange?: (newSettings: QuestPlayerSettings) => void;
 };
 
 type LibraryProps = {
   isStandalone: false;
   questData: Quest;
-  initialSettings?: QuestPlayerSettings;
+  initialSettings: QuestPlayerSettings;
   onQuestComplete: (result: QuestCompletionResult) => void;
+  onSettingsChange: (newSettings: QuestPlayerSettings) => void;
   onQuestLoad?: (quest: Quest) => void;
 };
 
 export type QuestPlayerProps = (StandaloneProps | LibraryProps);
 
-// KHÔI PHỤC: Interface cho state hiển thị thông số
 interface DisplayStats {
   blockCount?: number;
   maxBlocks?: number;
@@ -53,6 +56,16 @@ interface DisplayStats {
 }
 
 const START_BLOCK_TYPE = 'maze_start';
+
+const DEFAULT_SETTINGS: Required<QuestPlayerSettings> = {
+  renderer: 'zelos',
+  blocklyThemeName: 'zelos',
+  gridEnabled: true,
+  soundsEnabled: true,
+  colorSchemeMode: 'auto',
+  cameraMode: 'Follow',
+};
+
 
 export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const { t, i18n } = useTranslation();
@@ -70,17 +83,9 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
   
-  // KHÔI PHỤC: State cho thông số
   const [blockCount, setBlockCount] = useState(0);
   const [displayStats, setDisplayStats] = useState<DisplayStats>({});
 
-  const [renderer, setRenderer] = useState<'geras' | 'zelos'>('zelos');
-  const [blocklyThemeName, setBlocklyThemeName] = useState<'zelos' | 'classic'>('zelos');
-  const [gridEnabled, setGridEnabled] = useState(true);
-  const [soundsEnabled, setSoundsEnabled] = useState(true);
-  const [colorSchemeMode, setColorSchemeMode] = useState<'auto' | 'light' | 'dark'>('auto');
-  const [toolboxMode, setToolboxMode] = useState<'default' | 'simple' | 'test'>('default');
-  const [cameraMode, setCameraMode] = useState<CameraMode>('Follow');
   const [executionMode, setExecutionMode] = useState<ExecutionMode>('run');
 
   const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
@@ -91,16 +96,14 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef);
   
   const [currentUserCode, setCurrentUserCode] = useState('');
+  
+  const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
 
-  const prefersColorScheme = usePrefersColorScheme();
-  const effectiveColorScheme = useMemo(() => {
-    return colorSchemeMode === 'auto' ? prefersColorScheme : colorSchemeMode;
-  }, [colorSchemeMode, prefersColorScheme]);
-
-  useEffect(() => {
-    document.body.classList.remove('theme-light', 'theme-dark');
-    document.body.classList.add(`theme-${effectiveColorScheme}`);
-  }, [effectiveColorScheme]);
+  const handleSettingsChange = (newSettings: Partial<QuestPlayerSettings>) => {
+    if (props.onSettingsChange) {
+      props.onSettingsChange({ ...settings, ...newSettings });
+    }
+  };
 
   const handleGameEnd = useCallback((result: QuestCompletionResult) => {
     if (isStandalone) {
@@ -126,7 +129,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
   }, [isStandalone, props, t]);
   
-  const { playSound } = useSoundManager(questData?.sounds, soundsEnabled);
+  const { playSound } = useSoundManager(questData?.sounds, settings.soundsEnabled);
   
   const { 
     currentGameState, playerStatus, runGame, resetGame, 
@@ -147,7 +150,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       Object.keys(questData.translations).forEach((langCode) => {
         i18n.addResourceBundle(langCode, 'translation', questData.translations![langCode], true, true);
       });
-      i18n.changeLanguage(i18n.language);
     }
   }, [questData, i18n]);
 
@@ -159,7 +161,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
   }, [isQuestReady, engineRef, resetGame]);
   
-  // KHÔI PHỤC: useEffect để tính toán và cập nhật thông số hiển thị
   useEffect(() => {
     const newStats: DisplayStats = {};
     if (questData) {
@@ -184,7 +185,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
     setDisplayStats(newStats);
   }, [questData, currentGameState, blockCount, currentEditor]);
-
 
   const handleRun = (mode: ExecutionMode) => {
     setExecutionMode(mode);
@@ -212,8 +212,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
-    
-    // KHÔI PHỤC: Cập nhật state blockCount
     setBlockCount(workspace.getAllBlocks(false).length);
 
     const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
@@ -244,17 +242,24 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   }, [dynamicToolboxConfig]);
   
   const is3DRenderer = questData?.gameConfig.type === 'maze' && questData.gameConfig.renderer === '3d';
+  
+  const effectiveColorScheme = useMemo(() => {
+    if (settings.colorSchemeMode === 'auto') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return settings.colorSchemeMode;
+  }, [settings.colorSchemeMode]);
 
-  const blocklyTheme = useMemo(() => createBlocklyTheme(blocklyThemeName, effectiveColorScheme), [blocklyThemeName, effectiveColorScheme]);
+  const blocklyTheme = useMemo(() => createBlocklyTheme(settings.blocklyThemeName, effectiveColorScheme), [settings.blocklyThemeName, effectiveColorScheme]);
 
   const workspaceConfiguration = useMemo(() => ({
     theme: blocklyTheme,
-    renderer: renderer,
+    renderer: settings.renderer,
     trashcan: true,
     zoom: { controls: true, wheel: false, startScale: 1.0, maxScale: 3, minScale: 0.3, scaleSpeed: 1.2 },
-    grid: { spacing: 20, length: 3, colour: "#ccc", snap: gridEnabled },
-    sounds: soundsEnabled,
-  }), [blocklyTheme, renderer, gridEnabled, soundsEnabled]);
+    grid: { spacing: 20, length: 3, colour: "#ccc", snap: settings.gridEnabled },
+    sounds: settings.soundsEnabled,
+  }), [blocklyTheme, settings]);
 
   const handleBlocklyPanelResize = useCallback(() => {
     setTimeout(() => {
@@ -268,9 +273,8 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
           <h2>{t('Games.loadQuest')}</h2>
           <div style={{display: 'flex', gap: '15px'}}>
             <QuestImporter onQuestLoad={handleQuestLoad} onError={setImportError} />
-            <LanguageSelector />
           </div>
-          {importError && <p style={{ color: 'red' }}>{importError}</p>}
+          {importError && <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>{importError}</p>}
       </div>
     );
   }
@@ -283,7 +287,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     <>
       <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}>{dialogState.message}</Dialog>
       <DocumentationPanel isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} gameType={questData.gameType} />
-      <BackgroundMusic src={questData.backgroundMusic} play={playerStatus === 'running' && soundsEnabled} />
+      <BackgroundMusic src={questData.backgroundMusic} play={playerStatus === 'running' && settings.soundsEnabled} />
       
       <PanelGroup direction="horizontal" className="quest-player-container" autoSaveId="quest-player-panels">
         <Panel defaultSize={50} minSize={20}>
@@ -308,7 +312,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                       </div>
                       <div>
                           {is3DRenderer && (
-                              <select value={cameraMode} onChange={(e) => setCameraMode(e.target.value as CameraMode)}>
+                              <select value={settings.cameraMode} onChange={(e) => handleSettingsChange({ cameraMode: e.target.value as CameraMode })}>
                                   <option value="Follow">Follow</option>
                                   <option value="TopDown">Top Down</option>
                                   <option value="Free">Free</option>
@@ -324,11 +328,10 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                               gameConfig={questData.gameConfig}
                               ref={questData.gameType === 'turtle' ? rendererRef : undefined}
                               solutionCommands={solutionCommands}
-                              cameraMode={cameraMode}
+                              cameraMode={settings.cameraMode}
                               onActionComplete={handleActionComplete}
                               onTeleportComplete={handleTeleportComplete}
                           />
-                          {/* KHÔI PHỤC: JSX để hiển thị thông số */}
                           <div className="stats-overlay">
                             {displayStats.blockCount != null && displayStats.maxBlocks != null && (
                                 <div className="stat-item">
@@ -392,18 +395,18 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                       )}
                       <SettingsPanel 
                           isOpen={isSettingsOpen}
-                          renderer={renderer}
-                          onRendererChange={setRenderer}
-                          blocklyThemeName={blocklyThemeName}
-                          onBlocklyThemeNameChange={setBlocklyThemeName}
-                          gridEnabled={gridEnabled}
-                          onGridChange={setGridEnabled}
-                          soundsEnabled={soundsEnabled}
-                          onSoundsChange={setSoundsEnabled}
-                          colorSchemeMode={colorSchemeMode}
-                          onColorSchemeChange={setColorSchemeMode}
-                          toolboxMode={toolboxMode}
-                          onToolboxModeChange={setToolboxMode}
+                          renderer={settings.renderer}
+                          onRendererChange={value => handleSettingsChange({ renderer: value })}
+                          blocklyThemeName={settings.blocklyThemeName}
+                          onBlocklyThemeNameChange={value => handleSettingsChange({ blocklyThemeName: value })}
+                          gridEnabled={settings.gridEnabled}
+                          onGridChange={value => handleSettingsChange({ gridEnabled: value })}
+                          soundsEnabled={settings.soundsEnabled}
+                          onSoundsChange={value => handleSettingsChange({ soundsEnabled: value })}
+                          colorSchemeMode={settings.colorSchemeMode}
+                          onColorSchemeChange={value => handleSettingsChange({ colorSchemeMode: value })}
+                          toolboxMode={"default"}
+                          onToolboxModeChange={() => {}}
                       />
                     </>
                   )

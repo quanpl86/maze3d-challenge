@@ -1,23 +1,27 @@
-// src/components/LanguageSelector/index.tsx
+// packages/quest-player/src/components/LanguageSelector/index.tsx
 
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 const languages = [
   { code: 'en', name: 'English' },
   { code: 'vi', name: 'Tiếng Việt' },
 ];
 
-export const LanguageSelector: React.FC = () => {
-  const { i18n } = useTranslation();
+// Định nghĩa props cho component
+interface LanguageSelectorProps {
+  language: string;
+  onChange: (langCode: string) => void;
+}
 
-  const changeLanguage = (event: React.ChangeEvent<HTMLSelectElement>) => {
+export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ language, onChange }) => {
+  
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const langCode = event.target.value;
-    i18n.changeLanguage(langCode);
+    onChange(langCode);
   };
 
   return (
-    <select onChange={changeLanguage} value={i18n.language.split('-')[0]}>
+    <select onChange={handleChange} value={language}>
       {languages.map(({ code, name }) => (
         <option key={code} value={code}>
           {name}

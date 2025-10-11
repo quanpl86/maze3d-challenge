@@ -6,10 +6,12 @@ import {
   QuestPlayer,
   Dialog,
   questSchema,
+  LanguageSelector,
   type Quest,
   type QuestCompletionResult,
   type SolutionConfig,
   type GameState,
+  type QuestPlayerSettings,
 } from '@repo/quest-player';
 import { QuestSidebar, type QuestInfo } from './components/QuestSidebar';
 import './App.css';
@@ -20,9 +22,75 @@ function solutionHasOptimalBlocks(solution: SolutionConfig): solution is Solutio
 
 const questModules: Record<string, { default: Quest }> = import.meta.glob('../quests/*.json', { eager: true });
 
+const getStoredSettings = (): QuestPlayerSettings & { language: string } => {
+  try {
+    const stored = localStorage.getItem('questAppSettings');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        colorSchemeMode: ['auto', 'light', 'dark'].includes(parsed.colorSchemeMode) ? parsed.colorSchemeMode : 'auto',
+        soundsEnabled: typeof parsed.soundsEnabled === 'boolean' ? parsed.soundsEnabled : true,
+        language: ['en', 'vi'].includes(parsed.language) ? parsed.language : 'en',
+      };
+    }
+  } catch (error) {
+    console.error("Failed to parse settings from localStorage", error);
+  }
+  return {
+    colorSchemeMode: 'auto',
+    soundsEnabled: true,
+    language: 'en',
+  };
+};
+
+
 function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const [settings, setSettings] = useState(getStoredSettings);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('questAppSettings', JSON.stringify(settings));
+    } catch (error) {
+      console.error("Failed to save settings to localStorage", error);
+    }
+  }, [settings]);
+
+  useEffect(() => {
+    if (i18n.language !== settings.language) {
+      i18n.changeLanguage(settings.language);
+    }
+  }, [settings.language, i18n]);
   
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const effectiveColorScheme = settings.colorSchemeMode === 'auto'
+      ? (mediaQuery.matches ? 'dark' : 'light')
+      : settings.colorSchemeMode;
+    
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(`theme-${effectiveColorScheme}`);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+        if (settings.colorSchemeMode === 'auto') {
+            const newColorScheme = e.matches ? 'dark' : 'light';
+            document.body.classList.remove('theme-light', 'theme-dark');
+            document.body.classList.add(`theme-${newColorScheme}`);
+        }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [settings.colorSchemeMode]);
+
+  const handleSettingsChange = (newSettings: QuestPlayerSettings) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
+  };
+
+  const handleLanguageChange = (lang: string) => {
+    setSettings(prev => ({ ...prev, language: lang }));
+  };
+
   const sortedQuests = useMemo<QuestInfo[]>(() => {
     const quests: QuestInfo[] = Object.values(questModules).map(module => ({
       id: module.default.id,
@@ -31,20 +99,18 @@ function App() {
       titleKey: module.default.titleKey,
       title: module.default.title,
     }));
-
     quests.sort((a, b) => {
       if (a.gameType < b.gameType) return -1;
       if (a.gameType > b.gameType) return 1;
       return a.level - b.level;
     });
-
     return quests;
   }, []);
 
   const [currentQuestId, setCurrentQuestId] = useState<string | null>(sortedQuests[0]?.id || null);
   const [questData, setQuestData] = useState<Quest | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [dialogState, setDialogState] = useState<{
     isOpen: boolean;
     title: string;
@@ -55,53 +121,32 @@ function App() {
   }>({ isOpen: false, title: '', message: '' });
 
   useEffect(() => {
-    if (currentQuestId && !questData) {
-        const targetModule = Object.values(questModules).find(module => module.default.id === currentQuestId);
-        if (targetModule) {
-            const validationResult = questSchema.safeParse(targetModule.default);
-            if (validationResult.success) {
-                setQuestData(validationResult.data as Quest);
-            } else {
-                console.error("Initial quest validation failed:", validationResult.error);
-            }
+    if (currentQuestId) {
+      setIsLoading(true);
+      const targetModule = Object.values(questModules).find(module => module.default.id === currentQuestId);
+      if (targetModule) {
+        const validationResult = questSchema.safeParse(targetModule.default);
+        if (validationResult.success) {
+          setQuestData(validationResult.data as Quest);
+        } else {
+          console.error("Initial quest validation failed:", validationResult.error);
         }
+      }
+      setIsLoading(false);
     }
-  }, [currentQuestId, questData]);
-
+  }, [currentQuestId]);
 
   const handleQuestSelect = useCallback((id: string) => {
     if (id === currentQuestId) return;
-
-    setIsLoading(true);
     setCurrentQuestId(id);
-    setQuestData(null); 
-
-    setTimeout(() => {
-        const targetModule = Object.values(questModules).find(module => module.default.id === id);
-
-        if (targetModule) {
-            const validationResult = questSchema.safeParse(targetModule.default);
-            if (validationResult.success) {
-                setQuestData(validationResult.data as Quest);
-            } else {
-                console.error("Quest validation failed:", validationResult.error);
-                alert(`Error: Invalid quest file format.\n${validationResult.error.issues[0].message}`);
-            }
-        } else {
-            console.error(`Quest with id "${id}" not found.`);
-            alert(`Could not find quest with id: ${id}`);
-        }
-        setIsLoading(false);
-    }, 10);
   }, [currentQuestId]);
-
+  
   const handleToggleSidebar = useCallback(() => {
     setIsSidebarCollapsed(prev => !prev);
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 250);
   }, []);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
     if (result.isSuccess && result.finalState.solution) {
@@ -115,15 +160,14 @@ function App() {
         code: result.userCode,
       });
     } else {
-        const resultType = (result.finalState as GameState & { result?: string }).result ?? 'failure';
-        const reasonKey = `Games.result${resultType.charAt(0).toUpperCase() + resultType.slice(1)}`;
-        const translatedReason = t(reasonKey, { defaultValue: resultType });
-      
-        setDialogState({ 
-            isOpen: true, 
-            title: t('Games.dialogTryAgain'), 
-            message: `${t('Games.dialogReason')}: ${translatedReason}`
-        });
+      const resultType = (result.finalState as GameState & { result?: string }).result ?? 'failure';
+      const reasonKey = `Games.result${resultType.charAt(0).toUpperCase() + resultType.slice(1)}`;
+      const translatedReason = t(reasonKey, { defaultValue: resultType });
+      setDialogState({ 
+          isOpen: true, 
+          title: t('Games.dialogTryAgain'), 
+          message: `${t('Games.dialogReason')}: ${translatedReason}`
+      });
     }
   }, [t]);
 
@@ -136,6 +180,8 @@ function App() {
         isStandalone={false}
         questData={questData}
         onQuestComplete={handleQuestComplete}
+        initialSettings={settings}
+        onSettingsChange={handleSettingsChange}
       />
     );
   };
@@ -178,7 +224,12 @@ function App() {
         onQuestSelect={handleQuestSelect}
         isCollapsed={isSidebarCollapsed}
         onToggle={handleToggleSidebar}
-      />
+      >
+        <LanguageSelector 
+            language={settings.language} 
+            onChange={handleLanguageChange} 
+        />
+      </QuestSidebar>
 
       <main className="main-content-area">
         {renderMainContent()}
