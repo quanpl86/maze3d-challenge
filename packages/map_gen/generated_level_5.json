@@ -1,0 +1,481 @@
+{
+  "id": "maze-procedural-5",
+  "gameType": "maze",
+  "level": 5,
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 2,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 2,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 2,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 2,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 3,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 3,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 3,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 4,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 3,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 2,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 2,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 3,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 0,
+          "y": 3,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 2,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 2,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 2,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 10,
+          "y": 2,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone04",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 10
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 1,
+          "y": 0,
+          "z": 1,
+          "direction": 0
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 10,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "id": "c2",
+        "type": "crystal",
+        "position": {
+          "x": 1,
+          "y": 5,
+          "z": 4
+        }
+      },
+      {
+        "id": "c3",
+        "type": "crystal",
+        "position": {
+          "x": 2,
+          "y": 4,
+          "z": 3
+        }
+      },
+      {
+        "id": "c4",
+        "type": "crystal",
+        "position": {
+          "x": 9,
+          "y": 2,
+          "z": 10
+        }
+      },
+      {
+        "id": "c5",
+        "type": "crystal",
+        "position": {
+          "x": 7,
+          "y": 4,
+          "z": 7
+        }
+      }
+    ],
+    "finish": {
+      "x": 10,
+      "y": 2,
+      "z": 10
+    },
+    "portals": [
+      {
+        "id": "portal_pair_1",
+        "endpoints": [
+          {
+            "id": "portal_pair_1_a",
+            "position": {
+              "x": 0,
+              "y": 4,
+              "z": 6
+            }
+          },
+          {
+            "id": "portal_pair_1_b",
+            "position": {
+              "x": 8,
+              "y": 2,
+              "z": 10
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

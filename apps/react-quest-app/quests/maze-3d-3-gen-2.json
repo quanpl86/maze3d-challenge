@@ -1,18 +1,18 @@
 {
-  "id": "maze-3d-3-origin",
+  "id": "maze-3d-3-gen-2",
   "gameType": "maze",
-  "level": 3,
+  "level": 6,
   "titleKey": "Games.maze",
-  "questTitleKey": "Quest.maze3d3.title",
-  "descriptionKey": "Quest.maze3d3.sandbox.description",
+  "questTitleKey": "Quest.maze3d6.title",
+  "descriptionKey": "Quest.maze3d6.sandbox.description",
   "translations": {
     "en": {
-      "Quest.maze3d3.title": "Sandbox Maze",
-      "Quest.maze3d3.sandbox.description": "Turn on all the switches to reach the goal. Use the full set of blocks, including loops and functions, to find the most efficient solution."
+      "Quest.maze3d6.title": "Sandbox Maze",
+      "Quest.maze3d6.sandbox.description": "Turn on all the switches to reach the goal. Use the full set of blocks, including loops and functions, to find the most efficient solution."
     },
     "vi": {
-      "Quest.maze3d3.title": "Mê cung Sandbox",
-      "Quest.maze3d3.sandbox.description": "Bật tất cả các công tắc để đi tới đích. Hãy sử dụng bộ khối lệnh đầy đủ, bao gồm cả vòng lặp và hàm, để tìm ra lời giải hiệu quả nhất."
+      "Quest.maze3d6.title": "Mê cung Sandbox",
+      "Quest.maze3d6.sandbox.description": "Bật tất cả các công tắc để đi tới đích. Hãy sử dụng bộ khối lệnh đầy đủ, bao gồm cả vòng lặp và hàm, để tìm ra lời giải hiệu quả nhất."
     }
   },
   "supportedEditors": ["blockly", "monaco"],
@@ -22,7 +22,7 @@
       "contents": [
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATEVENTS}",
+          "name": "Events",
           "categorystyle": "events_category",
           "contents": [
             { "kind": "block", "type": "maze_start" }
@@ -30,7 +30,7 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "name": "Movement",
           "categorystyle": "movement_category",
           "contents": [
             { "kind": "block", "type": "maze_moveForward" },
@@ -40,7 +40,7 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATLOOPS}",
+          "name": "Loops",
           "categorystyle": "loops_category",
           "contents": [
             { "kind": "block", "type": "controls_whileUntil" },
@@ -49,7 +49,7 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATLOGIC}",
+          "name": "Logic",
           "categorystyle": "logic_category",
           "contents": [
             { "kind": "block", "type": "controls_if" },
@@ -65,7 +65,7 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATACTIONS}",
+          "name": "Actions",
           "categorystyle": "actions_category",
           "contents": [
             { "kind": "block", "type": "maze_collect" },
@@ -74,7 +74,7 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATMATH}",
+          "name": "Math",
           "categorystyle": "math_category",
           "contents": [
             { "kind": "block", "type": "maze_item_count" },
@@ -90,53 +90,103 @@
     "maxBlocks": 50
   },
   "gameConfig": {
-      "type": "maze",
-      "renderer": "3d",
-      "blocks": [
-        { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 1 } },
-        { "modelKey": "ground.normal", "position": { "x": 2, "y": 0, "z": 1 } },
-        { "modelKey": "ground.normal", "position": { "x": 3, "y": 0, "z": 1 } },
-        { "modelKey": "ground.normal", "position": { "x": 4, "y": 0, "z": 1 } },
-        { "modelKey": "ground.normal", "position": { "x": 5, "y": 0, "z": 1 } },
-        { "modelKey": "ground.normal", "position": { "x": 1, "y": 1, "z": 3 } },
-        { "modelKey": "ground.normal", "position": { "x": 2, "y": 1, "z": 3 } },
-        { "modelKey": "ground.normal", "position": { "x": 3, "y": 1, "z": 3 } },
-        { "modelKey": "ground.normal", "position": { "x": 4, "y": 1, "z": 3 } },
-        { "modelKey": "ground.normal", "position": { "x": 5, "y": 1, "z": 3 } }
-      ],
-      "players": [
-        {
-          "id": "player1",
-          "start": { "x": 1, "y": 1, "z": 1, "direction": 1 }
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 3
         }
-      ],
-      "collectibles": [
-        { "id": "c1", "type": "crystal", "position": { "x": 3, "y": 1, "z": 1 } }
-      ],
-      "interactibles": [
-        {
-            "id": "portal_A",
-            "type": "portal",
-            "color": "blue",
-            "position": { "x": 5, "y": 1, "z": 1 },
-            "targetId": "portal_B"
-        },
-        {
-            "id": "portal_B",
-            "type": "portal",
-            "color": "blue",
-            "position": { "x": 1, "y": 2, "z": 3 },
-            "targetId": "portal_A"
-        },
-        {
-            "id": "switch_1",
-            "type": "switch",
-            "position": { "x": 3, "y": 2, "z": 3 },
-            "initialState": "off"
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 4
         }
-      ],
-      "finish": { "x": 5, "y": 2, "z": 3 }
-    },
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 6,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "misc.portal",
+        "position": {
+          "x": 3,
+          "y": 2,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "misc.portal",
+        "position": {
+          "x": 6,
+          "y": 2,
+          "z": 6
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 3,
+          "y": 1,
+          "z": 3,
+          "direction": 0
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 3,
+          "y": 2,
+          "z": 4
+        }
+      },
+      {
+        "id": "c2",
+        "type": "switch",
+        "position": {
+          "x": 4,
+          "y": 2,
+          "z": 6
+        }
+      }
+    ],
+    "finish": {
+      "x": 6,
+      "y": 1,
+      "z": 6
+    }
+  },
   "solution": {
     "type": "reach_target",
     "optimalBlocks": 8
