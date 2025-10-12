@@ -4,8 +4,8 @@ import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
 import * as Blockly from 'blockly/core';
-import * as Vi from 'blockly/msg/vi';
-import * as En from 'blockly/msg/en';
+import Vi from 'blockly/msg/vi';
+import En from 'blockly/msg/en';
 import { BlocklyWorkspace } from 'react-blockly';
 import { transform } from '@babel/standalone';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -116,7 +116,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
 
     if (language === 'vi') {
-      Blockly.setLocale(Vi.default);
+      Blockly.setLocale(Vi);
     } else {
       Blockly.setLocale(blocklyDefaultEnglishMessages);
     }
