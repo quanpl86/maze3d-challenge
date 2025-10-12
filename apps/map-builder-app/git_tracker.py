@@ -183,7 +183,7 @@ lang_files = [
 
 
 # ===== KHAI BÁO BIẾN fileList TOÀN CỤC =====
-fileList: List[str] = lang_files
+fileList: List[str] = []
 
 
 

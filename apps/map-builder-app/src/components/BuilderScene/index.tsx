@@ -12,11 +12,10 @@ function PlacedAsset({ object }: { object: PlacedObject; }) {
   const { scene } = useGLTF(object.asset.path);
   const clonedScene = useMemo(() => scene.clone(), [scene]);
   
-  // Chuyển đổi từ tọa độ lưới đã lưu trữ sang tọa độ thế giới để render
   const worldPosition: [number, number, number] = [
-    object.position[0] * TILE_SIZE,
-    object.position[1] * TILE_SIZE,
-    object.position[2] * TILE_SIZE
+    object.position[0] * TILE_SIZE + TILE_SIZE / 2,
+    object.position[1] * TILE_SIZE + TILE_SIZE / 2,
+    object.position[2] * TILE_SIZE + TILE_SIZE / 2
   ];
 
   return (
@@ -24,7 +23,6 @@ function PlacedAsset({ object }: { object: PlacedObject; }) {
       object={clonedScene} 
       position={worldPosition} 
       scale={TILE_SIZE} 
-      // Gắn dữ liệu vào userData để raycaster có thể nhận diện
       userData={{ isPlacedObject: true, id: object.id }}
     />
   );
@@ -35,13 +33,17 @@ function RollOverMesh({ selectedAsset }: { selectedAsset: BuildableAsset | null 
   const meshToRender = useMemo(() => scene.clone(), [scene]);
   const material = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true, depthWrite: false });
   meshToRender.traverse((child: THREE.Object3D) => {
-    if (child instanceof THREE.Mesh) child.material = material;
+    if (child instanceof THREE.Mesh) {
+        child.material = material;
+        // <<< THAY ĐỔI: Gán tên để dễ dàng bỏ qua khi raycast
+        child.name = "RollOverMesh";
+    }
   });
   return <primitive object={meshToRender} scale={TILE_SIZE} />;
 }
 
 function SceneContent({ builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, onAddObject, onRemoveObject }: BuilderSceneProps) {
-  const { camera, raycaster, gl, scene } = useThree();
+  const { camera, raycaster, scene } = useThree();
   const [pointer, setPointer] = useState(new THREE.Vector2(99, 99));
   const rollOverMeshRef = useRef<THREE.Group>(null!);
   const [isShiftDown, setIsShiftDown] = useState(false);
@@ -58,6 +60,15 @@ function SceneContent({ builderMode, selectedAsset, placedObjects, boxDimensions
     }
   }, [builderMode]);
 
+  // <<< THAY ĐỔI 1: Sửa lại công thức tính vị trí BoundingBox cho chính xác
+  const boundingBoxPosition = useMemo((): [number, number, number] => {
+    return [
+      (boxDimensions.width * TILE_SIZE) / 2,
+      (boxDimensions.height * TILE_SIZE) / 2,
+      (boxDimensions.depth * TILE_SIZE) / 2,
+    ];
+  }, [boxDimensions]);
+
   useFrame(() => {
     if (builderMode !== 'build' || !rollOverMeshRef.current) {
       if (rollOverMeshRef.current) rollOverMeshRef.current.visible = false;
@@ -65,15 +76,16 @@ function SceneContent({ builderMode, selectedAsset, placedObjects, boxDimensions
     }
     
     raycaster.setFromCamera(pointer, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true);
+    const objectsToIntersect = [plane, ...scene.children.filter(c => c.userData.isPlacedObject)];
+    const intersects = raycaster.intersectObjects(objectsToIntersect, true);
 
-    // Tìm giao điểm hợp lệ đầu tiên (không phải là chính RollOverMesh)
-    const intersect = intersects.find(i => i.object.name !== 'ground_plane' ? i.object.userData.isPlacedObject : true);
+    // <<< THAY ĐỔI 2: Lọc kết quả để raycaster bỏ qua chính pointer
+    const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
 
     if (intersect && intersect.face) {
       const newPos = new THREE.Vector3();
       newPos.copy(intersect.point).add(intersect.face.normal);
-      newPos.divideScalar(TILE_SIZE).floor().multiplyScalar(TILE_SIZE);
+      newPos.divideScalar(TILE_SIZE).floor().multiplyScalar(TILE_SIZE).addScalar(TILE_SIZE / 2);
       
       if (!rollOverMeshRef.current.position.equals(newPos)) {
           rollOverMeshRef.current.position.copy(newPos);
@@ -110,15 +122,22 @@ function SceneContent({ builderMode, selectedAsset, placedObjects, boxDimensions
       event.stopPropagation();
       if (builderMode !== 'build' || event.button !== 0) return;
       
+      const objectsToIntersect = [plane, ...scene.children.filter(c => c.userData.isPlacedObject)];
       raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObjects(scene.children, false);
+      const intersects = raycaster.intersectObjects(objectsToIntersect, true);
 
-      if (intersects.length > 0) {
-        const intersect = intersects[0];
-        
+      // <<< THAY ĐỔI 2 (Lặp lại): Lọc kết quả để bỏ qua pointer khi click
+      const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+
+      if (intersect) {
         if (isShiftDown) {
-          if (intersect.object.userData.isPlacedObject) {
-            onRemoveObject(intersect.object.userData.id);
+          let objectToRemove = intersect.object;
+          while(objectToRemove.parent && !objectToRemove.userData.id) {
+            objectToRemove = objectToRemove.parent;
+          }
+
+          if (objectToRemove.userData.isPlacedObject) {
+            onRemoveObject(objectToRemove.userData.id);
           }
         } else if (selectedAsset) {
           if (!intersect.face) return;
@@ -143,7 +162,9 @@ function SceneContent({ builderMode, selectedAsset, placedObjects, boxDimensions
   return (
     <>
       <Grid position={[0, -0.01, 0]} args={[100, 100]} cellSize={TILE_SIZE} cellThickness={1} cellColor="#6f6f6f" sectionSize={10} sectionThickness={1.5} sectionColor="#2c89d7" fadeDistance={150} fadeStrength={1} infiniteGrid />
-      <BoundingBox dimensions={boxDimensions} />
+      
+      {/* Cần đảm bảo component BoundingBox của bạn render tại vị trí `position` thay vì `0,0,0` */}
+      <BoundingBox dimensions={boxDimensions} position={boundingBoxPosition} />
       
       <group ref={rollOverMeshRef}>
           {selectedAsset && <RollOverMesh selectedAsset={selectedAsset} />}
