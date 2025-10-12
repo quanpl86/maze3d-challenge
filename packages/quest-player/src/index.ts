@@ -20,3 +20,4 @@ export type {
 
 // NEW: Export the schema for external validation
 export { questSchema } from './types/schemas';
+export { GameAssets } from './games/maze/config/gameAssets';
