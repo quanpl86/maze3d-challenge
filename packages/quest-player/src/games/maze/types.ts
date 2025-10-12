@@ -64,3 +64,5 @@ export interface MazeGameState extends GameState {
   result: ResultType;
   isFinished: boolean;
 }
+
+export type { Direction };

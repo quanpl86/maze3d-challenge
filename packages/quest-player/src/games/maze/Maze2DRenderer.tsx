@@ -1,7 +1,7 @@
 // src/games/maze/Maze2DRenderer.tsx
 
 import React, { useMemo, useEffect } from 'react';
-import type { IGameRenderer, MazeConfig, Block } from '../../types';
+import type { IGameRenderer, MazeConfig, Block, PlayerConfig } from '../../types';
 import type { MazeGameState, Direction } from './types';
 import './Maze.css';
 
@@ -50,7 +50,7 @@ const getTileStyle = (mapData: number[][], x: number, y: number): React.CSSPrope
   return { left: `-${left * SQUARE_SIZE}px`, top: `-${top * SQUARE_SIZE}px` };
 };
 
-const blocksToMap = (blocks: Block[], start: {x: number, z?: number}, finish: {x: number, z?: number}): number[][] => {
+const blocksToMap = (blocks: Block[], startPlayer: PlayerConfig, finish: {x: number, z?: number}): number[][] => {
   let maxX = 0;
   let maxZ = 0;
   for (const block of blocks) {
@@ -68,8 +68,11 @@ const blocksToMap = (blocks: Block[], start: {x: number, z?: number}, finish: {x
     }
   }
   
-  if (start.z !== undefined) map[start.z][start.x] = SquareType.START;
-  if (finish.z !== undefined) map[finish.z][finish.x] = SquareType.FINISH;
+  const startZ = startPlayer.start.z ?? startPlayer.start.y;
+  if (startZ !== undefined) map[startZ][startPlayer.start.x] = SquareType.START;
+
+  const finishZ = finish.z;
+  if (finishZ !== undefined) map[finishZ][finish.x] = SquareType.FINISH;
 
   return map;
 };
@@ -97,7 +100,6 @@ export const Maze2DRenderer: IGameRenderer = ({ gameState, gameConfig, onActionC
   const state = gameState as MazeGameState;
   const config = gameConfig as MazeConfig;
 
-  // THÊM MỚI: Gọi callback sau mỗi lần render để báo cho game loop tiếp tục
   useEffect(() => {
     onActionComplete();
   }, [gameState, onActionComplete]);
@@ -107,24 +109,30 @@ export const Maze2DRenderer: IGameRenderer = ({ gameState, gameConfig, onActionC
       return config.map;
     }
     if (config.blocks) {
-      const startPos2D = { x: config.player.start.x, z: config.player.start.z ?? config.player.start.y };
+      const startPlayer = config.players ? config.players[0] : config.player;
+      if (!startPlayer) return []; // Return empty if no player config found
+
       const finishPos2D = { x: config.finish.x, z: config.finish.z ?? config.finish.y };
-      return blocksToMap(config.blocks, startPos2D, finishPos2D);
+      return blocksToMap(config.blocks, startPlayer, finishPos2D);
     }
     return [];
   }, [config]);
 
-  if (!state || !config || mapData.length === 0) return null;
+  if (!state || !config || mapData.length === 0 || !state.players[state.activePlayerId]) return null;
   
+  const activePlayer = state.players[state.activePlayerId];
   let frame: number;
-  if (state.player.pose && POSE_TO_FRAME_MAP[state.player.pose] !== undefined) {
-    frame = POSE_TO_FRAME_MAP[state.player.pose];
+
+  if (activePlayer.pose && POSE_TO_FRAME_MAP[activePlayer.pose] !== undefined) {
+    frame = POSE_TO_FRAME_MAP[activePlayer.pose];
   } else {
-    frame = DIRECTION_TO_FRAME_MAP[state.player.direction];
+    // Ensure direction is a valid key before accessing the map
+    const dir = activePlayer.direction;
+    frame = dir in DIRECTION_TO_FRAME_MAP ? DIRECTION_TO_FRAME_MAP[dir] : 0;
   }
 
-  const pegmanX = state.player.x;
-  const pegmanY = state.player.z;
+  const pegmanX = activePlayer.x;
+  const pegmanY = activePlayer.z;
 
   const pegmanStyle: React.CSSProperties = {
     left: `${pegmanX * SQUARE_SIZE + (SQUARE_SIZE - PEGMAN_WIDTH) / 2}px`,
