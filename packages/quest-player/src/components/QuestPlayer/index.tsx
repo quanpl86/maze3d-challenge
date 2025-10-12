@@ -185,8 +185,15 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     if (questData?.blocklyConfig) {
       setLoadedQuestId(null);
       const processedToolbox = processToolbox(questData.blocklyConfig.toolbox, t);
-      initialToolboxConfigRef.current = processedToolbox;
-      setDynamicToolboxConfig(processedToolbox);
+      // Always remove start block from toolbox to prevent adding multiples
+      const newToolbox = JSON.parse(JSON.stringify(processedToolbox));
+      newToolbox.contents.forEach((category: ToolboxItem) => {
+        if (category.kind === 'category' && Array.isArray(category.contents)) {
+          category.contents = category.contents.filter(block => (block as any).type !== START_BLOCK_TYPE);
+        }
+      });
+      initialToolboxConfigRef.current = newToolbox;
+      setDynamicToolboxConfig(newToolbox);
       setLoadedQuestId(questData.id);
     } else {
       setDynamicToolboxConfig(null);
@@ -240,6 +247,10 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
         return;
       }
     } else {
+      if (workspaceRef.current && !workspaceRef.current.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE)) {
+        if (isStandalone) setDialogState({ isOpen: true, title: 'Missing Start Block', message: t('Blockly.MissingStartBlock') });
+        return;
+      }
       codeToRun = currentUserCode;
     }
     runGame(codeToRun, mode);
@@ -254,33 +265,86 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
     setBlockCount(workspace.getAllBlocks(false).length);
-
-    const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
+  
     let finalCode = '';
+    
+    javascriptGenerator.init(workspace);
+    
+    const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
+  
     if (startBlock) {
-      javascriptGenerator.init(workspace);
-      const rawCode = javascriptGenerator.blockToCode(startBlock);
-      const mainCode = Array.isArray(rawCode) ? rawCode[0] : (rawCode || '');
-      finalCode = javascriptGenerator.finish(mainCode);
-    }
-    setCurrentUserCode(finalCode);
-
-    if (!initialToolboxConfigRef.current) return;
-    const startBlockExists = !!startBlock;
-    const isStartBlockInToolbox = JSON.stringify(dynamicToolboxConfig).includes(START_BLOCK_TYPE);
-
-    if (startBlockExists && isStartBlockInToolbox) {
-      const newToolbox = JSON.parse(JSON.stringify(initialToolboxConfigRef.current));
-      newToolbox.contents.forEach((category: ToolboxItem) => {
-        if (category.kind === 'category' && Array.isArray(category.contents)) {
-          category.contents = category.contents.filter(block => (block as any).type !== START_BLOCK_TYPE);
+      // Step 1: Generate full workspace code
+      const fullWorkspaceCode = javascriptGenerator.workspaceToCode(workspace);
+      
+      // Step 2: Extract ONLY function definitions by counting braces
+      const lines = fullWorkspaceCode.split('\n');
+      const functionDefinitions: string[] = [];
+      let currentFunction: string[] = [];
+      let braceCount = 0;
+      let inFunction = false;
+      
+      for (const line of lines) {
+        // Detect function start
+        if (line.trim().startsWith('function ')) {
+          inFunction = true;
+          braceCount = 0;
+          currentFunction = [];
         }
-      });
-      setDynamicToolboxConfig(newToolbox);
-    } else if (!startBlockExists && !isStartBlockInToolbox) {
-      setDynamicToolboxConfig(initialToolboxConfigRef.current);
+        
+        if (inFunction) {
+          currentFunction.push(line);
+          
+          // Count braces in this line
+          const openBraces = (line.match(/{/g) || []).length;
+          const closeBraces = (line.match(/}/g) || []).length;
+          braceCount += openBraces - closeBraces;
+          
+          // When brace count returns to 0, function is complete
+          if (braceCount === 0 && currentFunction.length > 1) {
+            functionDefinitions.push(...currentFunction);
+            functionDefinitions.push(''); // Add blank line after function
+            currentFunction = [];
+            inFunction = false;
+          }
+        }
+      }
+      
+      // Step 3: Generate code ONLY for startBlock
+      javascriptGenerator.init(workspace);
+      const startCode = javascriptGenerator.blockToCode(startBlock);
+      const startCodeStr = Array.isArray(startCode) ? startCode[0] : (startCode || '');
+      
+      // Step 4: Combine
+      finalCode = functionDefinitions.join('\n') + '\n' + startCodeStr;
     }
-  }, [dynamicToolboxConfig]);
+    
+    console.log('Generated code:', finalCode);
+    setCurrentUserCode(finalCode);
+  }, []);
+
+  const onInject = useCallback((workspace: Blockly.WorkspaceSvg) => {
+    workspaceRef.current = workspace;
+    const startBlocks = workspace.getTopBlocks(false).filter(b => b.type === START_BLOCK_TYPE);
+    
+    if (startBlocks.length > 1) {
+      // Dispose of extra start blocks to ensure only one
+      for (let i = 1; i < startBlocks.length; i++) {
+        startBlocks[i].dispose();
+      }
+    }
+    
+    let startBlock = startBlocks[0];
+    if (!startBlock) {
+      // Create a new start block if none exists
+      startBlock = workspace.newBlock(START_BLOCK_TYPE);
+      startBlock.initSvg();
+      startBlock.render();
+      startBlock.moveBy(50, 50); // Position it in the workspace
+    }
+    
+    // Make the start block undeletable as per best practice
+    startBlock.setDeletable(false);
+  }, []);
 
   const is3DRenderer = questData?.gameConfig.type === 'maze' && questData.gameConfig.renderer === '3d';
 
@@ -431,6 +495,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                       initialXml={questData.blocklyConfig.startBlocks}
                       workspaceConfiguration={workspaceConfiguration}
                       onWorkspaceChange={onWorkspaceChange}
+                      onInject={onInject}
                     />
                   )}
                   {questData.blocklyConfig && loadedQuestId !== questData.id && (  
