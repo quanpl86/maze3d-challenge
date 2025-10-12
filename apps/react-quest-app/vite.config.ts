@@ -4,15 +4,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import sirv from 'sirv';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { viteStaticCopy } from 'vite-plugin-static-copy'; // THÊM DÒNG NÀY
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
-    tsconfigPaths(),
-    // THÊM PLUGIN SAO CHÉP TĨNH VÀO ĐÂY
+    tsconfigPaths(), 
     viteStaticCopy({
       targets: [
         {

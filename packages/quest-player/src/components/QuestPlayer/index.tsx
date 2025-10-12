@@ -1,9 +1,11 @@
 // packages/quest-player/src/components/QuestPlayer/index.tsx
 
-import React, { useState, useRef, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
 import * as Blockly from 'blockly/core';
+import * as Vi from 'blockly/msg/vi';
+import * as En from 'blockly/msg/en';
 import { BlocklyWorkspace } from 'react-blockly';
 import { transform } from '@babel/standalone';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -28,7 +30,7 @@ import './QuestPlayer.css';
 
 type StandaloneProps = {
   isStandalone?: true;
-  language?: string; 
+  language?: string;
   initialSettings?: QuestPlayerSettings;
   onQuestLoad?: (quest: Quest) => void;
   onQuestComplete?: (result: QuestCompletionResult) => void;
@@ -67,7 +69,6 @@ const DEFAULT_SETTINGS: Required<QuestPlayerSettings> = {
   cameraMode: 'Follow',
 };
 
-// THÊM MỚI: Biến để lưu trữ bản dịch tiếng Anh mặc định của Blockly
 let blocklyDefaultEnglishMessages: { [key: string]: string } | null = null;
 
 
@@ -108,44 +109,26 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
 
-  // THÊM MỚI: Logic đồng bộ hóa ngôn ngữ của Blockly
+  // SỬA ĐỔI: Refactor lại useEffect đồng bộ hóa ngôn ngữ
   useEffect(() => {
-    // Lưu lại bản dịch tiếng Anh mặc định một lần duy nhất
     if (!blocklyDefaultEnglishMessages) {
       blocklyDefaultEnglishMessages = { ...Blockly.Msg };
     }
 
-    const syncBlocklyLocale = async () => {
-      if (language === 'en') {
-        // Khôi phục lại bản dịch tiếng Anh mặc định
-        Blockly.setLocale(blocklyDefaultEnglishMessages!);
-      } else {
-        try {
-          // Import động tệp ngôn ngữ
-          const localeModule = await import(`blockly/msg/${language}`);
-          if (localeModule && localeModule.default) {
-            Blockly.setLocale(localeModule.default);
-          }
-        } catch (e) {
-          console.error(`Failed to load Blockly locale for language: ${language}`, e);
-          // Quay về tiếng Anh nếu không tải được
-          Blockly.setLocale(blocklyDefaultEnglishMessages!);
-        }
-      }
+    if (language === 'vi') {
+      Blockly.setLocale(Vi.default);
+    } else {
+      Blockly.setLocale(blocklyDefaultEnglishMessages);
+    }
 
-      // Ghi đè các chuỗi dịch tùy chỉnh cho các khối động
-      Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE = t('Blockly.PROCEDURES_DEFNORETURN_PROCEDURE');
-      Blockly.Msg.PROCEDURES_DEFRETURN_RETURN = t('Blockly.PROCEDURES_DEFRETURN_RETURN');
-      Blockly.Msg.NEW_VARIABLE = t('Blockly.NEW_VARIABLE');
-      Blockly.Msg.VARIABLES_DEFAULT_NAME = t('Blockly.VARIABLES_DEFAULT_NAME');
+    Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE = t('Blockly.PROCEDURES_DEFNORETURN_PROCEDURE');
+    Blockly.Msg.PROCEDURES_DEFRETURN_RETURN = t('Blockly.PROCEDURES_DEFRETURN_RETURN');
+    Blockly.Msg.NEW_VARIABLE = t('Blockly.NEW_VARIABLE');
+    Blockly.Msg.VARIABLES_DEFAULT_NAME = t('Blockly.VARIABLES_DEFAULT_NAME');
 
-      // Cập nhật key để buộc re-render
-      if (questData) {
-        setBlocklyWorkspaceKey(`${questData.id}-${language}`);
-      }
-    };
-
-    syncBlocklyLocale();
+    if (questData) {
+      setBlocklyWorkspaceKey(`${questData.id}-${language}`);
+    }
   }, [language, t, questData]);
 
 
