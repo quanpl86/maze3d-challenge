@@ -4,6 +4,8 @@
 // ==                      QUEST DEFINITIONS                      ==
 // =================================================================
 
+export type EditorType = 'blockly' | 'monaco';
+
 // --- Toolbox Definition Types ---
 
 interface ToolboxBlock {
