@@ -3,14 +3,24 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sirv from 'sirv';
-import tsconfigPaths from 'vite-tsconfig-paths'; // THÊM DÒNG NÀY
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { viteStaticCopy } from 'vite-plugin-static-copy'; // THÊM DÒNG NÀY
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
-    tsconfigPaths(), // THÊM DÒNG NÀY
+    tsconfigPaths(),
+    // THÊM PLUGIN SAO CHÉP TĨNH VÀO ĐÂY
+    viteStaticCopy({
+      targets: [
+        {
+          src: path.resolve(__dirname, '../../packages/quest-player/public/assets'),
+          dest: '.'
+        }
+      ]
+    }),
     {
       name: 'serve-quest-player-assets',
       configureServer(server) {
@@ -33,7 +43,6 @@ export default defineConfig({
   },
   
   resolve: {
-    // XÓA BỎ HOÀN TOÀN KHỐI `alias` CŨ
     dedupe: [
       'blockly'
     ]
