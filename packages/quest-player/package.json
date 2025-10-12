@@ -1,10 +1,25 @@
 {
-  "name": "@repo/quest-player",
+  "name": "@thanh01.pmt/quest-player",
+  "description": "A React component library for creating and playing interactive coding quests, inspired by Blockly Games.",
   "version": "1.0.0",
-  "private": true,
+  "author": "thanh01.pmt",
+  "license": "Apache-2.0",
+  "keywords": [
+    "react",
+    "blockly",
+    "quest",
+    "gamedev",
+    "learn-to-code"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "development": {

@@ -1,0 +1,17 @@
+# Ignore tooling configuration files
+.DS_Store
+.npmrc
+*.log*
+
+# Ignore dev and build dependencies
+/node_modules
+
+# Ignore source code and component examples
+/public/
+/src/
+
+# Ignore local configs
+/dist/tsconfig.tsbuildinfo
+/vite.config.ts
+/tsconfig.json
+/eslint.config.js
