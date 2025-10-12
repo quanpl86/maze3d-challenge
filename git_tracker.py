@@ -167,9 +167,23 @@ index_files = core_files + [
     "appengine/index/src/html.js"
 ]
 
+lang_files = [
+  # Files Directly Related
+  "packages/quest-player/src/i18n/en.json",
+  "packages/quest-player/src/i18n/vi.json",
+  "packages/quest-player/src/games/maze/blocks.ts",
+  "packages/quest-player/src/components/QuestPlayer/index.tsx",
+
+  # Files Indirectly Related
+  "apps/react-quest-app/quests/maze-3d-3.json",
+  "packages/quest-player/src/components/QuestPlayer/utils.ts",
+  "apps/react-quest-app/src/App.tsx",
+  "apps/react-quest-app/src/i18n.ts"
+]
+
 
 # ===== KHAI BÁO BIẾN fileList TOÀN CỤC =====
-fileList: List[str] = []
+fileList: List[str] = lang_files
 
 
 

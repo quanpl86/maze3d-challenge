@@ -142,6 +142,7 @@
 	"Maze.helpIf": "Mảnh 'nếu [điều kiện]' nhìn vào điều kiện rồi chỉ thực hiện lệnh nếu có điều kiện ấy. Hãy thử rẽ trái nếu có đường bên trái.",
 	"Maze.helpMenu": "Ấn vào %1 trong mảnh 'nếu' để thay đổi hình thể của nó.",
 	"Maze.helpWallFollow": "Bạn có thể giải cái ma trận rắc rối này? Gợi ý: Thử đi sát theo một bức tường, y như bạn đang giữ một tay theo suốt bức tường ấy, dù nó rẻ phải hay trái.",
+	
 	"Bird.noWorm": "không có sâu",
 	"Bird.heading": "bay đi",
 	"Bird.noWormTooltip": "Lúc chim chưa có sâu.",

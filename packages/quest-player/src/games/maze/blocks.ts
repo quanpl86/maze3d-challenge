@@ -5,9 +5,28 @@ import { javascriptGenerator, Order } from 'blockly/javascript';
 import type { TFunction } from 'i18next'; 
 
 export function init(t: TFunction) { 
-  if (Blockly.Blocks['maze_moveForward']) {
-    return;
-  }
+  // XÓA các định nghĩa cũ trước khi tạo mới
+  const blocksToDelete = [
+    'maze_start',
+    'maze_moveForward',
+    'maze_jump',
+    'maze_turn',
+    'maze_collect',
+    'maze_toggle_switch',
+    'maze_forever',
+    'maze_repeat',
+    'maze_is_path',
+    'maze_is_item_present',
+    'maze_is_switch_state',
+    'maze_at_finish',
+    'maze_item_count',
+  ];
+
+  blocksToDelete.forEach(blockType => {
+    if (Blockly.Blocks[blockType]) {
+      delete Blockly.Blocks[blockType];
+    }
+  });
 
   Blockly.Msg['CONTROLS_REPEAT_TITLE'] = t('Controls.repeatTitle', 'repeat %1 times');
   Blockly.Msg['CONTROLS_REPEAT_INPUT_DO'] = t('Controls.repeatInputDo', 'do');
@@ -24,8 +43,8 @@ export function init(t: TFunction) {
   const RIGHT_TURN = ' ↻';
 
   const TURN_DIRECTIONS: [string, string][] = [
-    [t('Maze.turnLeft'), 'turnLeft'],
-    [t('Maze.turnRight'), 'turnRight'],
+    [t('Maze.turnLeft') + LEFT_TURN, 'turnLeft'],
+    [t('Maze.turnRight') + RIGHT_TURN, 'turnRight'],
   ];
 
   const PATH_DIRECTIONS: [string, string][] = [
@@ -35,25 +54,25 @@ export function init(t: TFunction) {
   ];
 
   const ITEM_TYPES: [string, string][] = [
-    ['any item', 'any'],
-    ['crystal', 'crystal'],
-    ['key', 'key'],
+    [t('Maze.isItemPresent.any'), 'any'],
+    [t('Maze.isItemPresent.crystal'), 'crystal'],
+    [t('Maze.isItemPresent.key'), 'key'],
   ];
 
-  if (!Blockly.Extensions.isRegistered('maze_turn_arrows')) {
-    Blockly.Extensions.register('maze_turn_arrows', function(this: Blockly.Block) {
-        const dropdown = this.getField('DIR');
-        if (!dropdown || typeof (dropdown as any).getOptions !== 'function') return;
-        const options = (dropdown as any).getOptions(false);
-        if (options[0]) options[0][0] = `${t('Maze.turnLeft')}${LEFT_TURN}`;
-        if (options[1]) options[1][0] = `${t('Maze.turnRight')}${RIGHT_TURN}`;
-    });
-  };
+  const SWITCH_STATES: [string, string][] = [
+    [t('Maze.isSwitchState.on'), 'on'],
+    [t('Maze.isSwitchState.off'), 'off'],
+  ];
+
+  // Xóa extension cũ nếu có
+  if (Blockly.Extensions.isRegistered('maze_turn_arrows')) {
+    Blockly.Extensions.unregister('maze_turn_arrows');
+  }
 
   Blockly.defineBlocksWithJsonArray([
     {
       "type": "maze_start",
-      "message0": "when Run clicked %1 %2",
+      "message0": t('Maze.whenRunClicked') + " %1 %2",
       "args0": [
         { "type": "input_dummy" },
         { "type": "input_statement", "name": "DO" }
@@ -71,25 +90,28 @@ export function init(t: TFunction) {
     },
     {
       "type": "maze_jump",
-      "message0": "jump",
+      "message0": t('Maze.jump'),
       "previousStatement": null,
       "nextStatement": null,
       "style": "movement_category",
-      "tooltip": "Jumps forward and up one block.",
+      "tooltip": t('Maze.jumpTooltip'),
     },
     {
       "type": "maze_turn",
       "message0": "%1",
-      "args0": [{ "type": "field_dropdown", "name": "DIR", "options": TURN_DIRECTIONS, }],
+      "args0": [{ 
+        "type": "field_dropdown", 
+        "name": "DIR", 
+        "options": TURN_DIRECTIONS,
+      }],
       "previousStatement": null,
       "nextStatement": null,
       "style": "movement_category",
       "tooltip": t('Maze.turnTooltip'),
-      "extensions": ["maze_turn_arrows"],
     },
     {
       "type": "maze_collect",
-      "message0": "collect item",
+      "message0": t('Maze.collectItem'),
       "previousStatement": null,
       "nextStatement": null,
       "style": "actions_category",
@@ -97,7 +119,7 @@ export function init(t: TFunction) {
     },
     {
       "type": "maze_toggle_switch",
-      "message0": "toggle switch",
+      "message0": t('Maze.toggleSwitch'),
       "previousStatement": null,
       "nextStatement": null,
       "style": "actions_category",
@@ -138,7 +160,7 @@ export function init(t: TFunction) {
     },
     {
       "type": "maze_is_item_present",
-      "message0": "%1 at current location",
+      "message0": t('Maze.atCurrentLocation', { "0": "%1" }),
       "args0": [
         { "type": "field_dropdown", "name": "TYPE", "options": ITEM_TYPES }
       ],
@@ -148,9 +170,9 @@ export function init(t: TFunction) {
     },
     {
       "type": "maze_is_switch_state",
-      "message0": "switch at current location is %1",
+      "message0": t('Maze.switchIs', { "0": "%1" }),
       "args0": [
-        { "type": "field_dropdown", "name": "STATE", "options": [["on", "on"], ["off", "off"]] }
+        { "type": "field_dropdown", "name": "STATE", "options": SWITCH_STATES }
       ],
       "output": "Boolean",
       "style": "logic_category",
@@ -158,14 +180,14 @@ export function init(t: TFunction) {
     },
     {
       "type": "maze_at_finish",
-      "message0": "at finish location",
+      "message0": t('Maze.atFinish'),
       "output": "Boolean",
       "style": "logic_category",
       "tooltip": "Returns true if the player is at the finish location.",
     },
     {
       "type": "maze_item_count",
-      "message0": "count of %1",
+      "message0": t('Maze.countOf', { "0": "%1" }),
       "args0": [
         { "type": "field_dropdown", "name": "TYPE", "options": ITEM_TYPES }
       ],
@@ -196,7 +218,6 @@ export function init(t: TFunction) {
       branch = (javascriptGenerator as any).INFINITE_LOOP_TRAP.replace(/%1/g, `'block_id_${block.id}'`) + branch;
     }
     const loopVar = javascriptGenerator.nameDB_?.getDistinctName('count', 'variable') || 'count';
-    // SỬA LỖI: Thay 'let' bằng 'var' để tương thích với ES5 (js-interpreter)
     const code = `for (var ${loopVar} = 0; ${loopVar} < ${repeats}; ${loopVar}++) {\n${branch}}\n`;
     return code;
   };
