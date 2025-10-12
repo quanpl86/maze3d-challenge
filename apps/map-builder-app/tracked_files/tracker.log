@@ -1,0 +1,8 @@
+2025-10-13 00:35:03,053 - INFO - Bắt đầu scan ban đầu...
+2025-10-13 00:35:03,068 - INFO - Tạo file tổng hợp: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app/tracked_files/other_files.txt (1 files)
+2025-10-13 00:35:03,068 - INFO - Tạo file tổng hợp: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app/tracked_files/html_files.txt (1 files)
+2025-10-13 00:35:03,069 - INFO - Tạo file tổng hợp: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app/tracked_files/config_files.txt (2 files)
+2025-10-13 00:35:03,069 - INFO - Tạo file tổng hợp: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app/tracked_files/styles_files.txt (3 files)
+2025-10-13 00:35:03,071 - INFO - Tạo file tổng hợp: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app/tracked_files/typescript_files.txt (8 files)
+2025-10-13 00:35:03,094 - INFO - Tạo file cấu trúc dự án: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app/tracked_files/project_structure.txt
+2025-10-13 00:35:03,105 - INFO - Hoàn thành scan ban đầu. Tổng cộng: 15 files tracked.

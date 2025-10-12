@@ -1,0 +1,48 @@
+# Project Structure
+# Generated: 2025-10-13T00:35:03.071147
+# Project Path: /Users/tonypham/MEGA/WebApp/blockly-react/react-quest-monorepo/apps/map-builder-app
+================================================================================
+
+map-builder-app/
+├── src/
+│   ├── components/
+│   │   ├── AssetPalette/
+│   │   │   ├── AssetPalette.css 🎨
+│   │   │   └── index.tsx 🔹
+│   │   ├── BoundingBox/
+│   │   │   └── index.tsx 🔹
+│   │   └── BuilderScene/
+│   │       └── index.tsx 🔹
+│   ├── config/
+│   │   └── gameAssets.ts 🔹
+│   ├── App.css 🎨
+│   ├── App.tsx 🔹
+│   ├── index.css 🎨
+│   ├── main.tsx 🔹
+│   └── types.ts 🔹
+├── git_tracker.py 📄
+├── index.html 🌐
+├── package.json ⚙️
+├── tsconfig.json ⚙️
+└── vite.config.ts 🔹
+
+================================================================================
+# STATISTICS
+================================================================================
+Total tracked files (respecting .gitignore & script ignores): 15
+Total size: 86.08 KB
+
+Files by type:
+  ⚙️ Config: 2 files (13.3%)
+  🌐 Html: 1 files (6.7%)
+  📄 Other: 1 files (6.7%)
+  🎨 Styles: 3 files (20.0%)
+  🔹 Typescript: 8 files (53.3%)
+
+Directory statistics (top 10 by file count in top-level dirs):
+  📁 src: 10 files
+  📁 git_tracker.py: 1 files
+  📁 index.html: 1 files
+  📁 package.json: 1 files
+  📁 tsconfig.json: 1 files
+  📁 vite.config.ts: 1 files

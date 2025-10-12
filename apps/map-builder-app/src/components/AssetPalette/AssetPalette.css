@@ -98,3 +98,83 @@
   padding: 5px 8px;
   text-align: right;
 }
+
+.selection-controls {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #333;
+  border-bottom: 1px solid #444;
+}
+
+.selection-controls h3, .selection-controls h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.selection-controls h4 {
+  font-size: 0.9em;
+  border-top: 1px solid #444;
+  padding-top: 10px;
+  margin-top: 15px;
+}
+
+.selection-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.selection-inputs h4 {
+  font-size: 0.8em;
+  margin-bottom: 8px;
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+  text-align: center;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.action-buttons button {
+  padding: 8px;
+  background-color: #4a4a50;
+  color: #f0f0f0;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-buttons button:hover {
+  background-color: #5a5a60;
+}
+
+.fill-options-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.fill-options-group label {
+  color: #ccc;
+}
+
+.fill-options-group select,
+.fill-options-group input {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px;
+  width: 100px;
+}

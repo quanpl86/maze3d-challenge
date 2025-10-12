@@ -1,0 +1,608 @@
+# Consolidated TYPESCRIPT Files
+# Generated: 2025-10-13T00:35:03.069757
+# Total files: 8
+================================================================================
+
+# FILE: src/App.tsx
+------------------------------------------------------------
+import { useState } from 'react';
+import { AssetPalette } from './components/AssetPalette';
+import { BuilderScene } from './components/BuilderScene';
+import { buildableAssetGroups } from './config/gameAssets';
+import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions } from './types';
+import './App.css';
+
+const defaultAsset = buildableAssetGroups[0]?.items[0];
+
+function App() {
+  const [selectedAsset, setSelectedAsset] = useState<BuildableAsset | null>(defaultAsset);
+  const [placedObjects, setPlacedObjects] = useState<PlacedObject[]>([]);
+  const [builderMode, setBuilderMode] = useState<BuilderMode>('navigate');
+  const [boxDimensions, setBoxDimensions] = useState<BoxDimensions>({ width: 10, height: 10, depth: 10 });
+
+  const handleSelectAsset = (asset: BuildableAsset) => {
+    setSelectedAsset(asset);
+    setBuilderMode('build');
+  };
+
+  const handleModeChange = (mode: BuilderMode) => {
+    setBuilderMode(mode);
+  };
+
+  const handleDimensionsChange = (axis: keyof BoxDimensions, value: number) => {
+    setBoxDimensions(prev => ({
+      ...prev,
+      [axis]: Math.max(1, value)
+    }));
+  };
+
+  // HANDLER MỚI: Thêm đối tượng tại một tọa độ lưới
+  const handleAddObject = (gridPosition: [number, number, number]) => {
+    if (!selectedAsset) return;
+    const id = gridPosition.join(',');
+    
+    // Kiểm tra xem đã có đối tượng nào ở vị trí này chưa
+    if (placedObjects.some(obj => obj.id === id)) return;
+
+    const newObject: PlacedObject = { id, position: gridPosition, asset: selectedAsset };
+    setPlacedObjects(prev => [...prev, newObject]);
+  };
+
+  // HANDLER MỚI: Xóa đối tượng bằng ID của nó
+  const handleRemoveObject = (id: string) => {
+    setPlacedObjects(prev => prev.filter(obj => obj.id !== id));
+  };
+
+
+  return (
+    <div className="app-container">
+      <AssetPalette 
+        selectedAssetKey={selectedAsset?.key || null}
+        onSelectAsset={handleSelectAsset}
+        currentMode={builderMode}
+        onModeChange={handleModeChange}
+        boxDimensions={boxDimensions}
+        onDimensionsChange={handleDimensionsChange}
+      />
+      <BuilderScene 
+        builderMode={builderMode}
+        selectedAsset={selectedAsset}
+        placedObjects={placedObjects}
+        boxDimensions={boxDimensions}
+        onModeChange={handleModeChange}
+        onAddObject={handleAddObject}
+        onRemoveObject={handleRemoveObject}
+      />
+    </div>
+  );
+}
+
+export default App;
+
+================================================================================
+
+# FILE: src/components/AssetPalette/index.tsx
+------------------------------------------------------------
+import { buildableAssetGroups } from '../../config/gameAssets';
+import { type BuildableAsset, type BuilderMode, type BoxDimensions } from '../../types';
+import './AssetPalette.css';
+
+interface AssetPaletteProps {
+  selectedAssetKey: string | null;
+  onSelectAsset: (asset: BuildableAsset) => void;
+  currentMode: BuilderMode;
+  onModeChange: (mode: BuilderMode) => void;
+  boxDimensions: BoxDimensions;
+  onDimensionsChange: (axis: keyof BoxDimensions, value: number) => void;
+}
+
+export function AssetPalette({ 
+  selectedAssetKey, 
+  onSelectAsset, 
+  currentMode, 
+  onModeChange, 
+  boxDimensions, 
+  onDimensionsChange 
+}: AssetPaletteProps) {
+  return (
+    <aside className="asset-palette">
+      <h2>Asset Palette</h2>
+
+      <div className="mode-switcher">
+        <button
+          className={currentMode === 'navigate' ? 'active' : ''}
+          onClick={() => onModeChange('navigate')}
+        >
+          Navigate (V)
+        </button>
+        <button
+          className={currentMode === 'build' ? 'active' : ''}
+          onClick={() => onModeChange('build')}
+        >
+          Build (B)
+        </button>
+      </div>
+
+      <div className="bounding-box-controls">
+        <h3>Build Area</h3>
+        <div className="dimension-input">
+          <label htmlFor="width-input">Width</label>
+          <input 
+            type="number" 
+            id="width-input" 
+            value={boxDimensions.width}
+            onChange={(e) => onDimensionsChange('width', parseInt(e.target.value, 10) || 1)}
+          />
+        </div>
+        <div className="dimension-input">
+          <label htmlFor="height-input">Height</label>
+          <input 
+            type="number" 
+            id="height-input" 
+            value={boxDimensions.height}
+            onChange={(e) => onDimensionsChange('height', parseInt(e.target.value, 10) || 1)}
+          />
+        </div>
+        <div className="dimension-input">
+          <label htmlFor="depth-input">Depth</label>
+          <input 
+            type="number" 
+            id="depth-input" 
+            value={boxDimensions.depth}
+            onChange={(e) => onDimensionsChange('depth', parseInt(e.target.value, 10) || 1)}
+          />
+        </div>
+      </div>
+
+
+      {buildableAssetGroups.map(group => (
+        <div key={group.name} className="asset-group">
+          <h3>{group.name}</h3>
+          <div className="asset-grid">
+            {group.items.map(item => (
+              <button
+                key={item.key}
+                className={`asset-item ${selectedAssetKey === item.key ? 'active' : ''}`}
+                onClick={() => onSelectAsset(item)}
+                title={item.name}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </aside>
+  );
+}
+
+================================================================================
+
+# FILE: src/components/BoundingBox/index.tsx
+------------------------------------------------------------
+import { useMemo } from 'react';
+import * as THREE from 'three';
+import type { BoxDimensions } from '../../types';
+
+const TILE_SIZE = 2;
+
+// <<< THAY ĐỔI 1: Thêm 'position' vào interface Props
+interface BoundingBoxProps {
+  dimensions: BoxDimensions;
+  position: [number, number, number];
+}
+
+export function BoundingBox({ dimensions, position }: BoundingBoxProps) {
+  // Sử dụng useMemo để tránh việc tính toán lại geometry trên mỗi lần render
+  const geometry = useMemo(() => {
+    const { width, height, depth } = dimensions;
+    // Tạo một BoxGeometry với kích thước đã nhân với TILE_SIZE
+    const boxGeometry = new THREE.BoxGeometry(
+      width * TILE_SIZE,
+      height * TILE_SIZE,
+      depth * TILE_SIZE
+    );
+    // EdgesGeometry sẽ tạo ra các đường viền cho hình hộp
+    return new THREE.EdgesGeometry(boxGeometry);
+  }, [dimensions]);
+
+  return (
+    // <<< THAY ĐỔI 2: Dùng một <group> để áp dụng vị trí `position`
+    // Geometry của hình hộp giờ đây được tạo ra ở gốc tọa độ (0,0,0)
+    // và toàn bộ group sẽ được di chuyển đến vị trí mong muốn.
+    <group position={position}>
+      <lineSegments geometry={geometry}>
+        <lineBasicMaterial color="#00ffff" />
+      </lineSegments>
+    </group>
+  );
+}
+
+================================================================================
+
+# FILE: src/components/BuilderScene/index.tsx
+------------------------------------------------------------
+import { Suspense, useMemo, useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { Grid, OrbitControls, useGLTF } from '@react-three/drei';
+import * as THREE from 'three';
+import { buildableAssetGroups, type AssetGroup } from '../../config/gameAssets';
+import type { BuildableAsset, PlacedObject, BuilderMode, BoxDimensions } from '../../types';
+import { BoundingBox } from '../BoundingBox';
+
+const TILE_SIZE = 2;
+
+function PlacedAsset({ object }: { object: PlacedObject; }) {
+  const { scene } = useGLTF(object.asset.path);
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+  
+  const worldPosition: [number, number, number] = [
+    object.position[0] * TILE_SIZE + TILE_SIZE / 2,
+    object.position[1] * TILE_SIZE + TILE_SIZE / 2,
+    object.position[2] * TILE_SIZE + TILE_SIZE / 2
+  ];
+
+  return (
+    <primitive 
+      object={clonedScene} 
+      position={worldPosition} 
+      scale={TILE_SIZE} 
+      userData={{ isPlacedObject: true, id: object.id }}
+    />
+  );
+}
+
+function RollOverMesh({ selectedAsset }: { selectedAsset: BuildableAsset | null }) {
+  const { scene } = useGLTF(selectedAsset?.path || '/assets/maze/models/stone01.glb');
+  const meshToRender = useMemo(() => scene.clone(), [scene]);
+  const material = new THREE.MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true, depthWrite: false });
+  meshToRender.traverse((child: THREE.Object3D) => {
+    if (child instanceof THREE.Mesh) {
+        child.material = material;
+        // <<< THAY ĐỔI: Gán tên để dễ dàng bỏ qua khi raycast
+        child.name = "RollOverMesh";
+    }
+  });
+  return <primitive object={meshToRender} scale={TILE_SIZE} />;
+}
+
+function SceneContent({ builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, onAddObject, onRemoveObject }: BuilderSceneProps) {
+  const { camera, raycaster, scene } = useThree();
+  const [pointer, setPointer] = useState(new THREE.Vector2(99, 99));
+  const rollOverMeshRef = useRef<THREE.Group>(null!);
+  const [isShiftDown, setIsShiftDown] = useState(false);
+  const orbitControlsRef = useRef<any>(null!);
+
+  const plane = useMemo(() => new THREE.Mesh(
+    new THREE.PlaneGeometry(1000, 1000).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ visible: false, depthWrite: false, name: 'ground_plane' })
+  ), []);
+
+  useEffect(() => {
+    if (orbitControlsRef.current) {
+      orbitControlsRef.current.enabled = (builderMode === 'navigate');
+    }
+  }, [builderMode]);
+
+  // <<< THAY ĐỔI 1: Sửa lại công thức tính vị trí BoundingBox cho chính xác
+  const boundingBoxPosition = useMemo((): [number, number, number] => {
+    return [
+      (boxDimensions.width * TILE_SIZE) / 2,
+      (boxDimensions.height * TILE_SIZE) / 2,
+      (boxDimensions.depth * TILE_SIZE) / 2,
+    ];
+  }, [boxDimensions]);
+
+  useFrame(() => {
+    if (builderMode !== 'build' || !rollOverMeshRef.current) {
+      if (rollOverMeshRef.current) rollOverMeshRef.current.visible = false;
+      return;
+    }
+    
+    raycaster.setFromCamera(pointer, camera);
+    const objectsToIntersect = [plane, ...scene.children.filter(c => c.userData.isPlacedObject)];
+    const intersects = raycaster.intersectObjects(objectsToIntersect, true);
+
+    // <<< THAY ĐỔI 2: Lọc kết quả để raycaster bỏ qua chính pointer
+    const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+
+    if (intersect && intersect.face) {
+      const newPos = new THREE.Vector3();
+      newPos.copy(intersect.point).add(intersect.face.normal);
+      newPos.divideScalar(TILE_SIZE).floor().multiplyScalar(TILE_SIZE).addScalar(TILE_SIZE / 2);
+      
+      if (!rollOverMeshRef.current.position.equals(newPos)) {
+          rollOverMeshRef.current.position.copy(newPos);
+      }
+      rollOverMeshRef.current.visible = true;
+    } else {
+        rollOverMeshRef.current.visible = false;
+    }
+  });
+  
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') setIsShiftDown(true);
+      if (event.key.toLowerCase() === 'b') onModeChange('build');
+      if (event.key.toLowerCase() === 'v') onModeChange('navigate');
+    };
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') setIsShiftDown(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [onModeChange]);
+
+  const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
+    if (builderMode !== 'build') return;
+    setPointer(event.pointer);
+  };
+  
+  const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
+      event.stopPropagation();
+      if (builderMode !== 'build' || event.button !== 0) return;
+      
+      const objectsToIntersect = [plane, ...scene.children.filter(c => c.userData.isPlacedObject)];
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObjects(objectsToIntersect, true);
+
+      // <<< THAY ĐỔI 2 (Lặp lại): Lọc kết quả để bỏ qua pointer khi click
+      const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+
+      if (intersect) {
+        if (isShiftDown) {
+          let objectToRemove = intersect.object;
+          while(objectToRemove.parent && !objectToRemove.userData.id) {
+            objectToRemove = objectToRemove.parent;
+          }
+
+          if (objectToRemove.userData.isPlacedObject) {
+            onRemoveObject(objectToRemove.userData.id);
+          }
+        } else if (selectedAsset) {
+          if (!intersect.face) return;
+          const newPosVec = new THREE.Vector3();
+          newPosVec.copy(intersect.point).add(intersect.face.normal);
+          const gridPosition: [number, number, number] = [
+            Math.floor(newPosVec.x / TILE_SIZE),
+            Math.floor(newPosVec.y / TILE_SIZE),
+            Math.floor(newPosVec.z / TILE_SIZE)
+          ];
+
+          const [x, y, z] = gridPosition;
+          if (x >= 0 && x < boxDimensions.width && y >= 0 && y < boxDimensions.height && z >= 0 && z < boxDimensions.depth) {
+            onAddObject(gridPosition);
+          } else {
+            console.warn("Cannot place object outside the build area.");
+          }
+        }
+      }
+  }
+
+  return (
+    <>
+      <Grid position={[0, -0.01, 0]} args={[100, 100]} cellSize={TILE_SIZE} cellThickness={1} cellColor="#6f6f6f" sectionSize={10} sectionThickness={1.5} sectionColor="#2c89d7" fadeDistance={150} fadeStrength={1} infiniteGrid />
+      
+      {/* Cần đảm bảo component BoundingBox của bạn render tại vị trí `position` thay vì `0,0,0` */}
+      <BoundingBox dimensions={boxDimensions} position={boundingBoxPosition} />
+      
+      <group ref={rollOverMeshRef}>
+          {selectedAsset && <RollOverMesh selectedAsset={selectedAsset} />}
+      </group>
+
+      {placedObjects.map(obj => (
+        <Suspense key={obj.id} fallback={null}>
+            <PlacedAsset object={obj} />
+        </Suspense>
+      ))}
+      
+      <OrbitControls ref={orbitControlsRef} makeDefault />
+      
+      <primitive object={plane} onPointerMove={handlePointerMove} onPointerDown={handlePointerDown} onPointerOut={() => setPointer(new THREE.Vector2(99,99))} />
+    </>
+  );
+}
+
+interface BuilderSceneProps {
+    builderMode: BuilderMode;
+    selectedAsset: BuildableAsset | null;
+    placedObjects: PlacedObject[];
+    boxDimensions: BoxDimensions;
+    onModeChange: (mode: BuilderMode) => void;
+    onAddObject: (position: [number, number, number]) => void;
+    onRemoveObject: (id: string) => void;
+}
+
+export function BuilderScene(props: BuilderSceneProps) {
+  return (
+    <div className="builder-scene-container">
+      <Canvas shadows camera={{ position: [15, 20, 25], fov: 60 }} onCreated={({ scene }) => { scene.add(new THREE.AmbientLight(0.5)); }}>
+        <color attach="background" args={['#1e1e1e']} />
+        <directionalLight position={[10, 20, 5]} intensity={1.5} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
+        <Suspense fallback={null}>
+          <SceneContent {...props} />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+}
+
+useGLTF.preload(buildableAssetGroups.flatMap((g: AssetGroup) => g.items.map((i: BuildableAsset) => i.path)));
+
+================================================================================
+
+# FILE: src/config/gameAssets.ts
+------------------------------------------------------------
+// apps/map-builder-app/src/config/gameAssets.ts
+
+import { GameAssets } from '@repo/quest-player';
+
+// Helper function to capitalize the first letter
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export interface BuildableAsset {
+  key: string;
+  name: string;
+  path: string;
+  type: 'block' | 'collectible' | 'interactible';
+}
+
+export interface AssetGroup {
+  name: string;
+  items: BuildableAsset[];
+}
+
+// Function to transform the raw GameAssets object into a UI-friendly structure
+function createBuildableAssetGroups(): AssetGroup[] {
+  const groups: AssetGroup[] = [];
+
+  // Process Blocks (Ground, Walls, etc.)
+  const blockCategories = ['ground', 'stone', 'wall', 'water', 'lava', 'ice'];
+  blockCategories.forEach(categoryName => {
+    // @ts-ignore - Accessing GameAssets dynamically
+    const categoryAssets = GameAssets.world[categoryName];
+    if (categoryAssets) {
+      const items: BuildableAsset[] = Object.keys(categoryAssets).map(assetName => {
+        const key = `${categoryName}.${assetName}`;
+        // @ts-ignore
+        const path = categoryAssets[assetName];
+        return {
+          key,
+          name: capitalize(assetName),
+          path,
+          type: 'block',
+        };
+      });
+
+      if (items.length > 0) {
+        groups.push({
+          name: capitalize(categoryName),
+          items,
+        });
+      }
+    }
+  });
+
+  // Process Misc (Collectibles, Interactibles)
+  const miscAssets = GameAssets.world.misc;
+  const collectibleItems: BuildableAsset[] = [];
+  const interactibleItems: BuildableAsset[] = [];
+
+  Object.keys(miscAssets).forEach(assetName => {
+    // @ts-ignore
+    const path = miscAssets[assetName];
+    const isCollectible = ['crystal', 'key'].includes(assetName);
+    
+    const item: BuildableAsset = {
+      key: assetName, // For misc items, the key is just the name
+      name: capitalize(assetName),
+      path,
+      type: isCollectible ? 'collectible' : 'interactible',
+    };
+
+    if (isCollectible) {
+      collectibleItems.push(item);
+    } else {
+      interactibleItems.push(item);
+    }
+  });
+
+  if (collectibleItems.length > 0) {
+    groups.push({ name: 'Collectibles', items: collectibleItems });
+  }
+  if (interactibleItems.length > 0) {
+    groups.push({ name: 'Interactibles', items: interactibleItems });
+  }
+
+  return groups;
+}
+
+export const buildableAssetGroups: AssetGroup[] = createBuildableAssetGroups();
+
+================================================================================
+
+# FILE: src/main.tsx
+------------------------------------------------------------
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+
+================================================================================
+
+# FILE: src/types.ts
+------------------------------------------------------------
+export type BuilderMode = 'navigate' | 'build';
+
+export interface BuildableAsset {
+    key: string;
+    name: string;
+    path: string;
+    type: 'block' | 'collectible' | 'interactible';
+}
+
+export interface PlacedObject {
+    id: string; // A unique ID, e.g., "x,y,z"
+    position: [number, number, number];
+    asset: BuildableAsset;
+}
+
+export interface AssetGroup {
+    name: string;
+    items: BuildableAsset[];
+}
+
+export interface BoxDimensions {
+    width: number;
+    height: number;
+    depth: number;
+  }
+
+================================================================================
+
+# FILE: vite.config.ts
+------------------------------------------------------------
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import sirv from 'sirv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default defineConfig({
+  plugins: [
+    react(), 
+    tsconfigPaths(),
+    // Middleware để phục vụ assets từ quest-player trong môi trường dev
+    {
+      name: 'serve-quest-player-assets-for-builder',
+      configureServer(server) {
+        const assetsDir = path.resolve(__dirname, '../../packages/quest-player/public/assets');
+        server.middlewares.use('/assets', sirv(assetsDir, { dev: true, etag: true, single: false }));
+      },
+    },
+  ],
+  server: {
+    // Cho phép Vite truy cập các tệp bên ngoài thư mục của nó
+    fs: {
+      allow: [path.resolve(__dirname, '../../')],
+    },
+  },
+});
+
+================================================================================

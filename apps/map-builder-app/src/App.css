@@ -38,3 +38,9 @@
     color: white;
     font-weight: bold;
 }
+
+.builder-scene-wrapper {
+    flex-grow: 1;
+    height: 100%;
+    position: relative; /* Cần thiết cho ViewControls */
+  }

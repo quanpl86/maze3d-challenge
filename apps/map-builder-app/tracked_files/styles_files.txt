@@ -1,0 +1,171 @@
+# Consolidated STYLES Files
+# Generated: 2025-10-13T00:35:03.069075
+# Total files: 3
+================================================================================
+
+# FILE: src/App.css
+------------------------------------------------------------
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.builder-scene-container {
+    flex-grow: 1;
+    /* Cho phép khu vực canvas chiếm hết không gian còn lại */
+    height: 100%;
+    position: relative;
+    /* Cần thiết cho các overlay UI sau này */
+}
+
+.mode-switcher {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #444;
+}
+
+.mode-switcher button {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    background-color: #3c3c41;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.mode-switcher button.active {
+    background-color: #007bff;
+    border-color: #0056b3;
+    color: white;
+    font-weight: bold;
+}
+
+================================================================================
+
+# FILE: src/components/AssetPalette/AssetPalette.css
+------------------------------------------------------------
+.asset-palette {
+  width: 280px;
+  height: 100%;
+  background-color: #2a2a2e;
+  padding: 15px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-right: 1px solid #444;
+  flex-shrink: 0;
+}
+
+.asset-palette h2 {
+  margin-top: 0;
+  font-size: 1.5em;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.asset-group {
+  margin-bottom: 25px;
+}
+
+.asset-group h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 600;
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.asset-item {
+  padding: 10px 5px;
+  font-size: 13px;
+  background-color: #3c3c41;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.asset-item:hover {
+  background-color: #4a4a50;
+  border-color: #777;
+}
+
+.asset-item.active {
+  background-color: #007bff;
+  border-color: #0056b3;
+  color: white;
+  font-weight: bold;
+}
+
+.bounding-box-controls {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #444;
+}
+
+.bounding-box-controls h3 {
+   margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 600;
+}
+
+.dimension-input {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dimension-input label {
+  color: #ccc;
+}
+
+.dimension-input input[type=number] {
+  width: 70px;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px 8px;
+  text-align: right;
+}
+
+================================================================================
+
+# FILE: src/index.css
+------------------------------------------------------------
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+================================================================================

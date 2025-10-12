@@ -1,0 +1,49 @@
+{
+  "last_commit": "6cf7f198fb700af316a3efdbfeac6be35e734667",
+  "tracked_files": {
+    "other": [
+      "git_tracker.py"
+    ],
+    "html": [
+      "index.html"
+    ],
+    "config": [
+      "package.json",
+      "tsconfig.json"
+    ],
+    "styles": [
+      "src/App.css",
+      "src/components/AssetPalette/AssetPalette.css",
+      "src/index.css"
+    ],
+    "typescript": [
+      "src/App.tsx",
+      "src/components/AssetPalette/index.tsx",
+      "src/components/BoundingBox/index.tsx",
+      "src/components/BuilderScene/index.tsx",
+      "src/config/gameAssets.ts",
+      "src/main.tsx",
+      "src/types.ts",
+      "vite.config.ts"
+    ]
+  },
+  "file_hashes": {
+    "git_tracker.py": "38f8a9b4d766084b26525f5781ffaacd",
+    "index.html": "89475cb9250171c4b10bef8d19f58d61",
+    "package.json": "6bfc315b0fc84e55a7f37984600b1bb4",
+    "src/App.css": "045a84e6daa740fcc7947e37d8478298",
+    "src/App.tsx": "c7c87d5da525aa9564596b018d8535cd",
+    "src/components/AssetPalette/AssetPalette.css": "17aeee0b79e234de6e6a61dfd9eea81b",
+    "src/components/AssetPalette/index.tsx": "9baef2aeceaa926acbd5b3bead642e14",
+    "src/components/BoundingBox/index.tsx": "252633a60e1e350d772f7a9a52dc4e94",
+    "src/components/BuilderScene/index.tsx": "0f35e75e204b39192ea6de6e57a4ef5b",
+    "src/config/gameAssets.ts": "0434d65434251c5db3e3b7ccf0fce415",
+    "src/index.css": "1cd97124d92408076326eb829d255c1f",
+    "src/main.tsx": "5c772751d545b97f48691c1b36aee2fa",
+    "src/types.ts": "53cc5b1618b560b618a6e0b0aac1a6c5",
+    "tsconfig.json": "9495287985a196f94cacc84eadbf0fd5",
+    "vite.config.ts": "077fd6b82f682f0d36aabab9a8d72b25"
+  },
+  "created": "2025-10-13T00:35:03.053712",
+  "updated": "2025-10-13T00:35:03.105119"
+}
