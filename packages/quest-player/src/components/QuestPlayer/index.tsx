@@ -107,6 +107,13 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const [currentUserCode, setCurrentUserCode] = useState('');
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
+
+  const handleSettingsChange = (newSettings: Partial<QuestPlayerSettings>) => {
+    if (props.onSettingsChange) {
+      props.onSettingsChange({ ...settings, ...newSettings });
+    }
+  };
+  
   useEffect(() => {
     // Hàm async để khởi tạo blocks
     const initializeBlocks = async () => {
