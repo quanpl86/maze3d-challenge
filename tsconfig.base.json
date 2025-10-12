@@ -13,6 +13,11 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@repo/quest-player": ["packages/quest-player/src"],
+      "@repo/quest-player/*": ["packages/quest-player/src/*"]
+    }
   }
 }

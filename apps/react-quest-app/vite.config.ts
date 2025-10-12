@@ -2,17 +2,18 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import sirv from 'sirv';  // Add this import
+import sirv from 'sirv';
+import tsconfigPaths from 'vite-tsconfig-paths'; // THÊM DÒNG NÀY
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
+    tsconfigPaths(), // THÊM DÒNG NÀY
     {
       name: 'serve-quest-player-assets',
       configureServer(server) {
-        // Serve /assets/* from the quest-player package's public/assets
         const assetsDir = path.resolve(__dirname, '../../packages/quest-player/public/assets');
         server.middlewares.use('/assets', sirv(assetsDir, { dev: true, etag: true, single: false }));
       },
@@ -32,9 +33,7 @@ export default defineConfig({
   },
   
   resolve: {
-    alias: {
-      '/assets': path.resolve(__dirname, '../../packages/quest-player/public/assets')
-    },
+    // XÓA BỎ HOÀN TOÀN KHỐI `alias` CŨ
     dedupe: [
       'blockly'
     ]
