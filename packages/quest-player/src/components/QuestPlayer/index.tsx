@@ -91,7 +91,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
   
   const [blocklyWorkspaceKey, setBlocklyWorkspaceKey] = useState<string>('initial-key');
-
+  const [isBlocksInitialized, setIsBlocksInitialized] = useState(false);
   const [blockCount, setBlockCount] = useState(0);
   const [displayStats, setDisplayStats] = useState<DisplayStats>({});
 
@@ -108,32 +108,39 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
   useEffect(() => {
-    if (!blocklyDefaultEnglishMessages) {
-      blocklyDefaultEnglishMessages = { ...Blockly.Msg };
-    }
+    // Hàm async để khởi tạo blocks
+    const initializeBlocks = async () => {
+      if (!blocklyDefaultEnglishMessages) {
+        blocklyDefaultEnglishMessages = { ...Blockly.Msg };
+      }
 
-    if (language === 'vi') {
-      Blockly.setLocale(Vi as unknown as { [key: string]: string });
-    } else {
-      Blockly.setLocale(blocklyDefaultEnglishMessages);
-    }
+      if (language === 'vi') {
+        Blockly.setLocale(Vi as unknown as { [key: string]: string });
+      } else {
+        Blockly.setLocale(blocklyDefaultEnglishMessages);
+      }
 
-    Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE = t('Blockly.PROCEDURES_DEFNORETURN_PROCEDURE');
-    Blockly.Msg.PROCEDURES_DEFRETURN_RETURN = t('Blockly.PROCEDURES_DEFRETURN_RETURN');
-    Blockly.Msg.NEW_VARIABLE = t('Blockly.NEW_VARIABLE');
-    Blockly.Msg.VARIABLES_DEFAULT_NAME = t('Blockly.VARIABLES_DEFAULT_NAME');
+      Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE = t('Blockly.PROCEDURES_DEFNORETURN_PROCEDURE');
+      Blockly.Msg.PROCEDURES_DEFRETURN_RETURN = t('Blockly.PROCEDURES_DEFRETURN_RETURN');
+      Blockly.Msg.NEW_VARIABLE = t('Blockly.NEW_VARIABLE');
+      Blockly.Msg.VARIABLES_DEFAULT_NAME = t('Blockly.VARIABLES_DEFAULT_NAME');
 
-    if (questData) {
-      setBlocklyWorkspaceKey(`${questData.id}-${language}`);
-    }
+      // QUAN TRỌNG: Khởi tạo lại blocks với ngôn ngữ mới
+      if (questData?.gameType === 'maze') {
+        setIsBlocksInitialized(false); // Reset trước
+        const mazeBlocks = await import('../../games/maze/blocks');
+        mazeBlocks.init(t);
+        setIsBlocksInitialized(true);
+      }
+
+      if (questData) {
+        // Force re-render workspace với key mới bao gồm timestamp để đảm bảo luôn khác
+        setBlocklyWorkspaceKey(`${questData.id}-${language}-${Date.now()}`);
+      }
+    };
+
+    initializeBlocks();
   }, [language, t, questData]);
-
-
-  const handleSettingsChange = (newSettings: Partial<QuestPlayerSettings>) => {
-    if (props.onSettingsChange) {
-      props.onSettingsChange({ ...settings, ...newSettings });
-    }
-  };
 
   const handleGameEnd = useCallback((result: QuestCompletionResult) => {
     if (isStandalone) {
@@ -309,7 +316,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   if (!questData) {
     return <div className="emptyState"><h2>{t('Games.waitingForQuest')}</h2></div>;
   }
-
   return (
     <>
       <Dialog isOpen={dialogState.isOpen} title={dialogState.title} onClose={() => setDialogState({ ...dialogState, isOpen: false })}>{dialogState.message}</Dialog>
@@ -398,7 +404,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
               onToggleSettings={() => setIsSettingsOpen(!isSettingsOpen)}
             />
 
-            {isQuestReady && dynamicToolboxConfig ? (
+            {isQuestReady && dynamicToolboxConfig && isBlocksInitialized ? (
               currentEditor === 'monaco' ? (
                 <MonacoEditor
                   initialCode={aceCode}
@@ -412,7 +418,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                 <>
                   {questData.blocklyConfig && loadedQuestId === questData.id && (
                     <BlocklyWorkspace
-                      key={`${blocklyWorkspaceKey}-${settings.renderer}-${settings.blocklyThemeName}-${effectiveColorScheme}`}
+                      key={blocklyWorkspaceKey}
                       className="fill-container"
                       toolboxConfiguration={dynamicToolboxConfig}
                       initialXml={questData.blocklyConfig.startBlocks}
