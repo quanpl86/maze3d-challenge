@@ -16,7 +16,6 @@ import {
 import { QuestSidebar, type QuestInfo } from './components/QuestSidebar';
 import './App.css';
 
-// THÊM MỚI: Định nghĩa kiểu cho state của App
 type AppSettings = QuestPlayerSettings & { language: string };
 
 function solutionHasOptimalBlocks(solution: SolutionConfig): solution is SolutionConfig & { optimalBlocks: number } {
@@ -58,7 +57,6 @@ const getStoredSettings = (): AppSettings => {
 function App() {
   const { t, i18n } = useTranslation();
 
-  // SỬA ĐỔI: Thêm kiểu tường minh cho useState
   const [settings, setSettings] = useState<AppSettings>(getStoredSettings);
 
   useEffect(() => {
@@ -95,12 +93,10 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [settings.colorSchemeMode]);
 
-  // SỬA ĐỔI: Thêm kiểu tường minh cho tham số `prev`
   const handleSettingsChange = (newSettings: QuestPlayerSettings) => {
     setSettings((prev: AppSettings) => ({ ...prev, ...newSettings }));
   };
 
-  // SỬA ĐỔI: Thêm kiểu tường minh cho tham số `prev`
   const handleLanguageChange = (lang: string) => {
     setSettings((prev: AppSettings) => ({ ...prev, language: lang }));
   };
@@ -210,6 +206,8 @@ function App() {
         onQuestComplete={handleQuestComplete}
         initialSettings={settings}
         onSettingsChange={handleSettingsChange}
+        // THÊM MỚI PROP `language`
+        language={settings.language}
       />
     );
   };

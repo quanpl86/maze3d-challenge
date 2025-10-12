@@ -4,21 +4,13 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// Import các file ngôn ngữ của Blockly
-import 'blockly/msg/en';
-import 'blockly/msg/vi';
-
 // Import tài nguyên dịch đã được export từ package quest-player
 import { questPlayerResources } from '@repo/quest-player/i18n';
-
-// (Tùy chọn) Nếu app của bạn có file dịch riêng, bạn có thể import chúng ở đây
-// import appTranslationEN from './locales/en.json';
 
 const resources = {
   en: {
     translation: {
-      ...questPlayerResources.en.translation, // Hợp nhất bản dịch từ package
-      // ...appTranslationEN, // Hợp nhất bản dịch riêng của app (nếu có)
+      ...questPlayerResources.en.translation,
     },
   },
   vi: {
@@ -35,7 +27,7 @@ i18n
     resources,
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false, // React đã tự bảo vệ khỏi XSS
+      escapeValue: false, 
     },
     detection: {
       order: ['queryString', 'cookie', 'localStorage', 'navigator', 'htmlTag'],

@@ -28,6 +28,7 @@ import './QuestPlayer.css';
 
 type StandaloneProps = {
   isStandalone?: true;
+  language?: string; 
   initialSettings?: QuestPlayerSettings;
   onQuestLoad?: (quest: Quest) => void;
   onQuestComplete?: (result: QuestCompletionResult) => void;
@@ -36,6 +37,7 @@ type StandaloneProps = {
 
 type LibraryProps = {
   isStandalone: false;
+  language: string;
   questData: Quest;
   initialSettings: QuestPlayerSettings;
   onQuestComplete: (result: QuestCompletionResult) => void;
@@ -65,9 +67,13 @@ const DEFAULT_SETTINGS: Required<QuestPlayerSettings> = {
   cameraMode: 'Follow',
 };
 
+// THÊM MỚI: Biến để lưu trữ bản dịch tiếng Anh mặc định của Blockly
+let blocklyDefaultEnglishMessages: { [key: string]: string } | null = null;
+
 
 export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const { t, i18n } = useTranslation();
+  const language = props.language || i18n.language;
 
   const isStandalone = props.isStandalone !== false;
 
@@ -83,6 +89,8 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
+  
+  const [blocklyWorkspaceKey, setBlocklyWorkspaceKey] = useState<string>('initial-key');
 
   const [blockCount, setBlockCount] = useState(0);
   const [displayStats, setDisplayStats] = useState<DisplayStats>({});
@@ -99,6 +107,47 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const [currentUserCode, setCurrentUserCode] = useState('');
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
+
+  // THÊM MỚI: Logic đồng bộ hóa ngôn ngữ của Blockly
+  useEffect(() => {
+    // Lưu lại bản dịch tiếng Anh mặc định một lần duy nhất
+    if (!blocklyDefaultEnglishMessages) {
+      blocklyDefaultEnglishMessages = { ...Blockly.Msg };
+    }
+
+    const syncBlocklyLocale = async () => {
+      if (language === 'en') {
+        // Khôi phục lại bản dịch tiếng Anh mặc định
+        Blockly.setLocale(blocklyDefaultEnglishMessages!);
+      } else {
+        try {
+          // Import động tệp ngôn ngữ
+          const localeModule = await import(`blockly/msg/${language}`);
+          if (localeModule && localeModule.default) {
+            Blockly.setLocale(localeModule.default);
+          }
+        } catch (e) {
+          console.error(`Failed to load Blockly locale for language: ${language}`, e);
+          // Quay về tiếng Anh nếu không tải được
+          Blockly.setLocale(blocklyDefaultEnglishMessages!);
+        }
+      }
+
+      // Ghi đè các chuỗi dịch tùy chỉnh cho các khối động
+      Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE = t('Blockly.PROCEDURES_DEFNORETURN_PROCEDURE');
+      Blockly.Msg.PROCEDURES_DEFRETURN_RETURN = t('Blockly.PROCEDURES_DEFRETURN_RETURN');
+      Blockly.Msg.NEW_VARIABLE = t('Blockly.NEW_VARIABLE');
+      Blockly.Msg.VARIABLES_DEFAULT_NAME = t('Blockly.VARIABLES_DEFAULT_NAME');
+
+      // Cập nhật key để buộc re-render
+      if (questData) {
+        setBlocklyWorkspaceKey(`${questData.id}-${language}`);
+      }
+    };
+
+    syncBlocklyLocale();
+  }, [language, t, questData]);
+
 
   const handleSettingsChange = (newSettings: Partial<QuestPlayerSettings>) => {
     if (props.onSettingsChange) {
@@ -137,27 +186,19 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     pauseGame, resumeGame, stepForward,
     handleActionComplete, handleTeleportComplete
   } = useGameLoop(engineRef, questData, rendererRef, handleGameEnd, playSound, setHighlightedBlockId, currentEditor, currentUserCode, workspaceRef);
-
+  
   useEffect(() => {
     if (questData?.blocklyConfig) {
-      setLoadedQuestId(null);  // Reset để không render Blockly cũ
+      setLoadedQuestId(null);
       const processedToolbox = processToolbox(questData.blocklyConfig.toolbox, t);
       initialToolboxConfigRef.current = processedToolbox;
       setDynamicToolboxConfig(processedToolbox);
-      setLoadedQuestId(questData.id);  // Set lại sau khi toolbox ready
+      setLoadedQuestId(questData.id);
     } else {
       setDynamicToolboxConfig(null);
       setLoadedQuestId(null);
     }
-  }, [questData, t]);
-
-  useLayoutEffect(() => {
-    if (questData?.translations) {
-      Object.keys(questData.translations).forEach((langCode) => {
-        i18n.addResourceBundle(langCode, 'translation', questData.translations![langCode], true, true);
-      });
-    }
-  }, [questData, i18n]);
+  }, [questData, t, language]);
 
   useEffect(() => { if (questLoaderError) setImportError(questLoaderError); }, [questLoaderError]);
 
@@ -303,25 +344,25 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                 <div>
                   {(playerStatus === 'idle' || playerStatus === 'finished') && (
                     <>
-                      <button className="primaryButton" onClick={() => handleRun('run')}>Run</button>
-                      <button className="primaryButton" onClick={() => handleRun('debug')}>Debug</button>
+                      <button className="primaryButton" onClick={() => handleRun('run')}>{t('UI.Run')}</button>
+                      <button className="primaryButton" onClick={() => handleRun('debug')}>{t('UI.Debug')}</button>
                     </>
                   )}
-                  {playerStatus === 'running' && executionMode === 'debug' && (<button className="primaryButton" onClick={pauseGame}>Pause</button>)}
+                  {playerStatus === 'running' && executionMode === 'debug' && (<button className="primaryButton" onClick={pauseGame}>{t('UI.Pause')}</button>)}
                   {playerStatus === 'paused' && (
                     <>
-                      <button className="primaryButton" onClick={resumeGame}>Resume</button>
-                      <button className="primaryButton" onClick={stepForward}>Step Forward</button>
+                      <button className="primaryButton" onClick={resumeGame}>{t('UI.Resume')}</button>
+                      <button className="primaryButton" onClick={stepForward}>{t('UI.StepForward')}</button>
                     </>
                   )}
-                  {playerStatus !== 'idle' && <button className="primaryButton" onClick={resetGame}>Reset</button>}
+                  {playerStatus !== 'idle' && <button className="primaryButton" onClick={resetGame}>{t('UI.Reset')}</button>}
                 </div>
                 <div>
                   {is3DRenderer && (
                     <select value={settings.cameraMode} onChange={(e) => handleSettingsChange({ cameraMode: e.target.value as CameraMode })}>
-                      <option value="Follow">Follow</option>
-                      <option value="TopDown">Top Down</option>
-                      <option value="Free">Free</option>
+                      <option value="Follow">{t('Camera.Follow')}</option>
+                      <option value="TopDown">{t('Camera.TopDown')}</option>
+                      <option value="Free">{t('Camera.Free')}</option>
                     </select>
                   )}
                 </div>
@@ -341,28 +382,28 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                   <div className="stats-overlay">
                     {displayStats.blockCount != null && displayStats.maxBlocks != null && (
                       <div className="stat-item">
-                        Blocks: {displayStats.blockCount} / {displayStats.maxBlocks}
+                        {t('UI.StatsBlocks')}: {displayStats.blockCount} / {displayStats.maxBlocks}
                       </div>
                     )}
                     {displayStats.totalCrystals != null && displayStats.totalCrystals > 0 && (
                       <div className="stat-item">
-                        Crystals: {displayStats.crystalsCollected ?? 0} / {displayStats.totalCrystals}
+                        {t('UI.StatsCrystals')}: {displayStats.crystalsCollected ?? 0} / {displayStats.totalCrystals}
                       </div>
                     )}
                     {displayStats.totalSwitches != null && displayStats.totalSwitches > 0 && (
                       <div className="stat-item">
-                        Switches: {displayStats.switchesOn ?? 0} / {displayStats.totalSwitches}
+                        {t('UI.StatsSwitches')}: {displayStats.switchesOn ?? 0} / {displayStats.totalSwitches}
                       </div>
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="emptyState">
-                  <h2>Loading Visualization...</h2>
+                  <h2>{t('UI.LoadingVisualization')}</h2>
                   {questLoaderError && <p style={{ color: 'red' }}>{questLoaderError}</p>}
                 </div>
               )}
-              <div className="descriptionArea">Task: {t(questData.descriptionKey)}</div>
+              <div className="descriptionArea">{t('UI.TaskLabel')}: {t(questData.descriptionKey)}</div>
             </div>
           </div>
         </Panel>
@@ -389,9 +430,9 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                 />
               ) : (
                 <>
-                  {questData.blocklyConfig && loadedQuestId === questData.id && (  // <-- Thêm điều kiện này
+                  {questData.blocklyConfig && loadedQuestId === questData.id && (
                     <BlocklyWorkspace
-                      key={`${questData.id}-${settings.renderer}-${settings.blocklyThemeName}-${effectiveColorScheme}`}
+                      key={`${blocklyWorkspaceKey}-${settings.renderer}-${settings.blocklyThemeName}-${effectiveColorScheme}`}
                       className="fill-container"
                       toolboxConfiguration={dynamicToolboxConfig}
                       initialXml={questData.blocklyConfig.startBlocks}
@@ -401,7 +442,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                   )}
                   {questData.blocklyConfig && loadedQuestId !== questData.id && (  
                     <div className="emptyState">
-                      <h2>Loading Editor...</h2>
+                      <h2>{t('UI.LoadingEditor')}</h2>
                     </div>
                   )}
                   <SettingsPanel
@@ -423,7 +464,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
               )
             ) : (
               <div className="emptyState">
-                <h2>{questLoaderError ? "Error" : "Loading Editor..."}</h2>
+                <h2>{questLoaderError ? t('UI.Error') : t('UI.LoadingEditor')}</h2>
                 {questLoaderError && <p style={{ color: 'red' }}>{questLoaderError}</p>}
               </div>
             )}
