@@ -4,8 +4,7 @@ import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next';
 import { javascriptGenerator } from 'blockly/javascript';
 import * as Blockly from 'blockly/core';
-import Vi from 'blockly/msg/vi';
-import En from 'blockly/msg/en';
+import * as Vi from 'blockly/msg/vi';
 import { BlocklyWorkspace } from 'react-blockly';
 import { transform } from '@babel/standalone';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -108,15 +107,13 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const [currentUserCode, setCurrentUserCode] = useState('');
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
-
-  // SỬA ĐỔI: Refactor lại useEffect đồng bộ hóa ngôn ngữ
   useEffect(() => {
     if (!blocklyDefaultEnglishMessages) {
       blocklyDefaultEnglishMessages = { ...Blockly.Msg };
     }
 
     if (language === 'vi') {
-      Blockly.setLocale(Vi);
+      Blockly.setLocale(Vi as unknown as { [key: string]: string });
     } else {
       Blockly.setLocale(blocklyDefaultEnglishMessages);
     }
