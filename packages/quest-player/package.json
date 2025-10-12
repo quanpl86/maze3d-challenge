@@ -7,11 +7,17 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
+      "development": {
+        "import": "./src/index.ts"
+      },
+      "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./i18n": {
-      "import": "./src/i18n.ts"
+      "development": {
+        "import": "./src/i18n.ts"
+      },
+      "import": "./dist/i18n.mjs"
     },
     "./style.css": "./src/index.css",
     "./dist/index.css": "./dist/index.css"
