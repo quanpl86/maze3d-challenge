@@ -16,13 +16,16 @@ import {
 import { QuestSidebar, type QuestInfo } from './components/QuestSidebar';
 import './App.css';
 
+// THÊM MỚI: Định nghĩa kiểu cho state của App
+type AppSettings = QuestPlayerSettings & { language: string };
+
 function solutionHasOptimalBlocks(solution: SolutionConfig): solution is SolutionConfig & { optimalBlocks: number } {
     return solution.optimalBlocks !== undefined;
 }
 
 const questModules: Record<string, { default: Quest }> = import.meta.glob('../quests/*.json', { eager: true });
 
-const getStoredSettings = (): QuestPlayerSettings & { language: string } => {
+const getStoredSettings = (): AppSettings => {
   try {
     const stored = localStorage.getItem('questAppSettings');
     if (stored) {
@@ -31,6 +34,10 @@ const getStoredSettings = (): QuestPlayerSettings & { language: string } => {
         colorSchemeMode: ['auto', 'light', 'dark'].includes(parsed.colorSchemeMode) ? parsed.colorSchemeMode : 'auto',
         soundsEnabled: typeof parsed.soundsEnabled === 'boolean' ? parsed.soundsEnabled : true,
         language: ['en', 'vi'].includes(parsed.language) ? parsed.language : 'en',
+        renderer: parsed.renderer || 'zelos',
+        blocklyThemeName: parsed.blocklyThemeName || 'zelos',
+        gridEnabled: typeof parsed.gridEnabled === 'boolean' ? parsed.gridEnabled : true,
+        cameraMode: parsed.cameraMode || 'Follow',
       };
     }
   } catch (error) {
@@ -40,6 +47,10 @@ const getStoredSettings = (): QuestPlayerSettings & { language: string } => {
     colorSchemeMode: 'auto',
     soundsEnabled: true,
     language: 'en',
+    renderer: 'zelos',
+    blocklyThemeName: 'zelos',
+    gridEnabled: true,
+    cameraMode: 'Follow',
   };
 };
 
@@ -47,7 +58,8 @@ const getStoredSettings = (): QuestPlayerSettings & { language: string } => {
 function App() {
   const { t, i18n } = useTranslation();
 
-  const [settings, setSettings] = useState(getStoredSettings);
+  // SỬA ĐỔI: Thêm kiểu tường minh cho useState
+  const [settings, setSettings] = useState<AppSettings>(getStoredSettings);
 
   useEffect(() => {
     try {
@@ -83,12 +95,14 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [settings.colorSchemeMode]);
 
+  // SỬA ĐỔI: Thêm kiểu tường minh cho tham số `prev`
   const handleSettingsChange = (newSettings: QuestPlayerSettings) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings((prev: AppSettings) => ({ ...prev, ...newSettings }));
   };
 
+  // SỬA ĐỔI: Thêm kiểu tường minh cho tham số `prev`
   const handleLanguageChange = (lang: string) => {
-    setSettings(prev => ({ ...prev, language: lang }));
+    setSettings((prev: AppSettings) => ({ ...prev, language: lang }));
   };
 
   const sortedQuests = useMemo<QuestInfo[]>(() => {
@@ -97,7 +111,7 @@ function App() {
       level: module.default.level,
       gameType: module.default.gameType,
       titleKey: module.default.titleKey,
-      title: module.default.title,
+      questTitleKey: module.default.questTitleKey,
     }));
     quests.sort((a, b) => {
       if (a.gameType < b.gameType) return -1;
@@ -123,26 +137,34 @@ function App() {
   useEffect(() => {
     if (currentQuestId) {
       setIsLoading(true);
-      // Dùng timeout để đảm bảo UI kịp hiển thị "Loading..."
+      setQuestData(null);
+      
       setTimeout(() => {
         const targetModule = Object.values(questModules).find(module => module.default.id === currentQuestId);
         if (targetModule) {
           const validationResult = questSchema.safeParse(targetModule.default);
           if (validationResult.success) {
-            setQuestData(validationResult.data as Quest);
+            const newQuestData = validationResult.data as Quest;
+            
+            if (newQuestData.translations) {
+              Object.keys(newQuestData.translations).forEach((langCode) => {
+                i18n.addResourceBundle(langCode, 'translation', newQuestData.translations![langCode], true, true);
+              });
+              i18n.changeLanguage(i18n.language);
+            }
+            
+            setQuestData(newQuestData);
           } else {
             console.error("Quest validation failed:", validationResult.error);
-            setQuestData(null);
           }
         }
         setIsLoading(false);
-      }, 50); // Một khoảng trễ nhỏ
+      }, 50);
     }
-  }, [currentQuestId]);
+  }, [currentQuestId, i18n]);
 
   const handleQuestSelect = useCallback((id: string) => {
     if (id === currentQuestId) return;
-    setQuestData(null); // Đặt questData thành null ngay lập tức
     setCurrentQuestId(id);
   }, [currentQuestId]);
   
@@ -178,7 +200,7 @@ function App() {
 
   const renderMainContent = () => {
     if (isLoading || !questData) {
-      return <div className="emptyState"><h2>Loading...</h2></div>;
+      return <div className="emptyState"><h2>{t('UI.Loading')}</h2></div>;
     }
     return (
       <QuestPlayer 

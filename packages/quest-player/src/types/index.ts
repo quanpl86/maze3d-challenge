@@ -53,6 +53,7 @@ export interface Quest {
   gameType: 'maze' | 'bird' | 'turtle' | 'movie' | 'music' | 'pond' | 'puzzle';
   level: number;
   titleKey: string;
+  questTitleKey: string;
   descriptionKey: string;
   
   supportedEditors?: ('blockly' | 'monaco')[];

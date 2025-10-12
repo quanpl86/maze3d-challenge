@@ -162,6 +162,7 @@ export const questSchema: z.ZodType<Quest> = z.object({
   gameType: z.enum(['maze', 'bird', 'turtle', 'movie', 'music', 'pond', 'puzzle']),
   level: z.number(),
   titleKey: z.string(),
+  questTitleKey: z.string(),
   title: z.string().optional(), // Trường title mới
   descriptionKey: z.string(),
   

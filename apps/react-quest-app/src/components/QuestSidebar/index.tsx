@@ -10,6 +10,7 @@ export interface QuestInfo {
   titleKey: string;
   level: number;
   title?: string;
+  questTitleKey: string;
 }
 
 interface QuestSidebarProps {

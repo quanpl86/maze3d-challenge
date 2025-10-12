@@ -69,9 +69,6 @@ export const QuestSelector: React.FC<QuestSelectorProps> = ({ onQuestSelect }) =
 
   return (
     <div className="quest-selector-container">
-      <div className="language-selector-wrapper">
-        <LanguageSelector />
-      </div>
       <h1>{t('Games.loadQuest')}</h1>
       {Object.entries(groupedQuests).map(([gameType, questList]) => (
         <div key={gameType} className="game-group">
