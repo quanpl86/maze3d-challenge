@@ -2,11 +2,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
-    "types": ["vite/client", "node"], // <-- THÊM "node" VÀO ĐÂY
+    "types": ["vite/client", "node"],
     "noEmit": true
   },
-  "include": ["src", "vite.config.ts"], // <-- THÊM vite.config.ts VÀO ĐÂY
-  "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../../packages/quest-player" }]
+  "include": [
+    "src", 
+    "vite.config.ts",
+    "../../packages/quest-player/src/custom.d.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
 }
