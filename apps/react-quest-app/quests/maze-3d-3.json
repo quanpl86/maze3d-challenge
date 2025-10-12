@@ -1,15 +1,17 @@
 {
   "id": "maze-3d-3",
   "gameType": "maze",
-  "level": 4,
+  "level": 3,
   "titleKey": "Games.maze",
-  "title": "Mê cung Sandbox 4",
+  "questTitleKey": "Quest.maze3d3.title",
   "descriptionKey": "Quest.maze3d3.sandbox.description",
   "translations": {
     "en": {
+      "Quest.maze3d3.title": "Sandbox Maze",
       "Quest.maze3d3.sandbox.description": "Turn on all the switches to reach the goal. Use the full set of blocks, including loops and functions, to find the most efficient solution."
     },
     "vi": {
+      "Quest.maze3d3.title": "Mê cung Sandbox",
       "Quest.maze3d3.sandbox.description": "Bật tất cả các công tắc để đi tới đích. Hãy sử dụng bộ khối lệnh đầy đủ, bao gồm cả vòng lặp và hàm, để tìm ra lời giải hiệu quả nhất."
     }
   },
@@ -20,7 +22,7 @@
       "contents": [
         {
           "kind": "category",
-          "name": "Events",
+          "name": "%{BKY_GAMES_CATEVENTS}",
           "categorystyle": "events_category",
           "contents": [
             { "kind": "block", "type": "maze_start" }
@@ -28,7 +30,7 @@
         },
         {
           "kind": "category",
-          "name": "Movement",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
           "categorystyle": "movement_category",
           "contents": [
             { "kind": "block", "type": "maze_moveForward" },
@@ -38,7 +40,7 @@
         },
         {
           "kind": "category",
-          "name": "Loops",
+          "name": "%{BKY_GAMES_CATLOOPS}",
           "categorystyle": "loops_category",
           "contents": [
             { "kind": "block", "type": "controls_whileUntil" },
@@ -47,7 +49,7 @@
         },
         {
           "kind": "category",
-          "name": "Logic",
+          "name": "%{BKY_GAMES_CATLOGIC}",
           "categorystyle": "logic_category",
           "contents": [
             { "kind": "block", "type": "controls_if" },
@@ -63,7 +65,7 @@
         },
         {
           "kind": "category",
-          "name": "Actions",
+          "name": "%{BKY_GAMES_CATACTIONS}",
           "categorystyle": "actions_category",
           "contents": [
             { "kind": "block", "type": "maze_collect" },
@@ -72,7 +74,7 @@
         },
         {
           "kind": "category",
-          "name": "Math",
+          "name": "%{BKY_GAMES_CATMATH}",
           "categorystyle": "math_category",
           "contents": [
             { "kind": "block", "type": "maze_item_count" },
