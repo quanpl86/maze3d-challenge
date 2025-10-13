@@ -1,3 +1,34 @@
+.map-actions {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #444;
+}
+
+.map-actions h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 600;
+}
+
+.map-actions button {
+  width: 100%;
+  padding: 10px;
+  background-color: #3c3c41;
+  color: #f0f0f0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.map-actions button:hover {
+  background-color: #4a4a50;
+}
+
 .asset-palette {
   width: 280px;
   height: 100%;

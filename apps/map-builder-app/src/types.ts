@@ -3,20 +3,25 @@ export type BuilderMode = 'navigate' | 'build-single' | 'build-area';
 export interface FillOptions {
   type: 'volume' | 'shell';
   pattern: 'solid' | 'checkerboard';
-  spacing: number; // Khoảng cách giữa các khối (chỉ áp dụng cho checkerboard)
+  spacing: number;
 }
+
+export type PrimitiveShape = 'torus' | 'cone' | 'sphere';
 
 export interface BuildableAsset {
     key: string;
     name: string;
-    path: string;
-    type: 'block' | 'collectible' | 'interactible';
+    path?: string; // Đường dẫn không còn là bắt buộc
+    primitiveShape?: PrimitiveShape; // Hình dạng cơ bản để render
+    type: 'block' | 'collectible' | 'interactible' | 'special';
+    defaultProperties?: Record<string, any>;
 }
 
 export interface PlacedObject {
-    id: string; // A unique ID, e.g., "x,y,z"
+    id: string; 
     position: [number, number, number];
     asset: BuildableAsset;
+    properties: Record<string, any>;
 }
 
 export interface AssetGroup {
@@ -29,7 +34,6 @@ export interface BoxDimensions {
     height: number;
     depth: number;
 }
-// Định nghĩa kiểu cho vùng chọn, lưu trữ tọa độ lưới thực tế
 export interface SelectionBounds {
     min: [number, number, number];
     max: [number, number, number];

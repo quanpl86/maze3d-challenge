@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { buildableAssetGroups } from '../../config/gameAssets';
 import { type BuildableAsset, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds } from '../../types';
 import './AssetPalette.css';
@@ -14,6 +15,7 @@ interface AssetPaletteProps {
   onSelectionAction: (action: 'fill' | 'replace' | 'delete') => void;
   selectionBounds: SelectionBounds | null;
   onSelectionBoundsChange: (bounds: SelectionBounds) => void;
+  onImportMap: (file: File) => void;
 }
 
 const DimensionInputRow = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
@@ -34,8 +36,23 @@ export function AssetPalette({
   onFillOptionsChange,
   onSelectionAction,
   selectionBounds,
-  onSelectionBoundsChange
+  onSelectionBoundsChange,
+  onImportMap
 }: AssetPaletteProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onImportMap(file);
+    }
+    // Reset a file input value to allow re-uploading the same file
+    event.target.value = '';
+  };
 
   const handleBoundChange = (bound: 'min' | 'max', axisIndex: number, value: number) => {
     if (!selectionBounds) return;
@@ -54,6 +71,18 @@ export function AssetPalette({
   return (
     <aside className="asset-palette">
       <h2>Asset Palette</h2>
+
+      <div className="map-actions">
+        <h3>Map Actions</h3>
+        <button onClick={handleImportClick}>Import JSON</button>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange}
+          accept=".json"
+          style={{ display: 'none' }} 
+        />
+      </div>
 
       <div className="mode-switcher">
         <button className={currentMode === 'navigate' ? 'active' : ''} onClick={() => onModeChange('navigate')}>Navigate (V)</button>
