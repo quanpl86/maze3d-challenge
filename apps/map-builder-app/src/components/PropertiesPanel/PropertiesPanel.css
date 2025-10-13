@@ -3,9 +3,9 @@
     padding: 15px;
     box-sizing: border-box;
     color: #f0f0f0;
-    flex-shrink: 0; 
+    flex-shrink: 0; /* Quan trọng: Ngăn panel này bị co lại */
     border-bottom: 1px solid #444;
-}
+  }
 
   .properties-panel.empty-state {
     display: flex;

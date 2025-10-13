@@ -91,9 +91,16 @@ function createBuildableAssetGroups(): AssetGroup[] {
 
   const specialItems: BuildableAsset[] = [
     {
+      key: 'player_start', // Key mới
+      name: 'Player Start',  // Tên mới
+      primitiveShape: 'sphere', // Dùng hình cầu để đại diện
+      type: 'special',
+      defaultProperties: {}
+    },
+    {
       key: 'finish',
       name: 'Finish Point',
-      primitiveShape: 'cone', // Sử dụng hình Cone
+      primitiveShape: 'cone', 
       type: 'special',
       defaultProperties: {}
     }

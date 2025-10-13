@@ -25,6 +25,16 @@ function App() {
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
 
   const sceneRef = useRef<SceneController>(null);
+
+  const assetMap = useMemo(() => {
+    const map = new Map<string, BuildableAsset>();
+    buildableAssetGroups.forEach(group => {
+      group.items.forEach(item => {
+        map.set(item.key, item);
+      });
+    });
+    return map;
+  }, []);
   
   const selectedObject = useMemo(() => {
     return placedObjects.find(obj => obj.id === selectedObjectId) || null;
@@ -42,9 +52,12 @@ function App() {
     const blocks = placedObjects.filter(o => o.asset.type === 'block').map(o => ({ modelKey: o.asset.key, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
     const collectibles = placedObjects.filter(o => o.asset.type === 'collectible').map((o, i) => ({ id: `c${i + 1}`, type: o.asset.key, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
     const interactibles = placedObjects.filter(o => o.asset.type === 'interactible').map(o => ({ id: o.id, ...o.properties, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
-    const finishObject = placedObjects.find(o => o.asset.type === 'special' && o.asset.key === 'finish');
+    
+    const finishObject = placedObjects.find(o => o.asset.key === 'finish');
     const finish = finishObject ? { x: finishObject.position[0], y: finishObject.position[1], z: finishObject.position[2] } : null;
-    const players = [ { id: "player1", start: { x: 1, y: 1, z: 1, direction: 1 } } ];
+
+    const startObject = placedObjects.find(o => o.asset.key === 'player_start');
+    const players = startObject ? [{ id: "player1", start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: 1 } }] : [];
 
     const jsonObject = { gameConfig: { type: "maze", renderer: "3d", blocks, players, collectibles, interactibles, finish } };
     return JSON.stringify(jsonObject, null, 2);
@@ -75,9 +88,9 @@ function App() {
     let objectsToAdd: PlacedObject[] = [];
     let objectsToRemove: string[] = [];
     
-    if (asset.type === 'special' && asset.key === 'finish') {
-      const existingFinish = placedObjects.find(o => o.asset.key === 'finish');
-      if (existingFinish) objectsToRemove.push(existingFinish.id);
+    if (asset.key === 'finish' || asset.key === 'player_start') {
+      const existing = placedObjects.find(o => o.asset.key === asset.key);
+      if (existing) objectsToRemove.push(existing.id);
     }
 
     const newObject: PlacedObject = {
@@ -141,7 +154,6 @@ function App() {
             if ((x + y + z) % effectiveSpacing !== 0) continue;
           }
 
-          // FIX 1: Tìm đối tượng bằng TỌA ĐỘ, không phải ID.
           const existingObjectIndex = newPlacedObjects.findIndex(obj => 
             obj && obj.position[0] === x && obj.position[1] === y && obj.position[2] === z
           );
@@ -149,22 +161,19 @@ function App() {
           switch (action) {
             case 'fill':
               if (existingObjectIndex === -1 && selectedAsset) {
-                // FIX 2: Tạo đối tượng mới với đầy đủ các trường bắt buộc
                 affectedObjects.push({
-                  id: uuidv4(), // Sử dụng UUID
+                  id: uuidv4(),
                   position: [x, y, z],
                   asset: selectedAsset,
-                  properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {} // Thêm properties
+                  properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {}
                 });
               }
               break;
             case 'replace':
               if (existingObjectIndex !== -1 && selectedAsset) {
-                // Logic này vẫn đúng vì existingObjectIndex giờ đã được tìm chính xác
                 newPlacedObjects[existingObjectIndex] = { 
                     ...newPlacedObjects[existingObjectIndex], 
                     asset: selectedAsset,
-                    // Cập nhật lại properties nếu asset mới có default aproperties khác
                     properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {}
                 };
               }
@@ -193,6 +202,61 @@ function App() {
 
   const handleViewChange = (view: 'perspective' | 'top' | 'front' | 'side') => sceneRef.current?.changeView(view);
 
+  const handleImportMap = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const json = JSON.parse(text);
+        if (!json.gameConfig) throw new Error("Invalid format: missing gameConfig key");
+
+        const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = json.gameConfig;
+        const newPlacedObjects: PlacedObject[] = [];
+
+        for (const block of blocks) {
+          const asset = assetMap.get(block.modelKey);
+          if (asset && block.position) {
+            newPlacedObjects.push({ id: uuidv4(), asset, position: [block.position.x, block.position.y, block.position.z], properties: {} });
+          }
+        }
+        
+        for (const item of collectibles) {
+            const asset = assetMap.get(item.type);
+            if(asset && item.position) {
+                newPlacedObjects.push({ id: uuidv4(), asset, position: [item.position.x, item.position.y, item.position.z], properties: {} });
+            }
+        }
+
+        for (const item of interactibles) {
+            const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
+            const asset = assetMap.get(assetKey);
+            if(asset && item.position) {
+                const { position, ...properties } = item;
+                newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties });
+            }
+        }
+        
+        if (finish) {
+          const asset = assetMap.get('finish');
+          if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], properties: {} });
+        }
+
+        if (players[0]?.start) {
+          const asset = assetMap.get('player_start');
+          const startPos = players[0].start;
+          if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
+        }
+        
+        setPlacedObjects(newPlacedObjects);
+        alert('Map imported successfully!');
+      } catch (error) {
+        console.error("Failed to import map:", error);
+        alert(`Failed to import map: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="app-container">
       <AssetPalette 
@@ -207,6 +271,7 @@ function App() {
         onSelectionAction={handleSelectionAction}
         selectionBounds={selectionBounds}
         onSelectionBoundsChange={handleSelectionBoundsChange}
+        onImportMap={handleImportMap}
       />
       <div className="builder-scene-wrapper">
         <ViewControls onViewChange={handleViewChange} />
@@ -226,7 +291,6 @@ function App() {
           onSelectObject={setSelectedObjectId}
         />
       </div>
-      {/* --- THAY ĐỔI Ở ĐÂY --- */}
       <div className="right-sidebar">
         <PropertiesPanel 
           selectedObject={selectedObject}
