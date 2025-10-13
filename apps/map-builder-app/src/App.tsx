@@ -23,6 +23,9 @@ function App() {
   const [fillOptions, setFillOptions] = useState<FillOptions>({ type: 'volume', pattern: 'solid', spacing: 1 });
   
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
+  
+  // State mới để lưu trữ siêu dữ liệu của quest
+  const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
 
   const sceneRef = useRef<SceneController>(null);
 
@@ -59,9 +62,16 @@ function App() {
     const startObject = placedObjects.find(o => o.asset.key === 'player_start');
     const players = startObject ? [{ id: "player1", start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: 1 } }] : [];
 
-    const jsonObject = { gameConfig: { type: "maze", renderer: "3d", blocks, players, collectibles, interactibles, finish } };
-    return JSON.stringify(jsonObject, null, 2);
-  }, [placedObjects]);
+    const gameConfig = { type: "maze", renderer: "3d", blocks, players, collectibles, interactibles, finish };
+
+    // Nếu có siêu dữ liệu, kết hợp nó với gameConfig mới
+    if (questMetadata) {
+      return JSON.stringify({ ...questMetadata, gameConfig }, null, 2);
+    }
+    
+    // Nếu không, chỉ trả về gameConfig
+    return JSON.stringify({ gameConfig }, null, 2);
+  }, [placedObjects, questMetadata]);
 
   const handleSelectAsset = (asset: BuildableAsset) => {
     setSelectedAsset(asset);
@@ -208,32 +218,43 @@ function App() {
       try {
         const text = e.target?.result as string;
         const json = JSON.parse(text);
-        if (!json.gameConfig) throw new Error("Invalid format: missing gameConfig key");
 
-        const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = json.gameConfig;
+        // --- LOGIC NHẬN DIỆN FORMAT ---
+        let configToLoad;
+        if (json.gameConfig && typeof json.gameConfig === 'object') {
+          // Đây là file quest đầy đủ
+          const { gameConfig, ...metadata } = json;
+          configToLoad = gameConfig;
+          setQuestMetadata(metadata);
+        } else if (json.blocks || json.players) {
+          // Đây có vẻ là file chỉ có gameConfig, nhưng không có key cha
+          // Để nhất quán, chúng ta sẽ coi nó là file gameConfig-only
+          configToLoad = json;
+          setQuestMetadata(null);
+        } else {
+            throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
+        }
+
+        const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = configToLoad;
         const newPlacedObjects: PlacedObject[] = [];
 
         for (const block of blocks) {
           const asset = assetMap.get(block.modelKey);
-          if (asset && block.position) {
-            newPlacedObjects.push({ id: uuidv4(), asset, position: [block.position.x, block.position.y, block.position.z], properties: {} });
-          }
+          if (asset && block.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [block.position.x, block.position.y, block.position.z], properties: {} });
         }
         
         for (const item of collectibles) {
-            const asset = assetMap.get(item.type);
-            if(asset && item.position) {
-                newPlacedObjects.push({ id: uuidv4(), asset, position: [item.position.x, item.position.y, item.position.z], properties: {} });
-            }
+          const asset = assetMap.get(item.type);
+          if(asset && item.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [item.position.x, item.position.y, item.position.z], properties: {} });
         }
 
         for (const item of interactibles) {
-            const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
-            const asset = assetMap.get(assetKey);
-            if(asset && item.position) {
-                const { position, ...properties } = item;
-                newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties });
-            }
+          const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
+          const asset = assetMap.get(assetKey);
+          if(asset && item.position) {
+              const { position, ...properties } = item;
+              newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties });
+          }
         }
         
         if (finish) {
