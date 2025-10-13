@@ -62,7 +62,7 @@ function createBuildableAssetGroups(): AssetGroup[] {
       key: 'switch',
       name: 'Switch',
       // Giữ lại mô hình này, giả sử nó tồn tại hoặc dùng tạm 1 cái khác
-      path: GameAssets.world.misc.crystal,
+      path: GameAssets.world.misc.switch,
       type: 'interactible',
       defaultProperties: { initialState: 'off' }
     },
