@@ -10,7 +10,7 @@ import './index.css';
 import './i18n.ts';
 
 // Import CSS của thư viện (nếu chưa chuyển sang CSS Modules)
-import '@repo/quest-player/style.css';
+import '@thanh01.pmt/quest-player/style.css';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
