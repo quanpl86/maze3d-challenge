@@ -1,32 +1,18 @@
 // apps/map-builder-app/src/config/gameAssets.ts
 
 import { GameAssets } from '@repo/quest-player';
+import { BuildableAsset, AssetGroup } from '../types';
 
-// Helper function to capitalize the first letter
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export interface BuildableAsset {
-  key: string;
-  name: string;
-  path: string;
-  type: 'block' | 'collectible' | 'interactible';
-}
-
-export interface AssetGroup {
-  name: string;
-  items: BuildableAsset[];
-}
-
-// Function to transform the raw GameAssets object into a UI-friendly structure
 function createBuildableAssetGroups(): AssetGroup[] {
   const groups: AssetGroup[] = [];
 
-  // Process Blocks (Ground, Walls, etc.)
   const blockCategories = ['ground', 'stone', 'wall', 'water', 'lava', 'ice'];
   blockCategories.forEach(categoryName => {
-    // @ts-ignore - Accessing GameAssets dynamically
+    // @ts-ignore
     const categoryAssets = GameAssets.world[categoryName];
     if (categoryAssets) {
       const items: BuildableAsset[] = Object.keys(categoryAssets).map(assetName => {
@@ -50,7 +36,6 @@ function createBuildableAssetGroups(): AssetGroup[] {
     }
   });
 
-  // Process Misc (Collectibles, Interactibles)
   const miscAssets = GameAssets.world.misc;
   const collectibleItems: BuildableAsset[] = [];
   const interactibleItems: BuildableAsset[] = [];
@@ -60,19 +45,42 @@ function createBuildableAssetGroups(): AssetGroup[] {
     const path = miscAssets[assetName];
     const isCollectible = ['crystal', 'key'].includes(assetName);
     
-    const item: BuildableAsset = {
-      key: assetName, // For misc items, the key is just the name
-      name: capitalize(assetName),
-      path,
-      type: isCollectible ? 'collectible' : 'interactible',
-    };
-
     if (isCollectible) {
-      collectibleItems.push(item);
-    } else {
-      interactibleItems.push(item);
+      collectibleItems.push({
+        key: assetName,
+        name: capitalize(assetName),
+        path,
+        type: 'collectible',
+      });
     }
   });
+
+  // --- THAY ĐỔI Ở ĐÂY ---
+  
+  interactibleItems.push(
+    {
+      key: 'switch',
+      name: 'Switch',
+      // Giữ lại mô hình này, giả sử nó tồn tại hoặc dùng tạm 1 cái khác
+      path: GameAssets.world.misc.crystal,
+      type: 'interactible',
+      defaultProperties: { initialState: 'off' }
+    },
+    {
+      key: 'portal_blue',
+      name: 'Blue Portal',
+      primitiveShape: 'torus', // Sử dụng hình Torus (donut)
+      type: 'interactible',
+      defaultProperties: { type: 'portal', color: 'blue', targetId: null }
+    },
+    {
+      key: 'portal_orange',
+      name: 'Orange Portal',
+      primitiveShape: 'torus', // Sử dụng hình Torus (donut)
+      type: 'interactible',
+      defaultProperties: { type: 'portal', color: 'orange', targetId: null }
+    }
+  );
 
   if (collectibleItems.length > 0) {
     groups.push({ name: 'Collectibles', items: collectibleItems });
@@ -80,6 +88,18 @@ function createBuildableAssetGroups(): AssetGroup[] {
   if (interactibleItems.length > 0) {
     groups.push({ name: 'Interactibles', items: interactibleItems });
   }
+
+  const specialItems: BuildableAsset[] = [
+    {
+      key: 'finish',
+      name: 'Finish Point',
+      primitiveShape: 'cone', // Sử dụng hình Cone
+      type: 'special',
+      defaultProperties: {}
+    }
+  ];
+
+  groups.push({ name: 'Special', items: specialItems });
 
   return groups;
 }

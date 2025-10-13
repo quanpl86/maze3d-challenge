@@ -4,12 +4,10 @@
     height: 100%;
 }
 
-.builder-scene-container {
-    flex-grow: 1;
-    /* Cho phép khu vực canvas chiếm hết không gian còn lại */
-    height: 100%;
-    position: relative;
-    /* Cần thiết cho các overlay UI sau này */
+.builder-scene-wrapper {
+  flex-grow: 1;
+  height: 100%;
+  position: relative; /* Cần thiết cho ViewControls */
 }
 
 .mode-switcher {
@@ -38,9 +36,3 @@
     color: white;
     font-weight: bold;
 }
-
-.builder-scene-wrapper {
-    flex-grow: 1;
-    height: 100%;
-    position: relative; /* Cần thiết cho ViewControls */
-  }
