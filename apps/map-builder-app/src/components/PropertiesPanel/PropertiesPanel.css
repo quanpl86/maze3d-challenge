@@ -1,14 +1,12 @@
 .properties-panel {
-    width: 320px;
-    height: 100%;
     background-color: #2a2a2e;
     padding: 15px;
     box-sizing: border-box;
-    border-left: 1px solid #444;
-    flex-shrink: 0;
     color: #f0f0f0;
-  }
-  
+    flex-shrink: 0; 
+    border-bottom: 1px solid #444;
+}
+
   .properties-panel.empty-state {
     display: flex;
     flex-direction: column;

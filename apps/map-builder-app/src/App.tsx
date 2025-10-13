@@ -116,7 +116,81 @@ function App() {
     setPlacedObjects(prev => prev.map(obj => (obj.id === updatedObject.id ? updatedObject : obj)));
   };
 
-  const handleSelectionAction = (action: 'fill' | 'replace' | 'delete') => { /* ... */ };
+  const handleSelectionAction = (action: 'fill' | 'replace' | 'delete') => {
+    if (!selectionBounds) return;
+    if (action !== 'delete' && !selectedAsset) return;
+
+    const { min, max } = selectionBounds;
+    const [minX, minY, minZ] = min;
+    const [maxX, maxY, maxZ] = max;
+    
+    const affectedObjects: PlacedObject[] = [];
+    let newPlacedObjects = [...placedObjects];
+
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        for (let z = minZ; z <= maxZ; z++) {
+          
+          if (fillOptions.type === 'shell') {
+            const isShell = x === minX || x === maxX || y === minY || y === maxY || z === minZ || z === maxZ;
+            if (!isShell) continue;
+          }
+
+          if (fillOptions.pattern === 'checkerboard') {
+            const effectiveSpacing = fillOptions.spacing + 1;
+            if ((x + y + z) % effectiveSpacing !== 0) continue;
+          }
+
+          // FIX 1: Tìm đối tượng bằng TỌA ĐỘ, không phải ID.
+          const existingObjectIndex = newPlacedObjects.findIndex(obj => 
+            obj && obj.position[0] === x && obj.position[1] === y && obj.position[2] === z
+          );
+
+          switch (action) {
+            case 'fill':
+              if (existingObjectIndex === -1 && selectedAsset) {
+                // FIX 2: Tạo đối tượng mới với đầy đủ các trường bắt buộc
+                affectedObjects.push({
+                  id: uuidv4(), // Sử dụng UUID
+                  position: [x, y, z],
+                  asset: selectedAsset,
+                  properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {} // Thêm properties
+                });
+              }
+              break;
+            case 'replace':
+              if (existingObjectIndex !== -1 && selectedAsset) {
+                // Logic này vẫn đúng vì existingObjectIndex giờ đã được tìm chính xác
+                newPlacedObjects[existingObjectIndex] = { 
+                    ...newPlacedObjects[existingObjectIndex], 
+                    asset: selectedAsset,
+                    // Cập nhật lại properties nếu asset mới có default aproperties khác
+                    properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {}
+                };
+              }
+              break;
+            case 'delete':
+              if (existingObjectIndex !== -1) {
+                (newPlacedObjects as any[])[existingObjectIndex] = null;
+              }
+              break;
+          }
+        }
+      }
+    }
+
+    if (action === 'fill') {
+      setPlacedObjects(prev => [...prev, ...affectedObjects]);
+    } else if (action === 'replace') {
+      setPlacedObjects(newPlacedObjects);
+    } else if (action === 'delete') {
+      setPlacedObjects(newPlacedObjects.filter(Boolean));
+    }
+    
+    setSelectionStart(null);
+    setSelectionEnd(null);
+  };
+
   const handleViewChange = (view: 'perspective' | 'top' | 'front' | 'side') => sceneRef.current?.changeView(view);
 
   return (
