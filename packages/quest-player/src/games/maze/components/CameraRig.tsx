@@ -97,8 +97,10 @@ export const CameraRig: React.FC<CameraRigProps> = ({ targetRef, mode }) => {
     if (mode === 'Follow') {
       const robotQuaternion = targetRef.current.quaternion;
       
-      // Thống nhất offset ở đây
-      const offset = new THREE.Vector3(-4, 10, -14); 
+      // [ĐÃ SỬA] Giữ nguyên góc nhìn từ trên cao nhưng đưa camera lại gần hơn.
+      // Bạn có thể thay đổi giá trị `distanceFactor` để zoom gần hoặc xa hơn.
+      const distanceFactor = 0.6; // 1.0 là khoảng cách gốc, 0.5 là gần một nửa.
+      const offset = new THREE.Vector3(0, 25 * distanceFactor, -12 * distanceFactor); 
       offset.applyQuaternion(robotQuaternion);
       const cameraTargetPosition = robotPosition.clone().add(offset);
 

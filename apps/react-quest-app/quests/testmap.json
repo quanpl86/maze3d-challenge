@@ -1,0 +1,122 @@
+{
+  "id": "test-star-logic",
+  "gameType": "maze",
+  "level": 99,
+  "titleKey": "Games.maze",
+  "questTitleKey": "Quest.maze3d3.title",
+  "descriptionKey": "Quest.test-star-logic.description",
+  "translations": {
+    "en": {
+      "Quest.test-star-logic.description": "Test map for the star calculation logic. Collect 2 crystals and toggle 1 switch to get all stars."
+    },
+    "vi": {
+      "Quest.test-star-logic.description": "Bản đồ thử nghiệm cho logic tính sao. Thu thập 2 viên pha lê và bật 1 công tắc để đạt được tất cả các sao."
+    }
+  },
+  "supportedEditors": [
+    "blockly"
+  ],
+  "blocklyConfig": 
+  {
+    "toolbox": {
+      "kind": "flyoutToolbox",
+      "contents": [
+        {
+          "kind": "block",
+          "type": "maze_moveForward"
+        },
+        {
+          "kind": "block",
+          "type": "maze_turn",
+          "fields": {
+            "DIR": "turnLeft"
+          }
+        },
+        {
+          "kind": "block",
+          "type": "maze_turn",
+          "fields": {
+            "DIR": "turnRight"
+          }
+        },
+        {
+          "kind": "block",
+          "type": "maze_collect"
+        },
+        {
+          "kind": "block",
+          "type": "maze_toggle_switch"
+        }
+      ]
+    },
+    "maxBlocks": 10,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      { "modelKey": "ground.normal", "position": { "x": 0, "y": 0, "z": 0 } },
+      { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 0 } },
+      { "modelKey": "ground.normal", "position": { "x": 2, "y": 0, "z": 0 } },
+      { "modelKey": "ground.normal", "position": { "x": 3, "y": 0, "z": 0 } },
+      { "modelKey": "ground.normal", "position": { "x": 4, "y": 0, "z": 0 } }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 0,
+          "y": 1,
+          "z": 0,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "crystal_1",
+        "type": "crystal",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        }
+      },
+      {
+        "id": "crystal_2",
+        "type": "crystal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 0
+        }
+      }
+    ],
+    "interactibles": [
+      {
+        "id": "switch_1",
+        "type": "switch",
+        "position": { "x": 2, "y": 1, "z": 0 },
+        "initialState": "off"
+      }
+    ],
+    "finish": {
+      "x": 4,
+      "y": 1,
+      "z": 0
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 2,
+      "switch": 1
+    },
+    "optimalBlocks": 7
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

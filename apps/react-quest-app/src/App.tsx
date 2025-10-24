@@ -173,11 +173,23 @@ function App() {
 
   const handleQuestComplete = useCallback((result: QuestCompletionResult) => {
     if (result.isSuccess && result.finalState.solution) {
-      const unitLabel = result.unitLabel === 'block' ? 'blockCount' : 'lineCount';
+      const unitLabel = result.unitLabel === 'block' ? 'blockCount' : 'lineCount';      
+      let message = '';
+
+      if (result.stars === 3) {
+        message = t('Games.dialogExcellentSolution');
+      } else if (result.stars === 2) {
+        message = t('Games.dialogGoodJob', { [unitLabel]: result.unitCount });
+      } else if (result.stars === 1) {
+        message = t('Games.dialogPartialSuccess'); // Chuỗi dịch mới
+      } else {
+        message = t('Games.dialogGoodJob', { [unitLabel]: result.unitCount });
+      }
+
       setDialogState({
         isOpen: true,
         title: t('Games.dialogCongratulations'),
-        message: t('Games.dialogGoodJob', { [unitLabel]: result.unitCount }),
+        message: message,
         stars: result.stars,
         optimalBlocks: solutionHasOptimalBlocks(result.finalState.solution) ? result.finalState.solution.optimalBlocks : undefined,
         code: result.userCode,
@@ -192,7 +204,7 @@ function App() {
           message: `${t('Games.dialogReason')}: ${translatedReason}`
       });
     }
-  }, [t]);
+  }, [t]); // Thêm các phụ thuộc nếu cần
 
   const renderMainContent = () => {
     if (isLoading || !questData) {
@@ -228,11 +240,12 @@ function App() {
               ))}
             </div>
             <p className="completion-message">{dialogState.message}</p>
-            {dialogState.stars < 3 && dialogState.optimalBlocks && (
+            {dialogState.stars === 2 && dialogState.optimalBlocks && (
               <p className="optimal-solution-info">{t('Games.dialogOptimalSolution', { optimalBlocks: dialogState.optimalBlocks })}</p>
             )}
-            {dialogState.stars === 3 && <p className="excellent-solution">{t('Games.dialogExcellentSolution')}</p>}
-            {dialogState.code && (
+            {dialogState.stars === 1 && <p className="optimal-solution-info">{t('Games.dialogImproveTo3Stars')}</p>} 
+
+            {dialogState.code && ( // Luôn hiển thị code nếu có
               <details className="code-details">
                 <summary>{t('Games.dialogShowCode')}</summary>
                 <pre><code>{dialogState.code}</code></pre>

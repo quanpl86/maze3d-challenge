@@ -326,6 +326,7 @@
 	"UI.Resume": "Resume",
 	"UI.StepForward": "Step Forward",
 	"UI.Reset": "Reset",
+	"UI.StatsLines": "Lines",
 	"UI.StatsBlocks": "Blocks",
 	"UI.StatsCrystals": "Crystals",
 	"UI.StatsSwitches": "Switches",

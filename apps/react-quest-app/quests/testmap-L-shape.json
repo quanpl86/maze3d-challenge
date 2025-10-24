@@ -1,0 +1,126 @@
+{
+  "id": "test-L-shape",
+  "gameType": "maze",
+  "level": 100,
+  "titleKey": "Quest.test-L-shape.title",
+  "questTitleKey": "Quest.maze3d3.title",
+  "descriptionKey": "Quest.test-L-shape.description",
+  "translations": {
+    "en": {
+      "Quest.test-L-shape.title": "L-Shape Test Map",
+      "Quest.test-L-shape.description": "A test map with an L-shape path. Collect the crystal, toggle the switch, and jump over the obstacle to win."
+    },
+    "vi": {
+      "Quest.test-L-shape.title": "Bản đồ thử nghiệm hình chữ L",
+      "Quest.test-L-shape.description": "Bản đồ thử nghiệm với đường đi hình chữ L. Thu thập pha lê, bật công tắc và nhảy qua chướng ngại vật để chiến thắng."
+    }
+  },
+  "supportedEditors": [
+    "blockly"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "flyoutToolbox",
+      "contents": [
+        {
+          "kind": "block",
+          "type": "maze_moveForward"
+        },
+        {
+          "kind": "block",
+          "type": "maze_turn",
+          "fields": {
+            "DIR": "turnLeft"
+          }
+        },
+        {
+          "kind": "block",
+          "type": "maze_turn",
+          "fields": {
+            "DIR": "turnRight"
+          }
+        },
+        {
+          "kind": "block",
+          "type": "maze_jump"
+        },
+        {
+          "kind": "block",
+          "type": "maze_collect"
+        },
+        {
+          "kind": "block",
+          "type": "maze_toggle_switch"
+        }
+      ]
+    },
+    "maxBlocks": 15
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 1 } },
+      { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 2 } },
+      { "modelKey": "ground.normal", "position": { "x": 1, "y": 0, "z": 3 } },
+      { "modelKey": "ground.normal", "position": { "x": 2, "y": 0, "z": 3 } },
+      { "modelKey": "ground.normal", "position": { "x": 3, "y": 0, "z": 3 } },
+      { "modelKey": "ground.normal", "position": { "x": 5, "y": 0, "z": 3 } },
+      { "modelKey": "ground.normal", "position": { "x": 6, "y": 0, "z": 3 } },
+      { "modelKey": "ground.normal", "position": { "x": 7, "y": 0, "z": 3 } },
+      { "modelKey": "ground.normal", "position": { "x": 4, "y": 0, "z": 3 } },
+      { "modelKey": "wall.brick01", "position": { "x": 1, "y": 1, "z": 3 } }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 1,
+          "y": 1,
+          "z": 1,
+          "direction": 2
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "crystal_1",
+        "type": "crystal",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        }
+      }
+    ],
+    "interactibles": [
+      {
+        "id": "switch_1",
+        "type": "switch",
+        "position": {
+          "x": 6,
+          "y": 1,
+          "z": 3
+        },
+        "initialState": "off"
+      }
+    ],
+    "finish": {
+      "x": 7,
+      "y": 1,
+      "z": 3
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 1,
+      "switch": 1
+    },
+    "optimalBlocks": 8
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

@@ -182,10 +182,12 @@ export interface BirdConfig {
 
 export interface SolutionConfig {
   type: 'reach_target' | 'match_drawing' | 'match_music' | 'survive_battle' | 'destroy_target';
+  itemGoals?: Record<string, number>;
   pixelTolerance?: number;
   solutionBlocks?: string;
   solutionScript?: string;
   optimalBlocks?: number;
+  optimalLines?: number;
   solutionMaxBlocks?: number;
 }
 

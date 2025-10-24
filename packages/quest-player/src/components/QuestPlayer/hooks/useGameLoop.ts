@@ -2,17 +2,45 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import * as Blockly from 'blockly/core';
-import type { IGameEngine, GameState, Quest, StepResult, ExecutionMode, QuestCompletionResult, EditorType } from '../../../types';
+import type { IGameEngine, GameState, Quest, StepResult, ExecutionMode, QuestCompletionResult, EditorType, MazeConfig } from '../../../types';
 import type { TurtleEngine } from '../../../games/turtle/TurtleEngine';
 import type { TurtleRendererHandle } from '../../../games/turtle/TurtleRenderer';
 import type { IMazeEngine } from '../../../games/maze/MazeEngine';
-import { countLinesOfCode } from '../../../games/codeUtils';
+import { calculateLogicalLines } from '../utils';
+import type { MazeGameState } from '../../../games/maze/types';
 
 const BATCH_FRAME_DELAY = 50;
 const STEP_FRAME_DELAY = 10;
 const DEBUG_FRAME_DELAY = 500;
 
 type PlayerStatus = 'idle' | 'running' | 'paused' | 'finished';
+
+const checkItemGoals = (finalState: GameState, questData: Quest): boolean => {
+  const { solution, gameConfig } = questData;
+  if (!solution.itemGoals) {
+    return true; // Không có mục tiêu phụ, coi như hoàn thành
+  }
+
+  if (gameConfig.type === 'maze') {
+    const mazeState = finalState as MazeGameState;
+    const mazeConfig = gameConfig as MazeConfig;
+
+    for (const goalType in solution.itemGoals) {
+      const requiredCount = solution.itemGoals[goalType];
+      if (goalType === 'switch') {
+        const switchesOn = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
+        if (switchesOn < requiredCount) return false;
+      } else { // Mặc định là các vật phẩm thu thập (collectibles)
+        const collectedItems = (mazeConfig.collectibles || [])
+          .filter(c => mazeState.collectedIds.includes(c.id) && c.type === goalType);
+        if (collectedItems.length < requiredCount) return false;
+      }
+    }
+  }
+  // Có thể thêm logic cho các game khác ở đây
+
+  return true;
+};
 
 export const useGameLoop = (
   engineRef: React.RefObject<IGameEngine>,
@@ -58,21 +86,32 @@ export const useGameLoop = (
       setCurrentGameState(finalStateWithSolution);
       setPlayerStatus('finished');
       setHighlightedBlockId(null);
-
-      // --- BUILD THE COMPLETION RESULT OBJECT ---
-      const unitLabel = currentEditor === 'blockly' ? 'block' : 'line';
-      const unitCount = currentEditor === 'blockly' && workspaceRef.current
-        ? workspaceRef.current.getAllBlocks(false).filter((b: Blockly.Block) => b.isDeletable() && b.isEditable() && !b.getInheritedDisabled()).length
-        : countLinesOfCode(userCode);
       
-      let stars = 1;
-      if (isSuccess && currentEditor === 'blockly' && questData.solution.optimalBlocks !== undefined) {
-          if (unitCount <= questData.solution.optimalBlocks) {
-              stars = 3;
-          } else if (questData.solution.solutionMaxBlocks !== undefined && unitCount <= questData.solution.solutionMaxBlocks) {
-              stars = 2;
+      // --- [SỬA LỖI] BUILD THE COMPLETION RESULT OBJECT ---
+      // Luôn tính toán dựa trên số dòng code logic của mã JavaScript được thực thi (userCode)
+      // để đảm bảo tính nhất quán, bất kể người dùng đang ở editor nào.
+      const unitLabel = questData.solution.optimalLines !== undefined ? 'line' : 'block';
+      const unitCount = calculateLogicalLines(userCode);
+
+      let stars = 0;
+      if (isSuccess) {
+        const allItemGoalsMet = checkItemGoals(finalEngineState, questData);
+
+        if (allItemGoalsMet) {
+          // Hoàn thành tất cả mục tiêu -> xét 2 hoặc 3 sao
+          if (currentEditor === 'blockly' && questData.solution.optimalBlocks !== undefined) {
+            stars = (unitCount <= questData.solution.optimalBlocks) ? 3 : 2;
+          } else if (currentEditor === 'monaco' && questData.solution.optimalLines !== undefined) {
+            stars = (unitCount <= questData.solution.optimalLines) ? 3 : 2;
+          } else {
+            stars = 2; // Mặc định 2 sao nếu không có optimalBlocks
           }
+        } else {
+          // Chỉ về đích -> 1 sao
+          stars = 1;
+        }
       }
+
 
       onGameEnd({
           isSuccess,

@@ -239,28 +239,31 @@ export class MazeEngine implements IMazeEngine {
     return { x, z };
   }
   
-  private _isSolidAt(x: number, y: number, z: number): boolean {
+  private _getBlockModelAt(x: number, y: number, z: number): string | null {
     const cell = this.currentState.worldGrid[`${x},${y},${z}`];
-    return cell ? cell.isSolid : false;
+    if (!cell || cell.type !== 'block') return null;
+    // Tìm block tương ứng trong danh sách blocks để lấy modelKey
+    const blockData = this.initialGameState.blocks.find(b => 
+      b.position.x === x && b.position.y === y && b.position.z === z
+    );
+    return blockData?.modelKey || null;
   }
 
   private _isGroundAt(x: number, y: number, z: number): boolean {
-    const cell = this.currentState.worldGrid[`${x},${y},${z}`];
-    return !!cell;
+    // Chỉ 'ground.normal' mới là mặt đất đi được
+    const model = this._getBlockModelAt(x, y, z);
+    return model === 'ground.normal';
   }
 
   private _isWalkable(x: number, y: number, z: number): boolean {
-    return !this._isSolidAt(x, y, z) && this._isGroundAt(x, y - 1, z);
+    // Một vị trí có thể đi tới nếu nó không có khối nào và có 'ground.normal' ở dưới
+    const modelAtDest = this._getBlockModelAt(x, y, z);
+    return modelAtDest === null && this._isGroundAt(x, y - 1, z);
   }
 
   private moveForward(): void {
     const player = this.getActivePlayer();
     const { x: nextX, z: nextZ } = this.getNextPosition(player.x, player.z, player.direction);
-
-    if (this._isSolidAt(nextX, player.y, nextZ)) {
-      player.pose = 'Bump';
-      return;
-    }
 
     let targetY: number | null = null;
     if (this._isWalkable(nextX, player.y, nextZ)) {
@@ -287,12 +290,25 @@ export class MazeEngine implements IMazeEngine {
     const player = this.getActivePlayer();
     const { x: nextX, z: nextZ } = this.getNextPosition(player.x, player.z, player.direction);
 
-    let targetY = player.y;
-    if (this._isWalkable(nextX, player.y, nextZ)) {
-      // Flat jump forward
-    } else if (this._isWalkable(nextX, player.y + 1, nextZ)) {
+    let targetY: number | null = null;
+
+    // Ưu tiên 1: Kiểm tra xem có thể nhảy lên 1 khối không
+    const obstacleModel = this._getBlockModelAt(nextX, player.y, nextZ);
+    // [ĐÃ SỬA] Logic kiểm tra nhảy lên: Chỉ cần kiểm tra ô phía trên vật cản có trống không.
+    const modelAtLandingSpot = this._getBlockModelAt(nextX, player.y + 1, nextZ);
+
+    if (obstacleModel === 'wall.brick01' && modelAtLandingSpot === null) {
+      // Có thể nhảy lên
       targetY = player.y + 1;
-    } else {
+    } 
+    // Ưu tiên 2: Nếu không nhảy lên được, kiểm tra xem có thể nhảy bằng không
+    else if (this._isWalkable(nextX, player.y, nextZ)) {
+      // Có thể nhảy bằng (giữ nguyên độ cao)
+      targetY = player.y;
+    }
+
+    if (targetY === null) {
+      // Không thể nhảy, va vào tường
       player.pose = 'Bump';
       return;
     }
@@ -321,11 +337,15 @@ export class MazeEngine implements IMazeEngine {
     const effectiveDirection = this.constrainDirection(player.direction + relativeDirection);
     const { x: nextX, z: nextZ } = this.getNextPosition(player.x, player.z, effectiveDirection);
 
-    return (
-      this._isWalkable(nextX, player.y + 1, nextZ) ||
-      this._isWalkable(nextX, player.y, nextZ) ||
-      this._isWalkable(nextX, player.y - 1, nextZ)
-    );
+    // Kiểm tra có thể đi thẳng (trên cùng mặt phẳng hoặc đi xuống)
+    if (this._isWalkable(nextX, player.y, nextZ) || this._isWalkable(nextX, player.y - 1, nextZ)) {
+      return true;
+    }
+
+    // Kiểm tra có thể nhảy qua 'wall.brick01' để đi lên
+    const obstacleModel = this._getBlockModelAt(nextX, player.y, nextZ);
+    const canJumpUp = obstacleModel === 'wall.brick01' && this._isWalkable(nextX, player.y + 1, nextZ);
+    return canJumpUp;
   }
 
   private notDone(): boolean {

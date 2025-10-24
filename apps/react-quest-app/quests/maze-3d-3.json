@@ -1,7 +1,7 @@
 {
   "id": "maze-3d-3-origin",
   "gameType": "maze",
-  "level": 3,
+  "level": 33,
   "titleKey": "Games.maze",
   "questTitleKey": "Quest.maze3d3.title",
   "descriptionKey": "Quest.maze3d3.sandbox.description",
@@ -87,7 +87,9 @@
         { "kind": "category", "name": "%{BKY_GAMES_CATPROCEDURES}", "custom": "PROCEDURE", "categorystyle": "procedure_category" }
       ]
     },
-    "maxBlocks": 50
+    "maxBlocks": 50,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></statement></block></xml>"
+  
   },
   "gameConfig": {
       "type": "maze",

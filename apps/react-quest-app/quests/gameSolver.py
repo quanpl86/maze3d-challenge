@@ -12,14 +12,10 @@ PlayerStart = Dict[str, Any]
 # --- SECTION 2: GAME WORLD MODEL (Mô hình hóa thế giới game) ---
 class GameWorld:
     """Đọc và hiểu file JSON, xây dựng một bản đồ thế giới chi tiết với các thuộc tính model."""
-    WALKABLE_GROUNDS: Set[str] = {
-        'ground.checker', 'ground.earth', 'ground.earthChecker', 'ground.normal', 
-        'ground.snow', 'ground.mud', 'water.water01','ice.ice01'
-    }
-    SOLID_WALLS: Set[str] = {
-        'stone.stone01', 'stone.stone02', 'stone.stone03', 'stone.stone04', 'stone.stone05', 'stone.stone06', 'stone.stone07',
-        'wall.brick01', 'wall.brick02', 'wall.brick03', 'wall.brick04', 'wall.brick05', 'wall.brick06', 'wall.stone01'
-    }
+    # [ĐÃ SỬA] Chỉ ground.normal là đường đi
+    WALKABLE_GROUNDS: Set[str] = {'ground.normal'}
+    # [ĐÃ SỬA] Chỉ wall.brick01 là vật cản có thể nhảy qua
+    JUMPABLE_OBSTACLES: Set[str] = {'wall.brick01'}
     DEADLY_OBSTACLES: Set[str] = {'lava.lava01'}
     
     def __init__(self, json_data: Dict[str, Any]):
@@ -211,33 +207,33 @@ def solve_level(world: GameWorld) -> Optional[List[Action]]:
             current_pos_key = f"{state.x}-{state.y}-{state.z}"
 
             if action in ['moveForward', 'jump']:
-                # [SỬA LỖI TRIỆT ĐỂ] Viết lại hoàn toàn logic cho 'jump' và 'moveForward'
+                dx, _, dz = DIRECTIONS[state.direction]
                 if action == 'moveForward':
-                    dx, _, dz = DIRECTIONS[state.direction]
                     next_x, next_y, next_z = state.x + dx, state.y, state.z + dz
                     
                     dest_key = f"{next_x}-{next_y}-{next_z}"
                     ground_key = f"{next_x}-{next_y-1}-{next_z}"
                     model_at_dest = world.world_map.get(dest_key)
                     model_at_ground = world.world_map.get(ground_key)
-
-                    if (model_at_dest is None or model_at_dest not in GameWorld.SOLID_WALLS) and (model_at_ground is not None and model_at_ground in GameWorld.WALKABLE_GROUNDS):
+                    
+                    # Có thể đi tới nếu ô đó trống và có ground.normal ở dưới
+                    if model_at_dest is None and model_at_ground in GameWorld.WALKABLE_GROUNDS:
                         next_state.x, next_state.y, next_state.z = next_x, next_y, next_z
                         is_valid_move = True
                 elif action == 'jump':
-                    # Jump di chuyển 2 ô về phía trước, qua một vật cản ở ô giữa
-                    dx, _, dz = DIRECTIONS[state.direction]
-                    obstacle_x, obstacle_y, obstacle_z = state.x + dx, state.y, state.z + dz
-                    next_x, next_y, next_z = state.x + 2*dx, state.y, state.z + 2*dz
-
-                    obstacle_key = f"{obstacle_x}-{obstacle_y}-{obstacle_z}"
-                    model_at_obstacle_pos = world.world_map.get(obstacle_key)
-                    is_obstacle_in_middle = model_at_obstacle_pos in GameWorld.SOLID_WALLS
-
-                    ground_key_final = f"{next_x}-{next_y-1}-{next_z}"
-                    is_landing_safe = world.world_map.get(ground_key_final) in GameWorld.WALKABLE_GROUNDS
-
-                    if is_obstacle_in_middle and is_landing_safe:
+                    # [ĐÃ SỬA] Jump chỉ có thể nhảy lên 1 block 'wall.brick01'
+                    next_x, next_z = state.x + dx, state.z + dz
+                    
+                    # Kiểm tra vật cản ở phía trước
+                    obstacle_key = f"{next_x}-{state.y}-{next_z}"
+                    model_at_obstacle = world.world_map.get(obstacle_key)
+                    
+                    # Kiểm tra có đất để đáp ở trên vật cản không
+                    landing_ground_key = f"{next_x}-{state.y}-{next_z}" # Đất phải ở cùng y với vật cản
+                    model_at_landing_ground = world.world_map.get(landing_ground_key)
+                    
+                    if model_at_obstacle in GameWorld.JUMPABLE_OBSTACLES and model_at_landing_ground in GameWorld.WALKABLE_GROUNDS:
+                        next_y = state.y + 1 # Nhảy lên 1 block
                         next_state.x, next_state.y, next_state.z = next_x, next_y, next_z
                         is_valid_move = True
             elif action == 'turnLeft':

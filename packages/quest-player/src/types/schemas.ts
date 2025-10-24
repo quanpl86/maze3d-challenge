@@ -149,10 +149,12 @@ const gameConfigSchema = z.discriminatedUnion('type', [
 
 const solutionConfigSchema = z.object({
   type: z.enum(['reach_target', 'match_drawing', 'match_music', 'survive_battle', 'destroy_target']),
+  itemGoals: z.record(z.string(), z.number()).optional(),
   pixelTolerance: z.number().optional(),
   solutionBlocks: z.string().optional(),
   solutionScript: z.string().optional(),
   optimalBlocks: z.number().optional(),
+  optimalLines: z.number().optional(),
   solutionMaxBlocks: z.number().optional(),
 });
 
