@@ -2,14 +2,19 @@
   "id": "test-star-logic",
   "gameType": "maze",
   "level": 99,
-  "titleKey": "Games.maze",
-  "questTitleKey": "Quest.maze3d3.title",
+  "titleKey": "Challenge.topic04-01.Title",
+  "topic": "topic-title 1",
+  "questTitleKey": "Challenge.topic04-01.Title",
   "descriptionKey": "Quest.test-star-logic.description",
   "translations": {
     "en": {
+      "topic-title 1": "Test Map",
+      "Challenge.topic04-01.Title": "Test logic map",
       "Quest.test-star-logic.description": "Test map for the star calculation logic. Collect 2 crystals and toggle 1 switch to get all stars."
     },
     "vi": {
+      "topic-title 1": "Thử nghiệm bản đồ",
+      "Challenge.topic04-01.Title": "Thử map logic tính điểm",
       "Quest.test-star-logic.description": "Bản đồ thử nghiệm cho logic tính sao. Thu thập 2 viên pha lê và bật 1 công tắc để đạt được tất cả các sao."
     }
   },

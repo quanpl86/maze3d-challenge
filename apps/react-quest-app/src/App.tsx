@@ -1,6 +1,6 @@
 // apps/react-quest-app/src/App.tsx
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   QuestPlayer,
@@ -13,8 +13,14 @@ import {
   type GameState,
   type QuestPlayerSettings,
 } from '@repo/quest-player';
-import { QuestSidebar, type QuestInfo } from './components/QuestSidebar';
+import { QuestSidebar } from './components/QuestSidebar';
 import './App.css';
+
+// Bọc QuestPlayer trong React.memo để ngăn re-render không cần thiết
+const MemoizedQuestPlayer = React.memo(QuestPlayer);
+
+// Mở rộng kiểu Quest để bao gồm thuộc tính 'topic'
+type AppQuest = Quest & { topic?: string };
 
 type AppSettings = QuestPlayerSettings & { language: string };
 
@@ -101,24 +107,22 @@ function App() {
     setSettings((prev: AppSettings) => ({ ...prev, language: lang }));
   };
 
-  const sortedQuests = useMemo<QuestInfo[]>(() => {
-    const quests: QuestInfo[] = Object.values(questModules).map(module => ({
-      id: module.default.id,
-      level: module.default.level,
-      gameType: module.default.gameType,
-      titleKey: module.default.titleKey,
-      questTitleKey: module.default.questTitleKey,
-    }));
+  const sortedQuests = useMemo<AppQuest[]>(() => {
+    // Lấy toàn bộ dữ liệu quest, không chỉ QuestInfo
+    const quests: AppQuest[] = Object.values(questModules).map(module => module.default as AppQuest);
     quests.sort((a, b) => {
-      if (a.gameType < b.gameType) return -1;
-      if (a.gameType > b.gameType) return 1;
-      return a.level - b.level;
+      // Sắp xếp theo topic trước, sau đó đến level
+      const topicA = a.topic || 'z'; // Đẩy các quest không có topic xuống cuối
+      const topicB = b.topic || 'z';
+      if (topicA < topicB) return -1;
+      if (topicA > topicB) return 1;
+      return (a.level || 0) - (b.level || 0);
     });
     return quests;
   }, []);
 
   const [currentQuestId, setCurrentQuestId] = useState<string | null>(sortedQuests[0]?.id || null);
-  const [questData, setQuestData] = useState<Quest | null>(null);
+  const [questData, setQuestData] = useState<AppQuest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [dialogState, setDialogState] = useState<{
@@ -140,11 +144,15 @@ function App() {
         if (targetModule) {
           const validationResult = questSchema.safeParse(targetModule.default);
           if (validationResult.success) {
-            const newQuestData = validationResult.data as Quest;
+            const newQuestData = validationResult.data as AppQuest;
             
             if (newQuestData.translations) {
-              Object.keys(newQuestData.translations).forEach((langCode) => {
-                i18n.addResourceBundle(langCode, 'translation', newQuestData.translations![langCode], true, true);
+              const translations = newQuestData.translations; // Tạo biến mới để TypeScript hiểu kiểu
+              Object.keys(translations).forEach((langCode) => {
+                const langTranslations = translations[langCode];
+                if (langTranslations) { // Defensive: chỉ thêm nếu gói dịch thuật tồn tại
+                  i18n.addResourceBundle(langCode, 'translation', langTranslations, true, true);
+                }
               });
               i18n.changeLanguage(i18n.language);
             }
@@ -211,14 +219,14 @@ function App() {
       return <div className="emptyState"><h2>{t('UI.Loading')}</h2></div>;
     }
     return (
-      <QuestPlayer 
+      <MemoizedQuestPlayer 
         key={questData.id}
         isStandalone={false}
         questData={questData}
         onQuestComplete={handleQuestComplete}
         initialSettings={settings}
         onSettingsChange={handleSettingsChange}
-        // THÊM MỚI PROP `language`
+        // Prop `language` được truyền vào
         language={settings.language}
       />
     );

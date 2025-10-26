@@ -2,15 +2,18 @@
   "id": "maze-3d-3-origin",
   "gameType": "maze",
   "level": 33,
-  "titleKey": "Games.maze",
+  "titleKey": "Quest.maze3d3.title",
+  "topic": "topic-title 1",
   "questTitleKey": "Quest.maze3d3.title",
   "descriptionKey": "Quest.maze3d3.sandbox.description",
   "translations": {
     "en": {
+      "topic-title 1": "Test Map",
       "Quest.maze3d3.title": "Sandbox Maze",
       "Quest.maze3d3.sandbox.description": "Turn on all the switches to reach the goal. Use the full set of blocks, including loops and functions, to find the most efficient solution."
     },
     "vi": {
+      "topic-title 1": "Thử nghiệm bản đồ",
       "Quest.maze3d3.title": "Mê cung Sandbox",
       "Quest.maze3d3.sandbox.description": "Bật tất cả các công tắc để đi tới đích. Hãy sử dụng bộ khối lệnh đầy đủ, bao gồm cả vòng lặp và hàm, để tìm ra lời giải hiệu quả nhất."
     }

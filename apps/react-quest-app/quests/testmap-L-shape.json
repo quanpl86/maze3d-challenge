@@ -3,14 +3,17 @@
   "gameType": "maze",
   "level": 100,
   "titleKey": "Quest.test-L-shape.title",
+  "topic": "topic-title 1",
   "questTitleKey": "Quest.maze3d3.title",
   "descriptionKey": "Quest.test-L-shape.description",
   "translations": {
     "en": {
+      "topic-title 1": "Test Map",
       "Quest.test-L-shape.title": "L-Shape Test Map",
       "Quest.test-L-shape.description": "A test map with an L-shape path. Collect the crystal, toggle the switch, and jump over the obstacle to win."
     },
     "vi": {
+      "topic-title 1": "Thử nghiệm bản đồ",
       "Quest.test-L-shape.title": "Bản đồ thử nghiệm hình chữ L",
       "Quest.test-L-shape.description": "Bản đồ thử nghiệm với đường đi hình chữ L. Thu thập pha lê, bật công tắc và nhảy qua chướng ngại vật để chiến thắng."
     }
@@ -117,7 +120,7 @@
       "crystal": 1,
       "switch": 1
     },
-    "optimalBlocks": 8
+    "optimalBlocks": 11
   },
   "sounds": {
     "win": "/assets/maze/win.mp3",

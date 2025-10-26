@@ -1,0 +1,108 @@
+/* apps/react-quest-app/src/components/QuestSidebar.css */
+
+.quest-sidebar {
+  width: 300px;
+  height: 100vh;
+  background-color: var(--color-background-secondary);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s ease-in-out;
+  overflow: hidden;
+}
+
+.quest-sidebar.collapsed {
+  width: 50px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+  color: var(--color-text-secondary);
+}
+
+.quest-list-scrollable {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.game-group {
+  margin-bottom: 20px;
+}
+
+.game-group-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--color-text-secondary);
+  padding: 8px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+
+.quest-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 8px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-primary);
+}
+
+.quest-item:hover {
+  background-color: var(--color-background-hover);
+}
+
+.quest-item.active {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-weight: 500;
+}
+
+.quest-level {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background-color: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
+  font-weight: bold;
+  font-size: 0.85em;
+}
+
+.sidebar-footer {
+  padding: 15px;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}

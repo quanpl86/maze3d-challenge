@@ -1,6 +1,6 @@
 // src/games/maze/Maze3DRenderer.tsx
 
-import React, { useRef, useMemo, useEffect, useState } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { IGameRenderer as IGameRendererBase, MazeConfig, CameraMode } from '../../types';
@@ -191,33 +191,16 @@ const Scene: React.FC<{
 export const Maze3DRenderer: IGameRenderer = ({ gameState, gameConfig, cameraMode = 'Follow', onActionComplete = () => {}, onTeleportComplete = () => {} }) => {
     const mazeState = gameState as MazeGameState;
     const mazeConfig = gameConfig as MazeConfig;
-    const canvasContainerRef = useRef<HTMLDivElement>(null);
     const robotRef = useRef<THREE.Group>(null);
-    const [canvasKey, setCanvasKey] = useState(Date.now());
 
     if (!mazeState || !mazeConfig) return null;
 
-    // [ĐÃ THÊM] Logic theo dõi và xử lý thay đổi kích thước
-    useEffect(() => {
-      const container = canvasContainerRef.current;
-      if (!container) return;
-
-      const resizeObserver = new ResizeObserver(() => {
-        // Thay đổi key của Canvas để buộc nó render lại hoàn toàn với kích thước mới
-        setCanvasKey(Date.now());
-      });
-
-      resizeObserver.observe(container);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }, []);
-
     return (
-      <div ref={canvasContainerRef} style={{ width: '100%', height: '100%' }}>
+      // Canvas sẽ tự động chiếm 100% kích thước của div này.
+      // Không cần ref hay ResizeObserver nữa.
+      <div style={{ width: '100%', height: '100%' }}>
         <Canvas
-          key={canvasKey} // Key mới để buộc re-render khi kích thước thay đổi
+          // Xóa key để Canvas không bị mount lại khi thay đổi kích thước
           shadows
           style={{ width: '100%', height: '100%' }}
         >

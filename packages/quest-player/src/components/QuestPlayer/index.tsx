@@ -294,6 +294,8 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     setImportError('');
   };
 
+  const lastGeneratedCode = useRef('');
+
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
     setBlockCount(workspace.getAllBlocks(false).length);
@@ -302,7 +304,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     
     const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
   
-    let finalCode = '';
+    let newCode = '';
     if (startBlock) {
       // Lấy tất cả các khối thủ tục (hàm)
       const procedureBlocks = workspace.getTopBlocks(false).filter(
@@ -310,21 +312,26 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       );
       
       // Tạo code cho các hàm trước
-      const functionCode = procedureBlocks
+      const functionsCode = procedureBlocks
         .map(procBlock => javascriptGenerator.blockToCode(procBlock))
         .join('\n\n');
       
       // Tạo code cho khối bắt đầu
       const startCode = javascriptGenerator.blockToCode(startBlock);
-      const startCodeStr = Array.isArray(startCode) ? startCode[0] : (startCode || '');
+      // Đảm bảo startCode là chuỗi và chỉ lấy phần code thực thi, bỏ qua phần khai báo hàm (nếu có)
+      const startCodeStr = Array.isArray(startCode) ? startCode[0] : String(startCode || '');
       
       // Kết hợp code của hàm và code chính
-      finalCode = functionCode + '\n\n' + startCodeStr;
+      newCode = functionsCode + (functionsCode ? '\n\n' : '') + startCodeStr;
     }
     
-    console.log('Generated code:', finalCode);
-    setBlocklyGeneratedCode(finalCode);
-  }, [setBlocklyGeneratedCode]);
+    // Chỉ cập nhật state nếu code thực sự thay đổi
+    if (newCode !== lastGeneratedCode.current) {
+      console.log('Generated code changed, updating state.');
+      lastGeneratedCode.current = newCode;
+      setBlocklyGeneratedCode(newCode);
+    }
+  }, [setBlocklyGeneratedCode]); // Phụ thuộc không thay đổi
 
   const onInject = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
@@ -367,6 +374,13 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const blocklyTheme = useMemo(() => createBlocklyTheme(settings.blocklyThemeName, effectiveColorScheme), [settings.blocklyThemeName, effectiveColorScheme]);
 
+  // Sử dụng useRef để đảm bảo hàm callback resize là ổn định
+  const handleBlocklyPanelResize = useRef(() => {
+    setTimeout(() => {
+      if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
+    }, 0);
+  }).current;
+
   const workspaceConfiguration = useMemo(() => ({
     theme: blocklyTheme,
     renderer: settings.renderer,
@@ -375,12 +389,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     grid: { spacing: 20, length: 3, colour: "#ccc", snap: settings.gridEnabled },
     sounds: settings.soundsEnabled,
   }), [blocklyTheme, settings]);
-
-  const handleBlocklyPanelResize = useCallback(() => {
-    setTimeout(() => {
-      if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
-    }, 0);
-  }, []);
 
   if (!questData && isStandalone) {
     return (

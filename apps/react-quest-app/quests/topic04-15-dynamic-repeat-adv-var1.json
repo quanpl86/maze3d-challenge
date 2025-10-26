@@ -1,14 +1,21 @@
 {
-  "id": "topic10-req01-debug-param-var2",
+  "id": "topic04-15-dynamic-repeat-adv-var1",
   "gameType": "maze",
-  "level": 1,
-  "titleKey": "Challenge.topic10-req01-debug-param.Title",
-  "questTitleKey": "Quest.maze3d3.title",
-  "descriptionKey": "Challenge.topic10-req01-debug-param.Description",
+  "level": 15,
+  "titleKey": "Challenge.topic04-15.Title",
+  "topic": "topic-title",
+  "questTitleKey": "Challenge.topic04-15.Description",
+  "descriptionKey": "Challenge.topic04-15.Description",
   "translations": {
+    "en": {
+      "topic-title": "Variable",
+      "Challenge.topic04-15.Title": "Dynamic Repeat (Adv)",
+      "Challenge.topic04-15.Description": "Solve a puzzle where the number of repetitions depends on a more complex math formula."
+    },
     "vi": {
-      "Challenge.topic10-req01-debug-param.Title": "Sửa lỗi: Sai số lần lặp",
-      "Challenge.topic10-req01-debug-param.Description": "Chương trình này gần đúng rồi, nhưng có vẻ nó lặp lại sai số lần. Hãy tìm và sửa lại con số đó!"
+      "topic-title": "Biến",
+      "Challenge.topic04-15.Title": "Lặp Lại Động (NC)",
+      "Challenge.topic04-15.Description": "Giải một câu đố nơi số lần lặp lại phụ thuộc vào một công thức toán học phức tạp hơn."
     }
   },
   "supportedEditors": [
@@ -66,29 +73,99 @@
         },
         {
           "kind": "category",
-          "name": "Loops",
-          "categorystyle": "loops_category",
+          "name": "Logic",
+          "categorystyle": "logic_category",
           "contents": [
             {
               "kind": "block",
-              "type": "maze_repeat",
+              "type": "controls_if"
+            },
+            {
+              "kind": "block",
+              "type": "logic_compare"
+            },
+            {
+              "kind": "block",
+              "type": "logic_operation"
+            },
+            {
+              "kind": "block",
+              "type": "logic_negate"
+            },
+            {
+              "kind": "block",
+              "type": "logic_boolean"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_path"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_item_present"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_switch_state"
+            },
+            {
+              "kind": "block",
+              "type": "maze_at_finish"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "Math",
+          "categorystyle": "math_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "math_number"
+            },
+            {
+              "kind": "block",
+              "type": "math_arithmetic",
               "inputs": {
-                "TIMES": {
+                "A": {
                   "shadow": {
                     "type": "math_number",
                     "fields": {
-                      "NUM": 5
+                      "NUM": 1
+                    }
+                  }
+                },
+                "B": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 1
                     }
                   }
                 }
               }
             }
           ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATVARIABLES}",
+          "custom": "VARIABLE",
+          "categorystyle": "variable_category"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 21,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field></block></next></block></next></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 6,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -97,7 +174,31 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 6,
+          "x": 2,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 5,
           "y": 0,
           "z": 2
         }
@@ -107,7 +208,7 @@
         "position": {
           "x": 6,
           "y": 0,
-          "z": 7
+          "z": 2
         }
       },
       {
@@ -121,25 +222,9 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 7,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
           "x": 8,
           "y": 0,
           "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 7
         }
       },
       {
@@ -153,25 +238,9 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 9,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
           "x": 10,
           "y": 0,
           "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 7
         }
       },
       {
@@ -185,14 +254,6 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 11,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
           "x": 12,
           "y": 0,
           "z": 2
@@ -201,41 +262,17 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 12,
+          "x": 13,
           "y": 0,
-          "z": 3
+          "z": 2
         }
       },
       {
-        "modelKey": "ground.normal",
+        "modelKey": "wall.brick01",
         "position": {
           "x": 12,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 7
+          "y": 1,
+          "z": 2
         }
       }
     ],
@@ -243,7 +280,7 @@
       {
         "id": "player1",
         "start": {
-          "x": 6,
+          "x": 2,
           "y": 1,
           "z": 2,
           "direction": 1
@@ -255,7 +292,7 @@
         "id": "c1",
         "type": "crystal",
         "position": {
-          "x": 7,
+          "x": 3,
           "y": 1,
           "z": 2
         }
@@ -264,7 +301,7 @@
         "id": "c2",
         "type": "crystal",
         "position": {
-          "x": 12,
+          "x": 4,
           "y": 1,
           "z": 2
         }
@@ -273,78 +310,84 @@
         "id": "c3",
         "type": "crystal",
         "position": {
-          "x": 12,
+          "x": 5,
           "y": 1,
-          "z": 7
+          "z": 2
         }
       },
       {
         "id": "c4",
         "type": "crystal",
         "position": {
+          "x": 6,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "id": "c5",
+        "type": "crystal",
+        "position": {
           "x": 7,
           "y": 1,
-          "z": 7
+          "z": 2
+        }
+      },
+      {
+        "id": "c6",
+        "type": "crystal",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "id": "c7",
+        "type": "crystal",
+        "position": {
+          "x": 9,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "id": "c8",
+        "type": "crystal",
+        "position": {
+          "x": 10,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "id": "c9",
+        "type": "crystal",
+        "position": {
+          "x": 11,
+          "y": 1,
+          "z": 2
         }
       }
     ],
     "interactibles": [],
     "finish": {
-      "x": 6,
+      "x": 13,
       "y": 1,
-      "z": 7
+      "z": 2
     }
   },
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "crystal": 4
+      "crystal": 3
     },
-    "optimalBlocks": 16,
-    "optimalLines": 15,
-    "rawActions": [
-      "moveForward",
-      "collect",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "collect",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "collect",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "collect",
-      "moveForward"
-    ],
+    "optimalBlocks": 1,
+    "optimalLines": 0,
+    "rawActions": [],
     "structuredSolution": [
       "MAIN PROGRAM:",
-      "  On start:",
-      "  moveForward",
-      "  collect",
-      "  repeat (2) do:",
-      "    repeat (2) do:",
-      "      moveForward",
-      "      moveForward",
-      "    moveForward",
-      "    collect",
-      "    maze_turn",
-      "  repeat (2) do:",
-      "    moveForward",
-      "    moveForward",
-      "  moveForward",
-      "  collect",
-      "  moveForward"
+      "  On start:"
     ]
   },
   "sounds": {
