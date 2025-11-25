@@ -13,7 +13,7 @@ import {
   type GameState,
   type QuestPlayerSettings,
 } from '@repo/quest-player';
-import { QuestSidebar } from './components/QuestSidebar';
+import { QuestSidebar } from './components/QuestSidebar/index';
 import './App.css';
 
 // Bọc QuestPlayer trong React.memo để ngăn re-render không cần thiết

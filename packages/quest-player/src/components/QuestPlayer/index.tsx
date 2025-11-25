@@ -55,6 +55,8 @@ interface DisplayStats {
   totalCrystals?: number;
   switchesOn?: number;
   totalSwitches?: number;
+  keysCollected?: number;
+  totalKeys?: number;
   lineCount?: number;
   optimalLines?: number;
 }
@@ -91,6 +93,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const [highlightedBlockId, setHighlightedBlockId] = useState<string | null>(null);
   const [dynamicToolboxConfig, setDynamicToolboxConfig] = useState<ToolboxJSON | null>(null);
+  const [initialXml, setInitialXml] = useState<string | undefined>(undefined);
   
   const [blocklyWorkspaceKey, setBlocklyWorkspaceKey] = useState<string>('initial-key');
   const [isBlocksInitialized, setIsBlocksInitialized] = useState(false);
@@ -116,10 +119,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     }
     return blocklyGeneratedCode;
   }, [currentEditor, aceCode, blocklyGeneratedCode]);
-
-  const customHandleEditorChange = (newEditor: 'blockly' | 'monaco') => {
-    handleEditorChange(newEditor);
-  };
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...props.initialSettings }), [props.initialSettings]);
 
@@ -209,12 +208,75 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       });
       initialToolboxConfigRef.current = newToolbox;
       setDynamicToolboxConfig(newToolbox);
+
+      // [MỚI] Xử lý startBlocks shorthand
+      const startBlocksValue = questData.blocklyConfig.startBlocks;
+      if (typeof startBlocksValue === 'string' && !startBlocksValue.trim().startsWith('<')) {
+        // Đây là chuỗi shorthand, cần phân tích
+        setInitialXml(parseShorthandToXml(startBlocksValue));
+      } else {
+        // Đây là XML thông thường hoặc không có
+        setInitialXml(startBlocksValue);
+      }
+
       setLoadedQuestId(questData.id);
     } else {
       setDynamicToolboxConfig(null);
+      setInitialXml(undefined);
       setLoadedQuestId(null);
     }
   }, [questData, t, language]);
+
+  // [MỚI] Hàm phân tích chuỗi shorthand thành XML
+  const parseShorthandToXml = (shorthand: string): string => {
+    // Regex để tìm các cặp (số)(hành động) hoặc chỉ (hành động)
+    const regex = /(\d+)?(turnRight|turnLeft|moveForward|collect|jump)/g;
+    let match;
+    const blocksXml: string[] = [];
+  
+    while ((match = regex.exec(shorthand)) !== null) {
+      const count = match[1] ? parseInt(match[1], 10) : 1;
+      const action = match[2];
+  
+      if (count > 1) {
+        // Nếu số lượng > 1, tạo khối lặp
+        blocksXml.push(`<block type="maze_repeat"><value name="TIMES"><shadow type="math_number"><field name="NUM">${count}</field></shadow></value><statement name="DO"><block type="maze_${action}"></block></statement></block>`);
+      } else {
+        // Nếu số lượng là 1, tạo khối hành động đơn
+        if (action === 'turnRight' || action === 'turnLeft') {
+          blocksXml.push(`<block type="maze_turn"><field name="DIR">${action}</field></block>`);
+        } else {
+          blocksXml.push(`<block type="maze_${action}"></block>`);
+        }
+      }
+    }
+    
+    const innerXml = blocksXml.join('<next>') + '</next>'.repeat(blocksXml.length > 1 ? blocksXml.length - 1 : 0);
+    return `<xml><block type="maze_start" deletable="false" movable="false"><statement name="DO">${innerXml}</statement></block></xml>`;
+  };
+
+  // [MỚI] Hàm để chuẩn hóa tên hàm/biến tiếng Việt cho JavaScript
+  const sanitizeVietnameseName = (name: string) => {
+    let sanitized = name.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // Bỏ dấu
+    sanitized = sanitized.replace(/đ/g, 'd').replace(/Đ/g, 'D'); // Chuyển 'đ' thành 'd'
+    sanitized = sanitized.replace(/\s+/g, '_'); // Thay khoảng trắng bằng gạch dưới
+    sanitized = sanitized.replace(/[^a-zA-Z0-9_]/g, ''); // Loại bỏ các ký tự không hợp lệ
+    return sanitized || 'unnamed_function'; // Trả về tên mặc định nếu kết quả rỗng
+  };
+
+  // [MỚI] Ghi đè phương thức của Blockly để xử lý tên tiếng Việt
+  useEffect(() => {
+    const originalGetDistinctName = javascriptGenerator.nameDB_?.getDistinctName;
+    if (originalGetDistinctName) {
+      javascriptGenerator.nameDB_!.getDistinctName = (name, type) => {
+        const sanitizedName = sanitizeVietnameseName(name);
+        return originalGetDistinctName.call(javascriptGenerator.nameDB_, sanitizedName, type);
+      };
+    }
+    return () => {
+      if (originalGetDistinctName) javascriptGenerator.nameDB_!.getDistinctName = originalGetDistinctName;
+    };
+  }, []);
 
   useEffect(() => { if (questLoaderError) setImportError(questLoaderError); }, [questLoaderError]);
 
@@ -223,16 +285,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       resetGame();
     }
   }, [isQuestReady, engineRef, resetGame]);
-
-  // [SỬA LỖI] Reset stats khi chuyển editor để đảm bảo tính toán lại chính xác
-  useEffect(() => {
-    setDisplayStats({});
-  }, [currentEditor]);
-
-  // [SỬA LỖI] Reset stats khi chuyển editor để đảm bảo tính toán lại chính xác
-  useEffect(() => {
-    setDisplayStats({});
-  }, [currentEditor]);
 
   useEffect(() => {
     const newStats: DisplayStats = {};
@@ -255,6 +307,8 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
         if (mazeConfig.collectibles && mazeConfig.collectibles.length > 0) {
           newStats.totalCrystals = mazeConfig.collectibles.length;
           newStats.crystalsCollected = mazeState.collectedIds.length;
+          newStats.totalKeys = mazeConfig.collectibles.length;
+          newStats.keysCollected = mazeState.collectedIds.length;
         }
         const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
         if (switches && switches.length > 0) {
@@ -293,51 +347,49 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     if (props.onQuestLoad) props.onQuestLoad(loadedQuest);
     setImportError('');
   };
-
   const lastGeneratedCode = useRef('');
-
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
     setBlockCount(workspace.getAllBlocks(false).length);
   
-    javascriptGenerator.init(workspace);
-    
-    const startBlock = workspace.getTopBlocks(true).find(b => b.type === START_BLOCK_TYPE);
+    let finalCode = '';
+    const topBlocks = workspace.getTopBlocks(true);
+    const startBlock = topBlocks.find(b => b.type === START_BLOCK_TYPE);
   
-    let newCode = '';
     if (startBlock) {
-      // Lấy tất cả các khối thủ tục (hàm)
-      const procedureBlocks = workspace.getTopBlocks(false).filter(
-        b => b.type === 'procedures_defreturn' || b.type === 'procedures_defnoreturn'
-      );
-      
-      // Tạo code cho các hàm trước
-      const functionsCode = procedureBlocks
-        .map(procBlock => javascriptGenerator.blockToCode(procBlock))
-        .join('\n\n');
-      
-      // Tạo code cho khối bắt đầu
-      const startCode = javascriptGenerator.blockToCode(startBlock);
-      // Đảm bảo startCode là chuỗi và chỉ lấy phần code thực thi, bỏ qua phần khai báo hàm (nếu có)
-      const startCodeStr = Array.isArray(startCode) ? startCode[0] : String(startCode || '');
-      
-      // Kết hợp code của hàm và code chính
-      newCode = functionsCode + (functionsCode ? '\n\n' : '') + startCodeStr;
+      // [SỬA LỖI] Chỉ tạo mã cho khối 'start' và các khối 'procedure'. Vô hiệu hóa tạm thời các khối khác để workspaceToCode bỏ qua chúng.
+      const blocksToDisable: Blockly.Block[] = [];
+      topBlocks.forEach(block => {
+        if (block.type !== START_BLOCK_TYPE && !block.type.startsWith('procedures_def')) {
+          blocksToDisable.push(block);
+          // Ép kiểu để tránh lỗi TypeScript với setEnabled
+          (block as any).setEnabled(false);
+        }
+      });
+
+      // Tạo mã - bây giờ nó sẽ bỏ qua các khối đã bị vô hiệu hóa
+      finalCode = javascriptGenerator.workspaceToCode(workspace);
+
+      // Kích hoạt lại các khối ngay lập tức để người dùng không thấy sự thay đổi
+      blocksToDisable.forEach(block => {
+        // Ép kiểu để tránh lỗi TypeScript với setEnabled
+        (block as any).setEnabled(true);
+      });
     }
     
     // Chỉ cập nhật state nếu code thực sự thay đổi
-    if (newCode !== lastGeneratedCode.current) {
+    if (finalCode !== lastGeneratedCode.current) {
       console.log('Generated code changed, updating state.');
-      lastGeneratedCode.current = newCode;
-      setBlocklyGeneratedCode(newCode);
+      lastGeneratedCode.current = finalCode;
+      setBlocklyGeneratedCode(finalCode);
     }
-  }, [setBlocklyGeneratedCode]); // Phụ thuộc không thay đổi
+  }, [setBlocklyGeneratedCode]);
 
   const onInject = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
-
-    // Chỉ thực hiện logic fallback nếu startBlocks không được cung cấp trong JSON
-    if (!questData?.blocklyConfig?.startBlocks) {
+    
+    // Sử dụng `initialXml` đã được xử lý thay vì `questData.blocklyConfig.startBlocks`
+    if (!initialXml) {
       const existingStartBlock = workspace.getTopBlocks(false).find(b => b.type === START_BLOCK_TYPE);
       if (!existingStartBlock) {
         // Create a new start block if none exists
@@ -347,9 +399,9 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
         startBlock.moveBy(50, 50); // Position it in the workspace
         startBlock.setDeletable(false);
       }
-      return; // Kết thúc sớm
+      return;
     }
-
+    
     // Logic cũ để dọn dẹp nếu có nhiều start block (hữu ích cho các file JSON bị lỗi)
     const startBlocks = workspace.getTopBlocks(false).filter(b => b.type === START_BLOCK_TYPE);
     if (startBlocks.length > 1) {
@@ -361,7 +413,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     if (startBlocks[0]) {
       startBlocks[0].setDeletable(false);
     }
-  }, [questData]);
+  }, [initialXml]);
 
   const is3DRenderer = questData?.gameConfig.type === 'maze' && questData.gameConfig.renderer === '3d';
 
@@ -374,13 +426,6 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
 
   const blocklyTheme = useMemo(() => createBlocklyTheme(settings.blocklyThemeName, effectiveColorScheme), [settings.blocklyThemeName, effectiveColorScheme]);
 
-  // Sử dụng useRef để đảm bảo hàm callback resize là ổn định
-  const handleBlocklyPanelResize = useRef(() => {
-    setTimeout(() => {
-      if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
-    }, 0);
-  }).current;
-
   const workspaceConfiguration = useMemo(() => ({
     theme: blocklyTheme,
     renderer: settings.renderer,
@@ -389,6 +434,12 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
     grid: { spacing: 20, length: 3, colour: "#ccc", snap: settings.gridEnabled },
     sounds: settings.soundsEnabled,
   }), [blocklyTheme, settings]);
+
+  const handleBlocklyPanelResize = useCallback(() => {
+    setTimeout(() => {
+      if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
+    }, 0);
+  }, []);
 
   if (!questData && isStandalone) {
     return (
@@ -493,7 +544,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
             <EditorToolbar
               supportedEditors={questData.supportedEditors || ['blockly']}
               currentEditor={currentEditor}
-              onEditorChange={customHandleEditorChange}
+              onEditorChange={handleEditorChange}
               onHelpClick={() => setIsDocsOpen(true)}
               onToggleSettings={() => setIsSettingsOpen(!isSettingsOpen)}
             />
@@ -514,7 +565,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
                       key={blocklyWorkspaceKey}
                       className="fill-container"
                       toolboxConfiguration={dynamicToolboxConfig}
-                      initialXml={questData.blocklyConfig.startBlocks}
+                      initialXml={initialXml}
                       workspaceConfiguration={workspaceConfiguration}
                       onWorkspaceChange={onWorkspaceChange}
                       onInject={onInject}

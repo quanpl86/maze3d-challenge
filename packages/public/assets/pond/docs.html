@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Pond Documentation</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 10px;
+        }
+        h2 {
+            font-size: 1.2em;
+            margin-top: 1.5em;
+        }
+        h3 {
+            font-size: 1.1em;
+            margin-top: 1.5em;
+        }
+        pre, code {
+            background-color: #eee;
+            border-radius: 3px;
+            padding: 2px 4px;
+        }
+        pre {
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pond Documentation</h1>
+
+    <h2>Angles</h2>
+    <p>The compass is oriented so that due east (right) is 0 degrees, 90 is north, 180 is west, and 270 is south. Angles wrap as expected: -90 is south, 450 is north.</p>
+
+    <h2>API Functions</h2>
+
+    <h3><code>cannon(angle, range)</code></h3>
+    <p>Fires a cannonball towards the specified angle and range. The angle is independent of the duck's direction. The range can be from 0-70 meters.</p>
+    <pre><code>// Fire east, at a range of 50 meters.
+cannon(0, 50);</code></pre>
+
+    <h3><code>scan(angle, resolution)</code></h3>
+    <p>Activates the duck's radar. Returns the range to the nearest opponent in a given direction. If no opponent is found, it returns <code>Infinity</code>. The optional <code>resolution</code> parameter (1-20 degrees, default 5) specifies the width of the scanning beam.</p>
+    <pre><code>var distance = scan(90); // Scan north
+if (distance < 70) {
+  cannon(90, distance);
+}</code></pre>
+
+    <h3><code>swim(angle, speed)</code></h3>
+    <p>Starts the duck moving in the specified direction. It will continue moving indefinitely. The optional <code>speed</code> parameter can be from 0 (stopped) to 100 (fast), with a default of 50.</p>
+    <pre><code>// Swim towards the north-west at full speed.
+swim(135, 100);</code></pre>
+
+    <h3><code>stop()</code></h3>
+    <p>Stops the duck from moving. The duck will slow to a stop.</p>
+    <pre><code>stop();</code></pre>
+
+    <h3><code>getX()</code> and <code>getY()</code></h3>
+    <p>Return the duck's horizontal (X) and vertical (Y) positions. Values are between 0 and 100, starting from the lower-left corner.</p>
+
+    <h3><code>speed()</code></h3>
+    <p>Returns the duck's current speed (0-100).</p>
+
+    <h3><code>health()</code></h3>
+    <p>Returns the duck's current health (0 is sunk, 100 is perfect).</p>
+
+    <h3><code>damage()</code></h3>
+    <p>Returns the duck's current damage (0 is perfect, 100 is sunk). This is equivalent to <code>100 - health()</code>.</p>
+    
+    <h2>Control Structures</h2>
+    
+    <h3><code>if / else if / else</code></h3>
+    <p>Executes code conditionally.</p>
+    <pre><code>if (getX() < 10) {
+  // Too close to the left wall.
+  swim(0, 50); // Go east.
+} else {
+  // Safe.
+  stop();
+}</code></pre>
+
+    <h3><code>while (condition)</code></h3>
+    <p>Repeats a block of code as long as the condition is true.</p>
+    <pre><code>// Scan in a circle until an enemy is found.
+var angle = 0;
+while (scan(angle) == Infinity) {
+  angle = angle + 10;
+}
+cannon(angle, scan(angle));</code></pre>
+
+</body>
+</html>

@@ -31,9 +31,14 @@ const checkItemGoals = (finalState: GameState, questData: Quest): boolean => {
         const switchesOn = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
         if (switchesOn < requiredCount) return false;
       } else { // Mặc định là các vật phẩm thu thập (collectibles)
-        const collectedItems = (mazeConfig.collectibles || [])
-          .filter(c => mazeState.collectedIds.includes(c.id) && c.type === goalType);
-        if (collectedItems.length < requiredCount) return false;
+        // [FIX] Đếm số lượng vật phẩm đã thu thập bằng cách so sánh ID đã thu thập với danh sách vật phẩm ban đầu
+        const allCollectibles = mazeConfig.collectibles || [];
+        
+        const collectedCount = mazeState.collectedIds.filter(collectedId => {
+          const item = allCollectibles.find(c => c.id === collectedId);
+          return item && item.type === goalType;
+        }).length;
+        if (collectedCount < requiredCount) return false;
       }
     }
   }
