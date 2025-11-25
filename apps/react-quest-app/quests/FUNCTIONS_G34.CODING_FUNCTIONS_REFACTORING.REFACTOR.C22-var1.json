@@ -1,0 +1,472 @@
+{
+  "id": "FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_functions_refactoring",
+  "level": 22,
+  "titleKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Title",
+  "questTitleKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Description",
+  "descriptionKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Description",
+  "translations": {
+    "vi": {
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Title": "Tối ưu hóa Cầu thang",
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Description": "Map Cầu thang này là tập hợp các bậc thang giống nhau có chứa pha lê. Hãy tạo hàm climbOneStep để rút gọn chương trình và thu thập hết vật phẩm.",
+      "topic-title-coding_functions_refactoring": "Tái cấu trúc Code bằng Hàm"
+    },
+    "en": {
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Title": "Staircase Optimization",
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_REFACTORING.REFACTOR.C22.Description": "This Staircase map is a collection of identical steps with crystals. Create a climbOneStep function to shorten the program and collect all items.",
+      "topic-title-coding_functions_refactoring": "Tái cấu trúc Code bằng Hàm"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
+        }
+      ]
+    },
+    "maxBlocks": 21,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_jump\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 5,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 6,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 8,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 9,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 10,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 11,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 12,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 13,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 14,
+          "y": 4,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 15,
+          "y": 4,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 16,
+          "y": 4,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 11,
+          "y": 2,
+          "z": 7
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "id": "c2",
+        "type": "crystal",
+        "position": {
+          "x": 8,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "id": "c3",
+        "type": "crystal",
+        "position": {
+          "x": 7,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "id": "c4",
+        "type": "crystal",
+        "position": {
+          "x": 13,
+          "y": 4,
+          "z": 7
+        }
+      }
+    ],
+    "interactibles": [],
+    "finish": {
+      "x": 16,
+      "y": 5,
+      "z": 7
+    },
+    "obstacles": [
+      {
+        "id": "o1",
+        "type": "obstacle",
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "id": "o2",
+        "type": "obstacle",
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "id": "o3",
+        "type": "obstacle",
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 11,
+          "y": 2,
+          "z": 7
+        }
+      }
+    ]
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 4
+    },
+    "optimalBlocks": 16,
+    "optimalLines": 15,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "collect",
+      "jump",
+      "moveForward",
+      "moveForward",
+      "collect",
+      "jump",
+      "collect",
+      "moveForward",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "moveForward",
+      "collect",
+      "jump",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_collect"
+          },
+          {
+            "type": "maze_jump"
+          }
+        ]
+      }
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_collect"
+          },
+          {
+            "type": "maze_jump"
+          }
+        ]
+      }
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}
