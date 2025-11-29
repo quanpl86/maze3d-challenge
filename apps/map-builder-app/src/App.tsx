@@ -93,6 +93,26 @@ function App() {
         return;
       }
 
+      // --- Phím tắt di chuyển đối tượng ---
+      if (selectedObjectId) {
+        let moved = false;
+        if (event.shiftKey) {
+          // Khi giữ Shift, chỉ xử lý di chuyển lên/xuống (trục Y)
+          if (event.key === 'ArrowUp')      { handleMoveObject(selectedObjectId, 'y', 1); moved = true; }
+          else if (event.key === 'ArrowDown') { handleMoveObject(selectedObjectId, 'y', -1); moved = true; }
+        } else {
+          // Khi không giữ Shift, xử lý di chuyển trên mặt phẳng XZ
+          if (event.key === 'ArrowUp')    { handleMoveObject(selectedObjectId, 'z', -1); moved = true; }
+          else if (event.key === 'ArrowDown')  { handleMoveObject(selectedObjectId, 'z', 1); moved = true; }
+          else if (event.key === 'ArrowLeft')  { handleMoveObject(selectedObjectId, 'x', -1); moved = true; }
+          else if (event.key === 'ArrowRight') { handleMoveObject(selectedObjectId, 'x', 1); moved = true; }
+        }
+        
+        if (moved) {
+          event.preventDefault(); // Ngăn các hành vi mặc định của trình duyệt
+        }
+      }
+
       // --- Ưu tiên các phím tắt cho vùng chọn (select area) ---
       if (selectionBounds) {
         const key = event.key.toLowerCase();
@@ -270,6 +290,55 @@ function App() {
 
   const handleUpdateObject = (updatedObject: PlacedObject) => {
     setPlacedObjectsWithHistory(prev => prev.map(obj => (obj.id === updatedObject.id ? updatedObject : obj)));
+  };
+
+  const handleMoveObjectToPosition = (objectId: string, newPosition: [number, number, number]) => {
+    setPlacedObjectsWithHistory(prev => {
+        const objectToMove = prev.find(o => o.id === objectId);
+        if (!objectToMove) return prev;
+
+        // --- VALIDATION ---
+        const [nx, ny, nz] = newPosition;
+        // 1. Kiểm tra có nằm ngoài vùng xây dựng không
+        if (nx < 0 || nx >= boxDimensions.width || ny < 0 || ny >= boxDimensions.height || nz < 0 || nz >= boxDimensions.depth) {
+            return prev; // Vị trí mới nằm ngoài giới hạn
+        }
+        // 2. Kiểm tra có va chạm với đối tượng khác không
+        const newPosString = newPosition.join(',');
+        if (prev.some(o => o.id !== objectId && o.position.join(',') === newPosString)) {
+            return prev; // Đã có đối tượng khác ở vị trí mới
+        }
+
+        // Chỉ cập nhật nếu vị trí thực sự thay đổi
+        if (objectToMove.position.join(',') === newPosString) return prev;
+
+        return prev.map(o => o.id === objectId ? { ...o, position: newPosition } : o);
+    });
+  };
+
+  const handleMoveObject = (objectId: string, direction: 'x' | 'y' | 'z', amount: 1 | -1) => {
+    setPlacedObjectsWithHistory(prev => {
+        const objectToMove = prev.find(o => o.id === objectId);
+        if (!objectToMove) return prev;
+
+        const newPosition: [number, number, number] = [...objectToMove.position];
+        const axisIndex = { x: 0, y: 1, z: 2 }[direction];
+        newPosition[axisIndex] += amount;
+
+        // --- VALIDATION ---
+        const [nx, ny, nz] = newPosition;
+        // 1. Kiểm tra có nằm ngoài vùng xây dựng không
+        if (nx < 0 || nx >= boxDimensions.width || ny < 0 || ny >= boxDimensions.height || nz < 0 || nz >= boxDimensions.depth) {
+            return prev; // Vị trí mới nằm ngoài giới hạn
+        }
+        // 2. Kiểm tra có va chạm với đối tượng khác không
+        const newPosString = newPosition.join(',');
+        if (prev.some(o => o.id !== objectId && o.position.join(',') === newPosString)) {
+            return prev; // Đã có đối tượng khác ở vị trí mới
+        }
+
+        return prev.map(o => o.id === objectId ? { ...o, position: newPosition } : o);
+    });
   };
 
   // --- HÀM MỚI: Sao chép asset của đối tượng để chuẩn bị đặt ---
@@ -472,6 +541,7 @@ function App() {
           onSetSelectionStart={setSelectionStart}
           onSetSelectionEnd={setSelectionEnd}
           selectedObjectId={selectedObjectId}
+          onMoveObject={handleMoveObjectToPosition}
           onSelectObject={setSelectedObjectId}
         />
       </div>

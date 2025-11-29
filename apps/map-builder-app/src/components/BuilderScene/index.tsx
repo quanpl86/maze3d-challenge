@@ -27,6 +27,7 @@ interface BuilderSceneProps {
     onSetSelectionEnd: (pos: [number, number, number] | null) => void;
     selectedObjectId: string | null;
     onSelectObject: (id: string | null) => void;
+    onMoveObject: (objectId: string, newPosition: [number, number, number]) => void;
 }
 
 // --- COMPONENT MỚI ĐỂ RENDER ASSET ---
@@ -138,13 +139,14 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   const { camera, raycaster, scene } = useThree();
   const [pointer, setPointer] = useState(new THREE.Vector2(99, 99));
   const rollOverMeshRef = useRef<THREE.Group>(null!);
-  const [isShiftDown, setIsShiftDown] = useState(false);
+  const [isSpaceDown, setIsSpaceDown] = useState(false); // <-- THAY ĐỔI: Theo dõi phím Space
+  const [isAltDown, setIsAltDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isMovingObject, setIsMovingObject] = useState(false); // State mới để theo dõi việc kéo-thả
 
   const {
       builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, 
-      onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, 
-      onSetSelectionEnd, cameraControlsRef, selectedObjectId, onSelectObject
+      onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, onSetSelectionEnd, cameraControlsRef, selectedObjectId, onSelectObject, onMoveObject
   } = props;
 
   const plane = useMemo(() => new THREE.Mesh(
@@ -155,31 +157,29 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   useEffect(() => {
     const controls = cameraControlsRef.current;
     if (controls) {
-        const isNavigateMode = builderMode === 'navigate';
-
-        // Luôn bật camera controls để có thể pan bằng Shift
         controls.enabled = true; 
 
-        // Chỉ cho phép xoay bằng chuột phải ở chế độ Navigate
-        controls.mouseButtons.right = isNavigateMode ? THREE.MOUSE.ROTATE : 0;
-
-        // Khi giữ Shift, chuột trái sẽ dùng để "kéo" (pan) không gian
-        // Nếu không giữ Shift, nó sẽ không làm gì (để dành cho việc đặt/xóa block)
-        // Giá trị '2' tương ứng với hành động TRUCK (kéo/pan) trong thư viện camera-controls.
-        // 0: NONE, 1: ROTATE, 2: TRUCK, 3: DOLLY, 4: ZOOM.
         const ROTATE_ACTION = 1;
         const TRUCK_ACTION = 2;
         const NO_ACTION = 0;
 
-        if (isShiftDown) {
-            controls.mouseButtons.left = TRUCK_ACTION; // Luôn kéo (pan) khi giữ Shift
+        // --- LOGIC ĐIỀU HƯỚNG THEO NGỮ CẢNH ---
+        if (selectedObjectId) {
+          // KHI CÓ ĐỐI TƯỢNG ĐƯỢC CHỌN: Dành chuột trái cho tương tác.
+          controls.mouseButtons.left = NO_ACTION;
+          // Dùng chuột phải để điều hướng.
+          controls.mouseButtons.right = isSpaceDown ? TRUCK_ACTION : ROTATE_ACTION;
         } else {
-            // Chỉ xoay (rotate) khi ở chế độ navigate và không giữ Shift
-            controls.mouseButtons.left = isNavigateMode ? ROTATE_ACTION : NO_ACTION;
+          // KHI KHÔNG CÓ ĐỐI TƯỢNG NÀO ĐƯỢC CHỌN: Dùng chuột trái để điều hướng.
+          controls.mouseButtons.left = isSpaceDown ? TRUCK_ACTION : ROTATE_ACTION;
+          // Chuột phải vẫn có thể dùng để xoay cho nhất quán.
+          controls.mouseButtons.right = ROTATE_ACTION;
         }
+
+        // Giữ nguyên các nút khác nếu cần
+        controls.mouseButtons.middle = THREE.MOUSE.DOLLY;
     }
-    // Thêm isShiftDown vào dependency array để cập nhật hành vi của chuột khi trạng thái phím Shift thay đổi
-  }, [builderMode, cameraControlsRef, isShiftDown]);
+  }, [builderMode, cameraControlsRef, isSpaceDown, selectedObjectId]); // Thêm selectedObjectId vào dependencies
 
   const boundingBoxPosition = useMemo((): [number, number, number] => [
     (boxDimensions.width * TILE_SIZE) / 2,
@@ -196,6 +196,21 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       Math.floor(newPosVec.z / TILE_SIZE)
     ];
   };
+
+  // --- HÀM MỚI: Tính toán vị trí lưới cho việc lựa chọn (selection) ---
+  const getGridPositionForSelection = (intersect: THREE.Intersection): [number, number, number] | null => {
+    // Nếu con trỏ chuột trúng một đối tượng đã đặt, chúng ta muốn chọn chính đối tượng đó.
+    // Vì vậy, chúng ta trừ đi một nửa vector pháp tuyến của mặt bị trúng để lấy vị trí bên trong khối.
+    if (intersect.object.name !== 'ground_plane' && intersect.face) {
+        const posVec = new THREE.Vector3().copy(intersect.point).sub(intersect.face.normal.clone().multiplyScalar(0.1));
+        return [Math.floor(posVec.x / TILE_SIZE), Math.floor(posVec.y / TILE_SIZE), Math.floor(posVec.z / TILE_SIZE)];
+    }
+
+    // Nếu con trỏ chuột trúng mặt phẳng đất, chúng ta tính toán như bình thường.
+    const posVec = new THREE.Vector3().copy(intersect.point);
+    return [Math.floor(posVec.x / TILE_SIZE), Math.floor(posVec.y / TILE_SIZE), Math.floor(posVec.z / TILE_SIZE)];
+  };
+  // --- KẾT THÚC HÀM MỚI ---
 
   useFrame(() => {
     if (builderMode !== 'build-single' || !rollOverMeshRef.current) {
@@ -219,20 +234,24 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Shift') setIsShiftDown(true);
+      if (event.code === 'Space') setIsSpaceDown(true); // <-- THAY ĐỔI: Lắng nghe phím Space
+      if (event.key === 'Alt') setIsAltDown(true); // Bắt sự kiện nhấn Alt
       if (event.key.toLowerCase() === 'b') onModeChange('build-single');
       if (event.key.toLowerCase() === 'v') onModeChange('navigate');
       if (event.key.toLowerCase() === 's') onModeChange('build-area');
       if (event.key === 'Escape') onSelectObject(null);
     };
-    const handleKeyUp = (event: KeyboardEvent) => { if (event.key === 'Shift') setIsShiftDown(false); };
+    const handleKeyUp = (event: KeyboardEvent) => { 
+      if (event.code === 'Space') setIsSpaceDown(false); // <-- THAY ĐỔI: Lắng nghe phím Space
+      if (event.key === 'Alt') setIsAltDown(false); // Bắt sự kiện nhả Alt
+    };
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [onModeChange, onSelectObject]);
+  }, [onModeChange, onSelectObject]); // Không cần thêm isAltDown vào dependencies
 
   const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
     if (builderMode === 'build-single') setPointer(event.pointer);
@@ -241,8 +260,19 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       const intersects = raycaster.intersectObjects([plane, ...scene.children.filter(c => c.userData.isPlacedObject)], true);
       const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
       if (intersect) {
-        const gridPos = getGridPositionFromIntersection(intersect);
+        const gridPos = getGridPositionForSelection(intersect);
         if (gridPos) onSetSelectionEnd(gridPos);
+      }
+    } else if (isMovingObject && selectedObjectId) {
+      // --- LOGIC MỚI: Di chuyển đối tượng khi kéo chuột ---
+      raycaster.setFromCamera(event.pointer, camera);
+      const intersects = raycaster.intersectObjects([plane], true); // Chỉ cần giao với mặt phẳng nền
+      const intersect = intersects[0];
+      if (intersect) {
+        const newGridPos = getGridPositionFromIntersection(intersect);
+        if (newGridPos) {
+          onMoveObject(selectedObjectId, newGridPos);
+        }
       }
     }
   };
@@ -250,16 +280,26 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
     
-    // --- THAY ĐỔI: Ưu tiên kéo camera khi giữ Shift ---
-    // Nếu đang giữ Shift và nhấn chuột trái, không thực hiện bất kỳ hành động nào khác (đặt/xóa khối).
-    // Việc này để cho phép CameraControls xử lý sự kiện kéo (pan/truck).
-    if (isShiftDown && event.button === 0) return;
+    // Không cần kiểm tra phím đặc biệt ở đây nữa vì chuột trái đã được tách riêng
 
     if (event.button !== 0) return;
     raycaster.setFromCamera(event.pointer, camera);
     const objectsToIntersect = [plane, ...scene.children.filter(c => c.userData.isPlacedObject)];
     const intersects = raycaster.intersectObjects(objectsToIntersect, true);
     const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+
+    // --- LOGIC MỚI: Bắt đầu kéo-thả đối tượng ---
+    if (intersect?.object) {
+        let clickedObject: THREE.Object3D | null | undefined = intersect.object;
+        while(clickedObject && !clickedObject.userData.id) {
+            clickedObject = clickedObject.parent;
+        }
+        // Nếu click vào đối tượng đã chọn, bắt đầu di chuyển
+        if (clickedObject?.userData.id && clickedObject.userData.id === selectedObjectId) {
+            setIsMovingObject(true);
+            return; // Dừng lại để không thực hiện các hành động khác
+        }
+    }
 
     if (builderMode === 'navigate') {
         let clickedObject: THREE.Object3D | null | undefined = intersect?.object;
@@ -285,17 +325,23 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         if (x >= 0 && x < boxDimensions.width && y >= 0 && y < boxDimensions.height && z >= 0 && z < boxDimensions.depth) onAddObject(gridPosition, selectedAsset);
       }
     } else if (builderMode === 'build-area') {
+      const selectionGridPos = getGridPositionForSelection(intersect); // Sử dụng hàm mới
+      if (!selectionGridPos) return;
       setIsDragging(true);
-      onSetSelectionStart(gridPosition);
-      onSetSelectionEnd(gridPosition);
+      onSetSelectionStart(selectionGridPos);
+      onSetSelectionEnd(selectionGridPos);
     }
   };
 
   const handlePointerUp = (event: ThreeEvent<PointerEvent>) => { 
     if (isDragging) setIsDragging(false); 
+    if (isMovingObject) {
+      setIsMovingObject(false);
+      // Logic để "commit" vị trí mới vào history có thể được thêm ở đây nếu cần
+    }
 
     // Logic xóa đối tượng bằng Shift + Click chuột phải
-    if (event.button === 2 && isShiftDown && builderMode === 'build-single') {
+    if (event.button === 2 && isSpaceDown && builderMode === 'build-single') { // Có thể cân nhắc đổi phím tắt này
         raycaster.setFromCamera(event.pointer, camera);
         const objectsToIntersect = scene.children.filter(c => c.userData.isPlacedObject);
         const intersects = raycaster.intersectObjects(objectsToIntersect, true);
