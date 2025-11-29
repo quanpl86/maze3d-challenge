@@ -1,10 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
 import * as En from 'blockly/msg/en'; // Import gói ngôn ngữ tiếng Anh
+import 'blockly/blocks'; // <-- Thêm dòng này để import các khối lệnh tiêu chuẩn
 import './BlocklyModal.css';
+// --- Bắt đầu thay đổi cho giao diện Scratch ---
+const customCategoryStyles = {
+  'events_category': { colour: '#FFD700' }, // Vàng cho Sự kiện
+  'movement_category': { colour: '#4C97FF' }, // Xanh dương cho Di chuyển
+  'actions_category': { colour: '#5BC55B' }, // Xanh lá cho Hành động
+  'logic_category': { colour: '#5B80A5' }, // Ghi đè màu Logic nếu muốn
+  'loops_category': { colour: '#FFAB19' }, // Ghi đè màu Vòng lặp nếu muốn
+};
+
+// Tạo một theme mới kế thừa từ Zelos và thêm các style tùy chỉnh
+const scratchWithCustomCategoriesTheme = Blockly.Theme.defineTheme('scratch_custom', {
+  name: 'scratch_custom', // <-- Thêm thuộc tính name vào đây
+  base: Blockly.Themes.Zelos, // Kế thừa từ theme Zelos
+  categoryStyles: {
+    ...Blockly.Themes.Zelos.categoryStyles, // Lấy tất cả style gốc của Zelos
+    ...customCategoryStyles, // Ghi đè và bổ sung các style của chúng ta
+  },
+  blockStyles: {
+    ...Blockly.Themes.Zelos.blockStyles, // Lấy tất cả style khối lệnh gốc của Zelos
+    // SAO CHÉP TRỰC TIẾP CÁC STYLE CẦN THIẾT TỪ MAZE THEME
+    'events_category': mazeTheme.blockStyles['events_category'],
+    'movement_category': mazeTheme.blockStyles['movement_category'],
+    'actions_category': mazeTheme.blockStyles['actions_category'],
+  },
+  fontStyle: { family: 'sans-serif', weight: 'bold', size: 12 },
+});
+// --- Kết thúc thay đổi ---
 // Import các thành phần cần thiết từ quest-player
-import { initMazeBlocks } from '@thanh01.pmt/quest-player';
-import type { TFunction as I18nextTFunction } from 'i18next';
+import { initMazeBlocks, mazeTheme } from './blocks';
 
 interface BlocklyModalProps {
   initialXml: string;
@@ -35,23 +62,66 @@ initMazeBlocks(dummyT as any);
 
 // Định nghĩa Toolbox ngay trong code
 const toolboxJson = {
-  'kind': 'flyoutToolbox',
+  'kind': 'categoryToolbox', // Thay đổi thành categoryToolbox để hỗ trợ danh mục
   'contents': [
-    // Lấy danh sách các khối lệnh từ file blocks.ts của player
-    { 'kind': 'block', 'type': 'maze_start' },
-    { 'kind': 'block', 'type': 'maze_moveForward' },
-    { 'kind': 'block', 'type': 'maze_jump' },
-    { 'kind': 'block', 'type': 'maze_turn' },
-    { 'kind': 'block', 'type': 'maze_collect' },
-    { 'kind': 'block', 'type': 'maze_toggle_switch' },
-    { 'kind': 'block', 'type': 'maze_forever' },
-    { 'kind': 'block', 'type': 'maze_repeat' },
-    { 'kind': 'block', 'type': 'maze_is_path' },
-    { 'kind': 'block', 'type': 'maze_is_item_present' },
-    { 'kind': 'block', 'type': 'maze_is_switch_state' },
-    { 'kind': 'block', 'type': 'maze_at_finish' },
-    { 'kind': 'block', 'type': 'maze_item_count' },
-    { 'kind': 'block', 'type': 'math_number' }, // Giữ lại các khối cơ bản
+    {
+      'kind': 'category',
+      'name': '%{BKY_GAMES_CATMOVEMENT}',
+      'categorystyle': 'movement_category',
+      'contents': [
+        { 'kind': 'block', 'type': 'maze_moveForward' },
+        { 'kind': 'block', 'type': 'maze_jump' },
+        { 'kind': 'block', 'type': 'maze_turn' },
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': '%{BKY_GAMES_CATLOOPS}',
+      'categorystyle': 'loops_category',
+      'contents': [
+        { 'kind': 'block', 'type': 'maze_forever' },
+        { 'kind': 'block', 'type': 'controls_whileUntil' },
+        { 'kind': 'block', 'type': 'maze_repeat', 'inputs': { 'TIMES': { 'shadow': { 'type': 'math_number', 'fields': { 'NUM': 5 }}}}}
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': '%{BKY_GAMES_CATLOGIC}',
+      'categorystyle': 'logic_category',
+      'contents': [
+        { 'kind': 'block', 'type': 'controls_if' },
+        { 'kind': 'block', 'type': 'logic_compare' },
+        { 'kind': 'block', 'type': 'logic_operation' },
+        { 'kind': 'block', 'type': 'logic_negate' },
+        { 'kind': 'block', 'type': 'logic_boolean' },
+        { 'kind': 'block', 'type': 'maze_is_path' },
+        { 'kind': 'block', 'type': 'maze_is_item_present' },
+        { 'kind': 'block', 'type': 'maze_is_switch_state' },
+        { 'kind': 'block', 'type': 'maze_at_finish' }
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': '%{BKY_GAMES_CATACTIONS}',
+      'categorystyle': 'actions_category',
+      'contents': [
+        { 'kind': 'block', 'type': 'maze_collect' },
+        { 'kind': 'block', 'type': 'maze_toggle_switch' }
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': '%{BKY_GAMES_CATMATH}',
+      'categorystyle': 'math_category',
+      'contents': [
+        { 'kind': 'block', 'type': 'maze_item_count' },
+        { 'kind': 'block', 'type': 'math_number' },
+        { 'kind': 'block', 'type': 'math_arithmetic', 'inputs': { 'A': { 'shadow': { 'type': 'math_number', 'fields': { 'NUM': 1 }}}, 'B': { 'shadow': { 'type': 'math_number', 'fields': { 'NUM': 1 }}} }}
+      ]
+    },
+    { 'kind': 'sep' }, // Đường kẻ phân cách
+    { 'kind': 'category', 'name': '%{BKY_GAMES_CATVARIABLES}', 'custom': 'VARIABLE', 'categorystyle': 'variable_category' },
+    { 'kind': 'category', 'name': '%{BKY_GAMES_CATPROCEDURES}', 'custom': 'PROCEDURE', 'categorystyle': 'procedure_category' }
   ]
 };
 
@@ -69,6 +139,8 @@ export function BlocklyModal({ initialXml, onClose, onSave }: BlocklyModalProps)
       // Khởi tạo Blockly workspace
       const workspace = Blockly.inject(blocklyDiv.current, {
         toolbox: toolboxJson, // Sử dụng toolbox đã định nghĩa ở trên
+        theme: scratchWithCustomCategoriesTheme, // <-- Sử dụng theme đã tùy chỉnh của chúng ta
+        renderer: 'zelos', // <-- Sử dụng renderer Zelos
         scrollbars: true,
         zoom: {
           controls: true,
