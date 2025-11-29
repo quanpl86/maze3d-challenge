@@ -28,6 +28,7 @@ interface BuilderSceneProps {
     selectedObjectId: string | null;
     onSelectObject: (id: string | null) => void;
     onMoveObject: (objectId: string, newPosition: [number, number, number]) => void;
+    onMoveObjectByStep: (objectId: string, direction: 'x' | 'y' | 'z', amount: 1 | -1) => void;
 }
 
 // --- COMPONENT MỚI ĐỂ RENDER ASSET ---
@@ -139,10 +140,13 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   const { camera, raycaster, scene } = useThree();
   const [pointer, setPointer] = useState(new THREE.Vector2(99, 99));
   const rollOverMeshRef = useRef<THREE.Group>(null!);
+  const [isShiftDown, setIsShiftDown] = useState(false); // <-- THÊM LẠI: Theo dõi phím Shift
   const [isSpaceDown, setIsSpaceDown] = useState(false); // <-- THAY ĐỔI: Theo dõi phím Space
   const [isAltDown, setIsAltDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isMovingObject, setIsMovingObject] = useState(false); // State mới để theo dõi việc kéo-thả
+  // Ref mới để lưu trạng thái bắt đầu kéo (vị trí đối tượng và vị trí chuột)
+  const dragStartRef = useRef<{ objectPos: [number, number, number], mousePos: { x: number, y: number } } | null>(null);
 
   const {
       builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, 
@@ -234,6 +238,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') setIsShiftDown(true); // <-- THÊM LẠI: Lắng nghe phím Shift
       if (event.code === 'Space') setIsSpaceDown(true); // <-- THAY ĐỔI: Lắng nghe phím Space
       if (event.key === 'Alt') setIsAltDown(true); // Bắt sự kiện nhấn Alt
       if (event.key.toLowerCase() === 'b') onModeChange('build-single');
@@ -242,6 +247,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       if (event.key === 'Escape') onSelectObject(null);
     };
     const handleKeyUp = (event: KeyboardEvent) => { 
+      if (event.key === 'Shift') setIsShiftDown(false); // <-- THÊM LẠI: Lắng nghe phím Shift
       if (event.code === 'Space') setIsSpaceDown(false); // <-- THAY ĐỔI: Lắng nghe phím Space
       if (event.key === 'Alt') setIsAltDown(false); // Bắt sự kiện nhả Alt
     };
@@ -263,15 +269,29 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         const gridPos = getGridPositionForSelection(intersect);
         if (gridPos) onSetSelectionEnd(gridPos);
       }
-    } else if (isMovingObject && selectedObjectId) {
-      // --- LOGIC MỚI: Di chuyển đối tượng khi kéo chuột ---
-      raycaster.setFromCamera(event.pointer, camera);
-      const intersects = raycaster.intersectObjects([plane], true); // Chỉ cần giao với mặt phẳng nền
-      const intersect = intersects[0];
-      if (intersect) {
-        const newGridPos = getGridPositionFromIntersection(intersect);
-        if (newGridPos) {
-          onMoveObject(selectedObjectId, newGridPos);
+    } else if (isMovingObject && selectedObjectId && dragStartRef.current) { // Khi đang kéo một đối tượng
+      if (isShiftDown) {
+        // --- LOGIC SNAP DỌC (TRỤC Y) ---
+        const deltaY = dragStartRef.current.mousePos.y - event.clientY; // Kéo lên -> deltaY dương
+        const PIXELS_PER_UNIT = 30; // Độ nhạy: cần kéo 30px để di chuyển 1 ô
+        const unitsToMove = Math.round(deltaY / PIXELS_PER_UNIT);
+        
+        const newY = dragStartRef.current.objectPos[1] + unitsToMove;
+        const finalPos: [number, number, number] = [dragStartRef.current.objectPos[0], newY, dragStartRef.current.objectPos[2]];
+        
+        onMoveObject(selectedObjectId, finalPos);
+      } else {
+        // --- LOGIC SNAP TRÊN MẶT PHẲNG (XZ) ---
+        raycaster.setFromCamera(event.pointer, camera);
+        const intersects = raycaster.intersectObjects([plane], true);
+        const intersect = intersects[0];
+        if (intersect) {
+          const newGridPos = getGridPositionFromIntersection(intersect);
+          // Giữ nguyên trục Y của đối tượng hiện tại khi kéo trên mặt phẳng
+          if (newGridPos) {
+            const finalPos: [number, number, number] = [newGridPos[0], dragStartRef.current.objectPos[1], newGridPos[2]];
+            onMoveObject(selectedObjectId, finalPos);
+          }
         }
       }
     }
@@ -296,7 +316,12 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         }
         // Nếu click vào đối tượng đã chọn, bắt đầu di chuyển
         if (clickedObject?.userData.id && clickedObject.userData.id === selectedObjectId) {
+            const objectToMove = placedObjects.find(o => o.id === selectedObjectId);
             setIsMovingObject(true);
+            if (objectToMove) {
+              // Ghi lại vị trí ban đầu của đối tượng và chuột
+              dragStartRef.current = { objectPos: objectToMove.position, mousePos: { x: event.clientX, y: event.clientY } };
+            }
             return; // Dừng lại để không thực hiện các hành động khác
         }
     }
@@ -337,6 +362,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     if (isDragging) setIsDragging(false); 
     if (isMovingObject) {
       setIsMovingObject(false);
+      dragStartRef.current = null; // Xóa trạng thái khi nhả chuột
       // Logic để "commit" vị trí mới vào history có thể được thêm ở đây nếu cần
     }
 

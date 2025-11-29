@@ -542,6 +542,7 @@ function App() {
           onSetSelectionEnd={setSelectionEnd}
           selectedObjectId={selectedObjectId}
           onMoveObject={handleMoveObjectToPosition}
+          onMoveObjectByStep={handleMoveObject}
           onSelectObject={setSelectedObjectId}
         />
       </div>
