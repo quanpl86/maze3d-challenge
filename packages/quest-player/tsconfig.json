@@ -2,10 +2,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
     "types": ["node"],
     // Bắt buộc phải có "composite": true khi dự án này được tham chiếu bởi dự án khác
-    "composite": true
+    "composite": true,
+    // Cho phép import các file .json
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
-  "include": ["src/**/*", "vite.config.ts"], 
+  // Bao gồm tất cả các file .ts và .tsx trong thư mục src VÀ file theme.ts ở gốc
+  "include": ["src/**/*.ts", "src/**/*.tsx", "theme.ts", "vite.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
