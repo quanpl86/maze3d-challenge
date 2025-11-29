@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AssetPalette } from './components/AssetPalette';
 import { BuilderScene, type SceneController } from './components/BuilderScene';
@@ -13,7 +13,10 @@ const defaultAsset = buildableAssetGroups[0]?.items[0];
 
 function App() {
   const [selectedAsset, setSelectedAsset] = useState<BuildableAsset | null>(defaultAsset);
-  const [placedObjects, setPlacedObjects] = useState<PlacedObject[]>([]);
+  // --- START: THAY ĐỔI ĐỂ QUẢN LÝ LỊCH SỬ UNDO/REDO ---
+  const [history, setHistory] = useState<PlacedObject[][]>([[]]); // Mảng lưu các trạng thái của placedObjects
+  const [historyIndex, setHistoryIndex] = useState(0); // Con trỏ tới trạng thái hiện tại trong lịch sử
+  const placedObjects = useMemo(() => history[historyIndex] || [], [history, historyIndex]);
   const [builderMode, setBuilderMode] = useState<BuilderMode>('build-single');
   const [boxDimensions, setBoxDimensions] = useState<BoxDimensions>({ width: 10, height: 10, depth: 10 });
   
@@ -28,6 +31,50 @@ function App() {
   const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
 
   const sceneRef = useRef<SceneController>(null);
+
+  // Hàm mới để cập nhật trạng thái và lưu vào lịch sử
+  const setPlacedObjectsWithHistory = useCallback((updater: PlacedObject[] | ((prev: PlacedObject[]) => PlacedObject[])) => {
+    const currentObjects = history[historyIndex] || [];
+    const newObjects = typeof updater === 'function' ? updater(currentObjects) : updater;
+
+    // Tránh thêm trạng thái trùng lặp vào lịch sử
+    if (JSON.stringify(newObjects) === JSON.stringify(currentObjects)) {
+      return;
+    }
+
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newObjects);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }, [history, historyIndex]);
+
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+    }
+  }, [historyIndex]);
+
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+    }
+  }, [historyIndex, history.length]);
+
+  // Thêm phím tắt cho Undo/Redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        e.shiftKey ? handleRedo() : handleUndo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
+  // --- END: THAY ĐỔI ĐỂ QUẢN LÝ LỊCH SỬ UNDO/REDO ---
 
   const assetMap = useMemo(() => {
     const map = new Map<string, BuildableAsset>();
@@ -74,18 +121,49 @@ function App() {
   }, [placedObjects, questMetadata]);
 
   const handleSelectAsset = (asset: BuildableAsset) => {
+    // --- LOGIC MỚI: THAY THẾ ĐỐI TƯỢNG ĐÃ CHỌN ---
+    if (selectedObjectId) {
+      setPlacedObjectsWithHistory(prev => {
+        const objectIndex = prev.findIndex(obj => obj.id === selectedObjectId);
+        if (objectIndex === -1) return prev; // Không tìm thấy đối tượng, không làm gì cả
+
+        const oldObject = prev[objectIndex];
+        let finalObjects = [...prev];
+
+        // Nếu asset mới là loại duy nhất (start/finish), xóa các asset cùng loại khác
+        if (asset.key === 'finish' || asset.key === 'player_start') {
+          finalObjects = finalObjects.filter(o => o.asset.key !== asset.key || o.id === oldObject.id);
+        }
+
+        // Tạo đối tượng mới để thay thế, giữ lại ID và vị trí
+        const replacedObject: PlacedObject = {
+          id: oldObject.id,
+          position: oldObject.position,
+          asset: asset,
+          properties: asset.defaultProperties ? { ...asset.defaultProperties } : {},
+        };
+
+        // Cập nhật đối tượng trong mảng
+        const updatedIndex = finalObjects.findIndex(obj => obj.id === selectedObjectId);
+        finalObjects[updatedIndex] = replacedObject;
+
+        return finalObjects;
+      });
+      // Sau khi thay thế, không cần đặt selectedAsset nữa và giữ nguyên lựa chọn
+      setSelectedAsset(null);
+      return;
+    }
+    // --- KẾT THÚC LOGIC MỚI ---
+
+    // Logic cũ: Nếu không có đối tượng nào được chọn, chuẩn bị để xây dựng
     setSelectedAsset(asset);
     setBuilderMode('build-single');
-    setSelectedObjectId(null);
   };
 
   const handleModeChange = (mode: BuilderMode) => {
     setBuilderMode(mode);
     setSelectionStart(null);
     setSelectionEnd(null);
-    if (mode !== 'navigate') {
-        setSelectedObjectId(null);
-    }
   };
 
   const handleDimensionsChange = (axis: keyof BoxDimensions, value: number) => setBoxDimensions(prev => ({ ...prev, [axis]: Math.max(1, value) }));
@@ -133,11 +211,11 @@ function App() {
       }
     }
 
-    setPlacedObjects(prev => [...prev.filter(o => !objectsToRemove.includes(o.id)), ...objectsToAdd]);
+    setPlacedObjectsWithHistory(prev => [...prev.filter(o => !objectsToRemove.includes(o.id)), ...objectsToAdd]);
   };
 
   const handleRemoveObject = (id: string) => {
-    setPlacedObjects(prev => {
+    setPlacedObjectsWithHistory(prev => {
         const objectToRemove = prev.find(o => o.id === id);
         const newObjects = prev.filter(obj => obj.id !== id);
         if (objectToRemove?.properties.type === 'portal' && objectToRemove.properties.targetId) {
@@ -149,7 +227,7 @@ function App() {
   };
 
   const handleUpdateObject = (updatedObject: PlacedObject) => {
-    setPlacedObjects(prev => prev.map(obj => (obj.id === updatedObject.id ? updatedObject : obj)));
+    setPlacedObjectsWithHistory(prev => prev.map(obj => (obj.id === updatedObject.id ? updatedObject : obj)));
   };
 
   const handleSelectionAction = (action: 'fill' | 'replace' | 'delete') => {
@@ -226,7 +304,7 @@ function App() {
           }
         }
       }
-      setPlacedObjects(prev => prev.filter(obj => !positionsToDelete.has(obj.position.join(','))));
+      setPlacedObjectsWithHistory(prev => prev.filter(obj => !positionsToDelete.has(obj.position.join(','))));
       setSelectionStart(null);
       setSelectionEnd(null);
       return; // Kết thúc sớm để không chạy logic bên dưới
@@ -234,9 +312,9 @@ function App() {
     // --- Kết thúc cải tiến ---
 
     if (action === 'fill') {
-      setPlacedObjects(prev => [...prev, ...affectedObjects]);
+      setPlacedObjectsWithHistory(prev => [...prev, ...affectedObjects]);
     } else if (action === 'replace') {
-      setPlacedObjects(newPlacedObjects);
+      setPlacedObjectsWithHistory(newPlacedObjects);
     }
     
     setSelectionStart(null);
@@ -301,7 +379,7 @@ function App() {
           if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
         }
         
-        setPlacedObjects(newPlacedObjects);
+        setPlacedObjectsWithHistory(newObjects => newPlacedObjects); // Bắt đầu lịch sử mới khi import
         alert('Map imported successfully!');
       } catch (error) {
         console.error("Failed to import map:", error);
@@ -349,6 +427,7 @@ function App() {
         <PropertiesPanel 
           selectedObject={selectedObject}
           onUpdateObject={handleUpdateObject}
+          onDeleteObject={handleRemoveObject} // Truyền hàm xóa vào
           onClearSelection={() => setSelectedObjectId(null)}
         />
         <JsonOutputPanel jsonString={outputJsonString} />

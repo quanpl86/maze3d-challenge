@@ -5,6 +5,7 @@ interface PropertiesPanelProps {
   selectedObject: PlacedObject | null;
   onUpdateObject: (updatedObject: PlacedObject) => void;
   onClearSelection: () => void;
+  onDeleteObject: (id: string) => void;
 }
 
 const renderPropertyInput = (key: string, value: any, onChange: (key: string, value: any) => void) => {
@@ -27,7 +28,7 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
   return <input type="text" value={value} onChange={(e) => onChange(key, e.target.value)} />;
 };
 
-export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelection }: PropertiesPanelProps) {
+export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelection, onDeleteObject }: PropertiesPanelProps) {
 
   if (!selectedObject) {
     return (
@@ -37,6 +38,11 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
       </aside>
     );
   }
+
+  const handleDelete = () => {
+    onDeleteObject(selectedObject.id);
+    onClearSelection();
+  };
 
   const handlePropertyChange = (key: string, value: any) => {
     const updatedObject = {
@@ -72,6 +78,21 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
           {renderPropertyInput(key, value, handlePropertyChange)}
         </div>
       ))}
+
+      {/* --- KHU VỰC ACTIONS MỚI --- */}
+      <div className="selection-controls single-object-controls">
+        <h3 className="props-title">Actions</h3>
+        <div className="action-description">
+          Click an asset in the palette to **replace** this object.
+        </div>
+        <div className="action-buttons">
+          {/* Nút Delete được di chuyển vào đây */}
+          <button onClick={handleDelete} className="action-btn delete-btn">
+            <span className="icon">🗑️</span>
+            Delete
+          </button>
+        </div>
+      </div>
     </aside>
   );
 }

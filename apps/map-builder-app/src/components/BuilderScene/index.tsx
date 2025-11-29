@@ -153,12 +153,33 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   ), []);
   
   useEffect(() => {
-    if (cameraControlsRef.current) {
-        const isNavigate = builderMode === 'navigate';
-        cameraControlsRef.current.enabled = isNavigate;
-        cameraControlsRef.current.mouseButtons.right = isNavigate ? THREE.MOUSE.ROTATE : 0;
+    const controls = cameraControlsRef.current;
+    if (controls) {
+        const isNavigateMode = builderMode === 'navigate';
+
+        // Luôn bật camera controls để có thể pan bằng Shift
+        controls.enabled = true; 
+
+        // Chỉ cho phép xoay bằng chuột phải ở chế độ Navigate
+        controls.mouseButtons.right = isNavigateMode ? THREE.MOUSE.ROTATE : 0;
+
+        // Khi giữ Shift, chuột trái sẽ dùng để "kéo" (pan) không gian
+        // Nếu không giữ Shift, nó sẽ không làm gì (để dành cho việc đặt/xóa block)
+        // Giá trị '2' tương ứng với hành động TRUCK (kéo/pan) trong thư viện camera-controls.
+        // 0: NONE, 1: ROTATE, 2: TRUCK, 3: DOLLY, 4: ZOOM.
+        const ROTATE_ACTION = 1;
+        const TRUCK_ACTION = 2;
+        const NO_ACTION = 0;
+
+        if (isShiftDown) {
+            controls.mouseButtons.left = TRUCK_ACTION; // Luôn kéo (pan) khi giữ Shift
+        } else {
+            // Chỉ xoay (rotate) khi ở chế độ navigate và không giữ Shift
+            controls.mouseButtons.left = isNavigateMode ? ROTATE_ACTION : NO_ACTION;
+        }
     }
-  }, [builderMode, cameraControlsRef]);
+    // Thêm isShiftDown vào dependency array để cập nhật hành vi của chuột khi trạng thái phím Shift thay đổi
+  }, [builderMode, cameraControlsRef, isShiftDown]);
 
   const boundingBoxPosition = useMemo((): [number, number, number] => [
     (boxDimensions.width * TILE_SIZE) / 2,
@@ -228,6 +249,12 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
 
   const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
+    
+    // --- THAY ĐỔI: Ưu tiên kéo camera khi giữ Shift ---
+    // Nếu đang giữ Shift và nhấn chuột trái, không thực hiện bất kỳ hành động nào khác (đặt/xóa khối).
+    // Việc này để cho phép CameraControls xử lý sự kiện kéo (pan/truck).
+    if (isShiftDown && event.button === 0) return;
+
     if (event.button !== 0) return;
     raycaster.setFromCamera(event.pointer, camera);
     const objectsToIntersect = [plane, ...scene.children.filter(c => c.userData.isPlacedObject)];
@@ -252,11 +279,8 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     if (!gridPosition) return;
     
     if (builderMode === 'build-single') {
-      if (isShiftDown) {
-        let objectToRemove = intersect.object;
-        while (objectToRemove.parent && !objectToRemove.userData.id) objectToRemove = objectToRemove.parent;
-        if (objectToRemove.userData.isPlacedObject) onRemoveObject(objectToRemove.userData.id);
-      } else if (selectedAsset) {
+      // Logic đặt khối chỉ chạy khi không giữ Shift
+      if (selectedAsset) {
         const [x, y, z] = gridPosition;
         if (x >= 0 && x < boxDimensions.width && y >= 0 && y < boxDimensions.height && z >= 0 && z < boxDimensions.depth) onAddObject(gridPosition, selectedAsset);
       }
@@ -267,7 +291,23 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     }
   };
 
-  const handlePointerUp = () => { if (isDragging) setIsDragging(false); };
+  const handlePointerUp = (event: ThreeEvent<PointerEvent>) => { 
+    if (isDragging) setIsDragging(false); 
+
+    // Logic xóa đối tượng bằng Shift + Click chuột phải
+    if (event.button === 2 && isShiftDown && builderMode === 'build-single') {
+        raycaster.setFromCamera(event.pointer, camera);
+        const objectsToIntersect = scene.children.filter(c => c.userData.isPlacedObject);
+        const intersects = raycaster.intersectObjects(objectsToIntersect, true);
+        const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+
+        if (intersect) {
+            let objectToRemove = intersect.object;
+            while (objectToRemove.parent && !objectToRemove.userData.id) objectToRemove = objectToRemove.parent;
+            if (objectToRemove.userData.isPlacedObject) onRemoveObject(objectToRemove.userData.id);
+        }
+    }
+  };
 
   return (
     <>
