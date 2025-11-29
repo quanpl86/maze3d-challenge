@@ -74,6 +74,55 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleUndo, handleRedo]);
+
+  // --- DI CHUYỂN LÊN TRÊN ĐỂ SỬA LỖI ---
+  const selectionBounds: SelectionBounds | null = useMemo(() => {
+    if (!selectionStart || !selectionEnd) return null;
+    return {
+      min: [ Math.min(selectionStart[0], selectionEnd[0]), Math.min(selectionStart[1], selectionEnd[1]), Math.min(selectionStart[2], selectionEnd[2]), ],
+      max: [ Math.max(selectionStart[0], selectionEnd[0]), Math.max(selectionStart[1], selectionEnd[1]), Math.max(selectionStart[2], selectionEnd[2]), ],
+    };
+  }, [selectionStart, selectionEnd]);
+
+  // Thêm phím tắt Delete/Backspace để xóa đối tượng được chọn
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      // Bỏ qua nếu người dùng đang gõ trong một ô input hoặc select
+      if (activeEl && ['INPUT', 'SELECT', 'TEXTAREA'].includes(activeEl.tagName)) {
+        return;
+      }
+
+      // --- Ưu tiên các phím tắt cho vùng chọn (select area) ---
+      if (selectionBounds) {
+        const key = event.key.toLowerCase();
+        if (key === 'f') {
+          event.preventDefault();
+          handleSelectionAction('fill');
+        } else if (key === 'r') {
+          event.preventDefault();
+          handleSelectionAction('replace');
+        } else if (event.key === 'Delete' || event.key === 'Backspace') {
+          event.preventDefault();
+          handleSelectionAction('delete');
+        }
+      } 
+      // --- Nếu không có vùng chọn, xử lý phím tắt cho đối tượng đơn lẻ ---
+      else if (selectedObjectId) {
+        if (event.key.toLowerCase() === 'c') {
+          event.preventDefault();
+          handleCopyObject();
+        } else if (event.key === 'Delete' || event.key === 'Backspace') {
+          event.preventDefault();
+          handleRemoveObject(selectedObjectId);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedObjectId, selectionBounds, placedObjects]); // Thêm selectionBounds vào dependencies
+
   // --- END: THAY ĐỔI ĐỂ QUẢN LÝ LỊCH SỬ UNDO/REDO ---
 
   const assetMap = useMemo(() => {
@@ -89,14 +138,6 @@ function App() {
   const selectedObject = useMemo(() => {
     return placedObjects.find(obj => obj.id === selectedObjectId) || null;
   }, [selectedObjectId, placedObjects]);
-
-  const selectionBounds: SelectionBounds | null = useMemo(() => {
-    if (!selectionStart || !selectionEnd) return null;
-    return {
-      min: [ Math.min(selectionStart[0], selectionEnd[0]), Math.min(selectionStart[1], selectionEnd[1]), Math.min(selectionStart[2], selectionEnd[2]), ],
-      max: [ Math.max(selectionStart[0], selectionEnd[0]), Math.max(selectionStart[1], selectionEnd[1]), Math.max(selectionStart[2], selectionEnd[2]), ],
-    };
-  }, [selectionStart, selectionEnd]);
 
   const outputJsonString = useMemo(() => {
     const blocks = placedObjects.filter(o => o.asset.type === 'block').map(o => ({ modelKey: o.asset.key, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
@@ -224,10 +265,21 @@ function App() {
         }
         return newObjects;
     });
+    setSelectedObjectId(null); // Bỏ chọn đối tượng sau khi xóa
   };
 
   const handleUpdateObject = (updatedObject: PlacedObject) => {
     setPlacedObjectsWithHistory(prev => prev.map(obj => (obj.id === updatedObject.id ? updatedObject : obj)));
+  };
+
+  // --- HÀM MỚI: Sao chép asset của đối tượng để chuẩn bị đặt ---
+  const handleCopyObject = () => {
+    const objectToCopy = placedObjects.find(obj => obj.id === selectedObjectId);
+    if (objectToCopy) {
+      setSelectedAsset(objectToCopy.asset); // Đặt asset được chọn là asset của đối tượng
+      setBuilderMode('build-single');       // Chuyển sang chế độ xây dựng
+      setSelectedObjectId(null);            // Bỏ chọn đối tượng gốc để tránh nhầm lẫn
+    }
   };
 
   const handleSelectionAction = (action: 'fill' | 'replace' | 'delete') => {
