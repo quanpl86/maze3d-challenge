@@ -14,7 +14,7 @@ interface BlocklyModalProps {
 
 // Tạo một hàm dịch giả lập (dummy t function)
 // Nó sẽ trả về giá trị mặc định (nếu có) hoặc chính key.
-const dummyT = (key: string, options?: string | Record<string, any>): string => {
+const dummyT = (key: any, options?: any): string => {
   // Nếu options là một chuỗi, nó là defaultValue
   if (typeof options === 'string') {
     return options;
@@ -22,7 +22,7 @@ const dummyT = (key: string, options?: string | Record<string, any>): string => 
 
   // Nếu options là một object (cho interpolation),
   // tạo một chuỗi đơn giản bao gồm key và tất cả các placeholder.
-  if (typeof options === 'object' && options !== null) {
+  if (typeof key === 'string' && typeof options === 'object' && options !== null) {
     const placeholders = Object.values(options).join(' ');
     return `${key} ${placeholders}`;
   }
@@ -31,7 +31,7 @@ const dummyT = (key: string, options?: string | Record<string, any>): string => 
 
 // Gọi hàm init từ quest-player để đăng ký tất cả các khối lệnh một lần duy nhất
 // khi module này được tải.
-initMazeBlocks(dummyT as I18nextTFunction);
+initMazeBlocks(dummyT as any);
 
 // Định nghĩa Toolbox ngay trong code
 const toolboxJson = {
