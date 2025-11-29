@@ -3,6 +3,7 @@
 import * as Blockly from 'blockly/core';
 
 export const mazeTheme = Blockly.Theme.defineTheme('maze', {
+  name: 'maze', // <-- Thêm thuộc tính 'name' này
   base: Blockly.Themes.Classic, // Kế thừa từ theme Classic cho đơn giản
   categoryStyles: {
     // Tên ở đây PHẢI KHỚP với thuộc tính "style" trong blocks.ts
