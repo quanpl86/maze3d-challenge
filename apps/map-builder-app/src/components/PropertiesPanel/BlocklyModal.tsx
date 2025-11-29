@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
 import * as En from 'blockly/msg/en'; // Import gói ngôn ngữ tiếng Anh
 import './BlocklyModal.css';
-// Import hàm init từ quest-player để đồng bộ hóa các khối lệnh
+// Import các thành phần cần thiết từ quest-player
 import { initMazeBlocks } from '@thanh01.pmt/quest-player';
-
-type TFunction = (key: string, options?: string | Record<string, any>) => string;
+import type { TFunction as I18nextTFunction } from 'i18next';
 
 interface BlocklyModalProps {
   initialXml: string;
@@ -15,7 +14,7 @@ interface BlocklyModalProps {
 
 // Tạo một hàm dịch giả lập (dummy t function)
 // Nó sẽ trả về giá trị mặc định (nếu có) hoặc chính key.
-const dummyT: TFunction = (key, options) => {
+const dummyT = (key: string, options?: string | Record<string, any>): string => {
   // Nếu options là một chuỗi, nó là defaultValue
   if (typeof options === 'string') {
     return options;
@@ -32,7 +31,7 @@ const dummyT: TFunction = (key, options) => {
 
 // Gọi hàm init từ quest-player để đăng ký tất cả các khối lệnh một lần duy nhất
 // khi module này được tải.
-initMazeBlocks(dummyT);
+initMazeBlocks(dummyT as I18nextTFunction);
 
 // Định nghĩa Toolbox ngay trong code
 const toolboxJson = {
