@@ -104,7 +104,20 @@ function App() {
     }
 
     const newObject: PlacedObject = {
-      id: asset.defaultProperties?.type === 'portal' ? `${asset.key}_${uuidv4().substring(0, 4)}` : uuidv4(),
+      // --- LOGIC TẠO ID MỚI ---
+      id: (() => {
+        // Nếu là switch, tạo id dạng s1, s2, ...
+        if (asset.key === 'switch') {
+          const switchObjects = placedObjects.filter(o => o.asset.key === 'switch');
+          const maxNum = switchObjects.reduce((max, o) => {
+            const num = parseInt(o.id.substring(1), 10);
+            return isNaN(num) ? max : Math.max(max, num);
+          }, 0);
+          return `s${maxNum + 1}`;
+        }
+        // Giữ nguyên logic cũ cho portal và các đối tượng khác
+        return asset.defaultProperties?.type === 'portal' ? `${asset.key}_${uuidv4().substring(0, 4)}` : uuidv4();
+      })(),
       position: gridPosition,
       asset: asset,
       properties: asset.defaultProperties ? { ...asset.defaultProperties } : {},
@@ -147,6 +160,7 @@ function App() {
     const [minX, minY, minZ] = min;
     const [maxX, maxY, maxZ] = max;
     
+    // --- Cải tiến cho hành động 'delete' ---
     const affectedObjects: PlacedObject[] = [];
     let newPlacedObjects = [...placedObjects];
 
@@ -154,6 +168,7 @@ function App() {
       for (let y = minY; y <= maxY; y++) {
         for (let z = minZ; z <= maxZ; z++) {
           
+          // Bỏ qua nếu không khớp với các tùy chọn fill/pattern
           if (fillOptions.type === 'shell') {
             const isShell = x === minX || x === maxX || y === minY || y === maxY || z === minZ || z === maxZ;
             if (!isShell) continue;
@@ -164,6 +179,7 @@ function App() {
             if ((x + y + z) % effectiveSpacing !== 0) continue;
           }
 
+          // Tìm đối tượng hiện có tại vị trí
           const existingObjectIndex = newPlacedObjects.findIndex(obj => 
             obj && obj.position[0] === x && obj.position[1] === y && obj.position[2] === z
           );
@@ -198,12 +214,29 @@ function App() {
       }
     }
 
+    // --- Logic xóa được tối ưu hóa ---
+    if (action === 'delete') {
+      const positionsToDelete = new Set<string>();
+      for (let x = minX; x <= maxX; x++) {
+        for (let y = minY; y <= maxY; y++) {
+          for (let z = minZ; z <= maxZ; z++) {
+            if (fillOptions.type === 'shell' && !(x === minX || x === maxX || y === minY || y === maxY || z === minZ || z === maxZ)) continue;
+            if (fillOptions.pattern === 'checkerboard' && (x + y + z) % (fillOptions.spacing + 1) !== 0) continue;
+            positionsToDelete.add(`${x},${y},${z}`);
+          }
+        }
+      }
+      setPlacedObjects(prev => prev.filter(obj => !positionsToDelete.has(obj.position.join(','))));
+      setSelectionStart(null);
+      setSelectionEnd(null);
+      return; // Kết thúc sớm để không chạy logic bên dưới
+    }
+    // --- Kết thúc cải tiến ---
+
     if (action === 'fill') {
       setPlacedObjects(prev => [...prev, ...affectedObjects]);
     } else if (action === 'replace') {
       setPlacedObjects(newPlacedObjects);
-    } else if (action === 'delete') {
-      setPlacedObjects(newPlacedObjects.filter(Boolean));
     }
     
     setSelectionStart(null);

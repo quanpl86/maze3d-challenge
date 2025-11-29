@@ -64,7 +64,7 @@ function createBuildableAssetGroups(): AssetGroup[] {
       // Giữ lại mô hình này, giả sử nó tồn tại hoặc dùng tạm 1 cái khác
       path: GameAssets.world.misc.switch,
       type: 'interactible',
-      defaultProperties: { initialState: 'off' }
+      defaultProperties: { type: 'switch', initialState: 'off' }
     },
     {
       key: 'portal_blue',
