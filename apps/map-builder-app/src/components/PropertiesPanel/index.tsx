@@ -1,5 +1,6 @@
 import { PlacedObject } from '../../types';
 import './PropertiesPanel.css';
+import { MouseEvent } from 'react';
 
 interface PropertiesPanelProps {
   selectedObject: PlacedObject | null;
@@ -30,6 +31,13 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
 
 export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelection, onDeleteObject }: PropertiesPanelProps) {
 
+  const handleOverlayClick = (e: MouseEvent<HTMLDivElement>) => {
+    // Chỉ bỏ chọn khi click trực tiếp vào overlay, không phải vào panel con
+    if (e.target === e.currentTarget) {
+      onClearSelection();
+    }
+  };
+
   if (!selectedObject) {
     return (
       <aside className="properties-panel empty-state">
@@ -38,10 +46,11 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
       </aside>
     );
   }
+  // Khi có một đối tượng được chọn, chúng ta render cả panel và lớp phủ.
+  // Lớp phủ sẽ bắt sự kiện click bên ngoài panel.
 
   const handleDelete = () => {
     onDeleteObject(selectedObject.id);
-    onClearSelection();
   };
 
   const handlePropertyChange = (key: string, value: any) => {
@@ -56,43 +65,43 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
   };
   
   return (
-    <aside className="properties-panel">
-      <div className="panel-header">
-        <h2>Properties</h2>
-        <button onClick={onClearSelection} className="clear-btn">✖</button>
-      </div>
-
-      <div className="prop-group info-group">
-        <label>Asset</label>
-        <span>{selectedObject.asset.name}</span>
-      </div>
-      <div className="prop-group info-group">
-        <label>ID</label>
-        <span className="object-id">{selectedObject.id}</span>
-      </div>
-
-      <h3 className="props-title">Custom Properties</h3>
-      {Object.entries(selectedObject.properties).map(([key, value]) => (
-        <div key={key} className="prop-group">
-          <label>{key}</label>
-          {renderPropertyInput(key, value, handlePropertyChange)}
+    <div className="properties-panel-overlay" onClick={handleOverlayClick}>
+        <aside className="properties-panel">
+        <div className="panel-header">
+            <h2>Properties</h2>
+            <button onClick={onClearSelection} className="clear-btn">✖</button>
         </div>
-      ))}
 
-      {/* --- KHU VỰC ACTIONS MỚI --- */}
-      <div className="selection-controls single-object-controls">
-        <h3 className="props-title">Actions</h3>
-        <div className="action-description">
-          Click an asset in the palette to **replace** this object.
+        <div className="prop-group info-group">
+            <label>Asset</label>
+            <span>{selectedObject.asset.name}</span>
         </div>
-        <div className="action-buttons">
-          {/* Nút Delete được di chuyển vào đây */}
-          <button onClick={handleDelete} className="action-btn delete-btn">
-            <span className="icon">🗑️</span>
-            Delete
-          </button>
+        <div className="prop-group info-group">
+            <label>ID</label>
+            <span className="object-id">{selectedObject.id}</span>
         </div>
-      </div>
-    </aside>
+
+        <h3 className="props-title">Custom Properties</h3>
+        {Object.entries(selectedObject.properties).map(([key, value]) => (
+            <div key={key} className="prop-group">
+            <label>{key}</label>
+            {renderPropertyInput(key, value, handlePropertyChange)}
+            </div>
+        ))}
+
+        <div className="selection-controls single-object-controls">
+            <h3 className="props-title">Actions</h3>
+            <div className="action-description">
+            Click an asset in the palette to **replace** this object.
+            </div>
+            <div className="action-buttons">
+            <button onClick={handleDelete} className="action-btn delete-btn">
+                <span className="icon">🗑️</span>
+                Delete
+            </button>
+            </div>
+        </div>
+        </aside>
+    </div>
   );
 }

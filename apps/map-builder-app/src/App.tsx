@@ -18,7 +18,7 @@ function App() {
   const [historyIndex, setHistoryIndex] = useState(0); // Con trỏ tới trạng thái hiện tại trong lịch sử
   const placedObjects = useMemo(() => history[historyIndex] || [], [history, historyIndex]);
   const [builderMode, setBuilderMode] = useState<BuilderMode>('build-single');
-  const [boxDimensions, setBoxDimensions] = useState<BoxDimensions>({ width: 10, height: 10, depth: 10 });
+  const [boxDimensions, setBoxDimensions] = useState<BoxDimensions>({ width: 14, height: 14, depth: 14 });
   
   const [selectionStart, setSelectionStart] = useState<[number, number, number] | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<[number, number, number] | null>(null);
@@ -285,7 +285,7 @@ function App() {
         }
         return newObjects;
     });
-    setSelectedObjectId(null); // Bỏ chọn đối tượng sau khi xóa
+    if (selectedObjectId === id) setSelectedObjectId(null); // Bỏ chọn đối tượng sau khi xóa
   };
 
   const handleUpdateObject = (updatedObject: PlacedObject) => {
