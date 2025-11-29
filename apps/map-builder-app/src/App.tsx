@@ -1,10 +1,11 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback, MouseEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AssetPalette } from './components/AssetPalette';
 import { BuilderScene, type SceneController } from './components/BuilderScene';
 import { ViewControls } from './components/ViewControls';
 import { PropertiesPanel } from './components/PropertiesPanel';
-import { JsonOutputPanel } from './components/JsonOutputPanel';
+import { QuestDetailsPanel } from './components/QuestDetailsPanel'; // THÊM MỚI
+import { JsonOutputPanel } from './components/JsonOutputPanel'; // SỬA LẠI ĐỂ CHO PHÉP EDIT
 import { buildableAssetGroups } from './config/gameAssets';
 import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds } from './types';
 import './App.css';
@@ -14,10 +15,12 @@ const defaultAsset = buildableAssetGroups[0]?.items[0];
 function App() {
   const [selectedAsset, setSelectedAsset] = useState<BuildableAsset | null>(defaultAsset);
   // --- START: THAY ĐỔI ĐỂ QUẢN LÝ LỊCH SỬ UNDO/REDO ---
+  const [isPaletteVisible, setIsPaletteVisible] = useState(true); // State để quản lý hiển thị palette
   const [history, setHistory] = useState<PlacedObject[][]>([[]]); // Mảng lưu các trạng thái của placedObjects
   const [historyIndex, setHistoryIndex] = useState(0); // Con trỏ tới trạng thái hiện tại trong lịch sử
   const placedObjects = useMemo(() => history[historyIndex] || [], [history, historyIndex]);
   const [builderMode, setBuilderMode] = useState<BuilderMode>('build-single');
+  const [sidebarWidth, setSidebarWidth] = useState(320); // State cho chiều rộng của sidebar
   const [boxDimensions, setBoxDimensions] = useState<BoxDimensions>({ width: 14, height: 14, depth: 14 });
   
   const [selectionStart, setSelectionStart] = useState<[number, number, number] | null>(null);
@@ -30,7 +33,72 @@ function App() {
   // State mới để lưu trữ siêu dữ liệu của quest
   const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
 
+  // State mới để lưu trữ chuỗi JSON đang được chỉnh sửa trong panel
+  const [editedJson, setEditedJson] = useState('');
+
+  // State mới cho menu chuột phải
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    objectId: string | null;
+  }>({ visible: false, x: 0, y: 0, objectId: null });
+  // State mới để quản lý hiển thị menu phụ của "Đổi Asset"
+  const [assetSubMenuVisible, setAssetSubMenuVisible] = useState(false);
+
   const sceneRef = useRef<SceneController>(null);
+  const isResizingRef = useRef(false);
+  const sidebarRef = useRef<HTMLDivElement>(null); // Ref cho right-sidebar
+
+  // --- START: LOGIC CUỘN SIDEBAR LÊN KHI CHỌN ĐỐI TƯỢNG ---
+  useEffect(() => {
+    // Nếu một đối tượng được chọn (và sidebar đã được render)
+    if (selectedObjectId && sidebarRef.current) {
+      // Cuộn sidebar lên trên cùng một cách mượt mà
+      sidebarRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, [selectedObjectId]); // Chạy effect này mỗi khi selectedObjectId thay đổi
+
+  // Đóng context menu khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setContextMenu(prev => ({ ...prev, visible: false }));
+      setAssetSubMenuVisible(false); // Cũng đóng menu phụ
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+  // --- START: LOGIC THAY ĐỔI KÍCH THƯỚC SIDEBAR ---
+  const handleResizeMouseDown = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    isResizingRef.current = true;
+    document.body.style.cursor = 'col-resize'; // Thay đổi con trỏ chuột
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: globalThis.MouseEvent) => {
+      if (!isResizingRef.current) return;
+      // Tính toán chiều rộng mới, giới hạn từ 280px đến 600px
+      const newWidth = window.innerWidth - e.clientX;
+      setSidebarWidth(Math.max(280, Math.min(newWidth, 600)));
+    };
+
+    const handleMouseUp = () => {
+      isResizingRef.current = false;
+      document.body.style.cursor = 'default'; // Trả lại con trỏ chuột mặc định
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+  // --- END: LOGIC THAY ĐỔI KÍCH THƯỚC SIDEBAR ---
 
   // Hàm mới để cập nhật trạng thái và lưu vào lịch sử
   const setPlacedObjectsWithHistory = useCallback((updater: PlacedObject[] | ((prev: PlacedObject[]) => PlacedObject[])) => {
@@ -47,6 +115,10 @@ function App() {
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   }, [history, historyIndex]);
+
+  const togglePalette = () => {
+    setIsPaletteVisible(!isPaletteVisible);
+  };
 
   const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
@@ -131,7 +203,7 @@ function App() {
       else if (selectedObjectId) {
         if (event.key.toLowerCase() === 'c') {
           event.preventDefault();
-          handleCopyObject();
+          handleCopyObject(selectedObjectId);
         } else if (event.key === 'Delete' || event.key === 'Backspace') {
           event.preventDefault();
           handleRemoveObject(selectedObjectId);
@@ -142,6 +214,30 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedObjectId, selectionBounds, placedObjects]); // Thêm selectionBounds vào dependencies
+
+  // --- HÀM MỚI: Nhân bản đối tượng ---
+  const handleDuplicateObject = (objectId: string) => {
+    const objectToDuplicate = placedObjects.find(obj => obj.id === objectId);
+    if (!objectToDuplicate) return;
+
+    // Tìm vị trí trống bên cạnh (ưu tiên +X, +Z, +Y)
+    const offsets: [number, number, number][] = [[1, 0, 0], [0, 0, 1], [0, 1, 0], [-1, 0, 0], [0, 0, -1], [0, -1, 0]];
+    let newPosition: [number, number, number] | null = null;
+
+    for (const offset of offsets) {
+      const potentialPos: [number, number, number] = [
+        objectToDuplicate.position[0] + offset[0],
+        objectToDuplicate.position[1] + offset[1],
+        objectToDuplicate.position[2] + offset[2],
+      ];
+      const posString = potentialPos.join(',');
+      if (!placedObjects.some(o => o.position.join(',') === posString)) {
+        newPosition = potentialPos;
+        break;
+      }
+    }
+    if (newPosition) handleAddObject(newPosition, objectToDuplicate.asset);
+  };
 
   // --- END: THAY ĐỔI ĐỂ QUẢN LÝ LỊCH SỬ UNDO/REDO ---
 
@@ -180,6 +276,11 @@ function App() {
     // Nếu không, chỉ trả về gameConfig
     return JSON.stringify({ gameConfig }, null, 2);
   }, [placedObjects, questMetadata]);
+
+  // Đồng bộ hóa trình soạn thảo JSON khi outputJsonString thay đổi
+  useEffect(() => {
+    setEditedJson(outputJsonString);
+  }, [outputJsonString]);
 
   const handleSelectAsset = (asset: BuildableAsset) => {
     // --- LOGIC MỚI: THAY THẾ ĐỐI TƯỢNG ĐÃ CHỌN ---
@@ -342,14 +443,53 @@ function App() {
   };
 
   // --- HÀM MỚI: Sao chép asset của đối tượng để chuẩn bị đặt ---
-  const handleCopyObject = () => {
-    const objectToCopy = placedObjects.find(obj => obj.id === selectedObjectId);
+  const handleCopyObject = (objectId: string) => {
+    const objectToCopy = placedObjects.find(obj => obj.id === objectId);
     if (objectToCopy) {
-      setSelectedAsset(objectToCopy.asset); // Đặt asset được chọn là asset của đối tượng
+      setSelectedAsset(objectToCopy.asset);
       setBuilderMode('build-single');       // Chuyển sang chế độ xây dựng
       setSelectedObjectId(null);            // Bỏ chọn đối tượng gốc để tránh nhầm lẫn
     }
   };
+
+  // --- START: LOGIC MENU CHUỘT PHẢI ---
+  const handleObjectContextMenu = (event: { clientX: number, clientY: number, preventDefault: () => void }, objectId: string) => {
+    event.preventDefault();
+    setSelectedObjectId(objectId); // Chọn đối tượng khi chuột phải
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      objectId: objectId,
+    });
+    setAssetSubMenuVisible(false); // Đảm bảo menu phụ luôn đóng khi mở menu chính
+  };
+
+  const handleContextMenuAction = (action: 'delete' | 'copy_asset' | 'duplicate') => {
+    const objectId = contextMenu.objectId;
+    if (!objectId) return;
+
+    const targetObject = placedObjects.find(o => o.id === objectId);
+    if (!targetObject) return;
+
+    switch (action) {
+      case 'delete':
+        handleRemoveObject(objectId);
+        break;
+      case 'copy_asset':
+        handleCopyObject(objectId);
+        break;
+      case 'duplicate':
+        handleDuplicateObject(objectId);
+        break;
+    }
+    // Ẩn menu sau khi thực hiện hành động
+    setContextMenu(prev => ({ ...prev, visible: false }));
+    setAssetSubMenuVisible(false);
+  };
+
+  // --- END: LOGIC MENU CHUỘT PHẢI ---
+
 
   const handleSelectionAction = (action: 'fill' | 'replace' | 'delete') => {
     if (!selectionBounds) return;
@@ -510,23 +650,92 @@ function App() {
     reader.readAsText(file);
   };
 
+  // --- HÀM MỚI: CẬP NHẬT METADATA ---
+  const handleMetadataChange = (path: string, value: any) => {
+    setQuestMetadata(prev => {
+      if (!prev) return null;
+
+      // Tạo một bản sao sâu của object để tránh thay đổi trực tiếp state
+      const newMeta = JSON.parse(JSON.stringify(prev));
+      const keys = path.split('.');
+      let current = newMeta;
+
+      for (let i = 0; i < keys.length - 1; i++) {
+        const key = keys[i];
+        if (current[key] === undefined) {
+          current[key] = {}; // Tạo object nếu chưa tồn tại
+        }
+        current = current[key];
+      }
+
+      current[keys[keys.length - 1]] = value;
+      return newMeta;
+    });
+  };
+
+  // --- HÀM MỚI: RENDER LẠI MAP TỪ JSON ĐÃ CHỈNH SỬA ---
+  const handleRenderEditedJson = () => {
+    try {
+      const json = JSON.parse(editedJson);
+      let configToLoad;
+      if (json.gameConfig && typeof json.gameConfig === 'object') {
+        const { gameConfig, ...metadata } = json;
+        configToLoad = gameConfig;
+        setQuestMetadata(metadata);
+      } else if (json.blocks || json.players) {
+        configToLoad = json;
+        setQuestMetadata(null);
+      } else {
+        throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
+      }
+
+      const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = configToLoad;
+      const newPlacedObjects: PlacedObject[] = [];
+
+      for (const block of blocks) { if (assetMap.get(block.modelKey) && block.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(block.modelKey)!, position: [block.position.x, block.position.y, block.position.z], properties: {} }); }
+      for (const item of collectibles) { if (assetMap.get(item.type) && item.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(item.type)!, position: [item.position.x, item.position.y, item.position.z], properties: {} }); }
+      for (const item of interactibles) {
+        const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
+        const asset = assetMap.get(assetKey);
+        if(asset && item.position) { const { position, ...properties } = item; newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties }); }
+      }
+      if (finish) { const asset = assetMap.get('finish'); if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], properties: {} }); }
+      if (players[0]?.start) {
+        const asset = assetMap.get('player_start');
+        const startPos = players[0].start;
+        if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
+      }
+      
+      setPlacedObjectsWithHistory(() => newPlacedObjects);
+      alert('Map rendered successfully from JSON!');
+    } catch (error) {
+      console.error("Failed to render map from JSON:", error);
+      alert(`Failed to render map: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
   return (
     <div className="app-container">
-      <AssetPalette 
-        selectedAssetKey={selectedAsset?.key || null}
-        onSelectAsset={handleSelectAsset}
-        currentMode={builderMode}
-        onModeChange={handleModeChange}
-        boxDimensions={boxDimensions}
-        onDimensionsChange={handleDimensionsChange}
-        fillOptions={fillOptions}
-        onFillOptionsChange={setFillOptions}
-        onSelectionAction={handleSelectionAction}
-        selectionBounds={selectionBounds}
-        onSelectionBoundsChange={handleSelectionBoundsChange}
-        onImportMap={handleImportMap}
-      />
+      {isPaletteVisible && (
+        <AssetPalette
+          selectedAssetKey={selectedAsset?.key || null}
+          onSelectAsset={handleSelectAsset}
+          currentMode={builderMode}
+          onModeChange={handleModeChange}
+          boxDimensions={boxDimensions}
+          onDimensionsChange={handleDimensionsChange}
+          fillOptions={fillOptions}
+          onFillOptionsChange={setFillOptions}
+          onSelectionAction={handleSelectionAction}
+          selectionBounds={selectionBounds}
+          onSelectionBoundsChange={handleSelectionBoundsChange}
+          onImportMap={handleImportMap}
+        />
+      )}
       <div className="builder-scene-wrapper">
+        <button onClick={togglePalette} className={`toggle-palette-btn ${!isPaletteVisible ? 'closed' : ''}`}>
+          {isPaletteVisible ? '‹' : '›'}
+        </button>
         <ViewControls onViewChange={handleViewChange} />
         <BuilderScene 
           ref={sceneRef}
@@ -544,17 +753,77 @@ function App() {
           onMoveObject={handleMoveObjectToPosition}
           onMoveObjectByStep={handleMoveObject}
           onSelectObject={setSelectedObjectId}
+          onObjectContextMenu={handleObjectContextMenu}
         />
       </div>
-      <div className="right-sidebar">
+      {/* --- START: THÊM THANH RESIZER VÀ ÁP DỤNG WIDTH ĐỘNG --- */}
+      <div 
+        className="resizer" 
+        onMouseDown={handleResizeMouseDown}
+      />
+      <div ref={sidebarRef} className="right-sidebar" style={{ width: `${sidebarWidth}px` }}>
         <PropertiesPanel 
           selectedObject={selectedObject}
           onUpdateObject={handleUpdateObject}
           onDeleteObject={handleRemoveObject} // Truyền hàm xóa vào
           onClearSelection={() => setSelectedObjectId(null)}
         />
-        <JsonOutputPanel jsonString={outputJsonString} />
+        {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}
+        <QuestDetailsPanel 
+          metadata={questMetadata}
+          onMetadataChange={handleMetadataChange}
+        />
+        <JsonOutputPanel 
+          editedJson={editedJson}
+          onJsonChange={setEditedJson}
+          onRender={handleRenderEditedJson}
+        />
       </div>
+      {/* --- END: THÊM THANH RESIZER VÀ ÁP DỤNG WIDTH ĐỘNG --- */}
+      {contextMenu.visible && (
+        <div 
+          className="context-menu"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          onClick={(e) => e.stopPropagation()} // Ngăn không cho menu tự đóng khi click vào chính nó
+        >
+          <ul>
+            <li onClick={() => handleContextMenuAction('duplicate')}>Nhân bản (Duplicate)</li>
+            <li onClick={() => handleContextMenuAction('copy_asset')}>Sao chép Asset (Copy)</li>
+            <li 
+              className="has-submenu"
+              onMouseEnter={() => setAssetSubMenuVisible(true)}
+              onMouseLeave={() => setAssetSubMenuVisible(false)}
+            >
+              Đổi Asset (Change Asset) &raquo;
+              {assetSubMenuVisible && (
+                <div className="context-menu sub-menu">
+                  <ul>
+                    {buildableAssetGroups.map(group => (
+                      <div key={group.name}>
+                        <li className="separator-header">{group.name}</li>
+                        {group.items.map(asset => (
+                          <li key={asset.key} onClick={() => handleSelectAsset(asset)} title={asset.name}>
+                            <img 
+                              src={asset.thumbnail} 
+                              alt={asset.name} 
+                              className="context-menu-thumbnail"
+                              // THÊM MỚI: Nếu ảnh không tải được, hiển thị ảnh fallback
+                              onError={(e) => { e.currentTarget.src = '/assets/ui/unknown.png'; }}
+                            />
+                            <span>{asset.name}</span>
+                          </li>
+                        ))}
+                      </div>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </li>
+            <li className="separator"></li>
+            <li onClick={() => handleContextMenuAction('delete')} className="delete">Xóa (Delete)</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

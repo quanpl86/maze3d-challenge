@@ -1,3 +1,11 @@
+.properties-panel-overlay {
+  flex-shrink: 0; /* Ngăn không cho panel này bị co lại */
+  display: flex; /* Cần thiết để aside bên trong có thể chiếm toàn bộ không gian */
+  flex-direction: column;
+  /* overflow-y: auto; không cần ở đây, vì panel con đã có */
+}
+
+
 .properties-panel {
     background-color: #2a2a2e;
     padding: 15px;

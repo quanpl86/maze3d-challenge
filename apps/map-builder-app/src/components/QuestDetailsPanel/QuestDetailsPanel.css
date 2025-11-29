@@ -1,0 +1,53 @@
+.quest-details-panel {
+    background-color: #2a2a2e;
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0; /* Ngăn panel này co lại khi không đủ không gian */
+}
+
+.quest-details-panel.empty-state {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+}
+
+.quest-details-panel h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.quest-prop-group {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.quest-prop-group label {
+    font-size: 0.9em;
+    color: #aaa;
+    margin-bottom: 4px;
+}
+
+.quest-prop-group input[type="text"],
+.quest-prop-group input[type="number"],
+.quest-prop-group textarea {
+    width: 100%;
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    color: #f0f0f0;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.json-editor-small {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+}

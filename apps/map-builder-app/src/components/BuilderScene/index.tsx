@@ -29,6 +29,7 @@ interface BuilderSceneProps {
     onSelectObject: (id: string | null) => void;
     onMoveObject: (objectId: string, newPosition: [number, number, number]) => void;
     onMoveObjectByStep: (objectId: string, direction: 'x' | 'y' | 'z', amount: 1 | -1) => void;
+    onObjectContextMenu: (event: { clientX: number, clientY: number, preventDefault: () => void }, objectId: string) => void;
 }
 
 // --- COMPONENT MỚI ĐỂ RENDER ASSET ---
@@ -75,7 +76,7 @@ const AssetRenderer = ({ asset, properties, material }: { asset: BuildableAsset,
 };
 
 
-function PlacedAsset({ object, isSelected, isHovered }: { object: PlacedObject; isSelected: boolean, isHovered: boolean }) {
+function PlacedAsset({ object, isSelected, isHovered, onContextMenu }: { object: PlacedObject; isSelected: boolean, isHovered: boolean, onContextMenu: (e: ThreeEvent<MouseEvent>) => void }) {
   const worldPosition: [number, number, number] = [
     object.position[0] * TILE_SIZE + TILE_SIZE / 2,
     object.position[1] * TILE_SIZE + TILE_SIZE / 2,
@@ -87,6 +88,7 @@ function PlacedAsset({ object, isSelected, isHovered }: { object: PlacedObject; 
       position={worldPosition} 
       scale={TILE_SIZE} 
       userData={{ isPlacedObject: true, id: object.id }}
+      onContextMenu={onContextMenu}
     >
       <AssetRenderer asset={object.asset} properties={object.properties} />
       {/* Hiệu ứng được chọn (màu vàng) sẽ ưu tiên hơn hiệu ứng hover */}
@@ -156,7 +158,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
 
   const {
       builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, 
-      onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, onSetSelectionEnd, cameraControlsRef, selectedObjectId, onSelectObject, onMoveObject, onMoveObjectByStep
+      onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, onSetSelectionEnd, cameraControlsRef, selectedObjectId, onSelectObject, onMoveObject, onMoveObjectByStep, onObjectContextMenu
   } = props;
 
   const plane = useMemo(() => new THREE.Mesh(
@@ -179,14 +181,15 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
           // Dành chuột trái cho tương tác (chọn vùng, di chuyển đối tượng).
           controls.mouseButtons.left = NO_ACTION;
           // Dùng chuột phải để điều hướng.
-          controls.mouseButtons.right = isSpaceDown ? TRUCK_ACTION : ROTATE_ACTION;
+        } else if (builderMode === 'build-single') {
+          // KHI Ở CHẾ ĐỘ BUILD: Dành chuột trái để đặt khối.
+          controls.mouseButtons.left = NO_ACTION;
         } else {
-          // KHI KHÔNG CÓ ĐỐI TƯỢNG NÀO ĐƯỢC CHỌN và không ở chế độ chọn vùng:
-          // Dùng chuột trái để điều hướng.
+          // CHẾ ĐỘ NAVIGATE MẶC ĐỊNH: Dùng chuột trái để điều hướng.
           controls.mouseButtons.left = isSpaceDown ? TRUCK_ACTION : ROTATE_ACTION;
-          // Chuột phải vẫn có thể dùng để xoay cho nhất quán.
-          controls.mouseButtons.right = ROTATE_ACTION;
         }
+        // Áp dụng cho tất cả các chế độ: Chuột phải dùng để xoay hoặc pan.
+        controls.mouseButtons.right = isSpaceDown ? TRUCK_ACTION : ROTATE_ACTION;
 
         // Giữ nguyên các nút khác nếu cần
         controls.mouseButtons.middle = THREE.MOUSE.DOLLY;
@@ -256,7 +259,15 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       if (event.key.toLowerCase() === 'b') onModeChange('build-single');
       if (event.key.toLowerCase() === 'v') onModeChange('navigate');
       if (event.key.toLowerCase() === 's') onModeChange('build-area');
-      if (event.key === 'Escape') onSelectObject(null);
+      if (event.key === 'Escape') {
+        // Nếu đang có đối tượng được chọn, Esc sẽ bỏ chọn.
+        // Nếu không, Esc sẽ chuyển về chế độ Navigate.
+        if (selectedObjectId) {
+          onSelectObject(null);
+        } else {
+          onModeChange('navigate');
+        }
+      }
     };
     const handleKeyUp = (event: KeyboardEvent) => { 
       if (event.key === 'Shift') setIsShiftDown(false); // <-- THÊM LẠI: Lắng nghe phím Shift
@@ -269,7 +280,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [onModeChange, onSelectObject]); // Không cần thêm isAltDown vào dependencies
+  }, [onModeChange, onSelectObject, selectedObjectId]); // Thêm selectedObjectId vào dependencies
 
   const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
     // --- LOGIC MỚI: Xử lý hiệu ứng Hover ---
@@ -403,8 +414,9 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       // Logic để "commit" vị trí mới vào history có thể được thêm ở đây nếu cần
     }
 
-    // Logic xóa đối tượng bằng Shift + Click chuột phải
-    if (event.button === 2 && isSpaceDown && builderMode === 'build-single') { // Có thể cân nhắc đổi phím tắt này
+    // --- THAY ĐỔI: Logic xóa đối tượng bằng Shift + Click chuột phải ---
+    // Đổi từ isSpaceDown sang isShiftDown để tránh xung đột với điều hướng
+    if (event.button === 2 && isShiftDown && builderMode === 'build-single') {
         raycaster.setFromCamera(event.pointer, camera);
         const objectsToIntersect = scene.children.filter(c => c.userData.isPlacedObject);
         const intersects = raycaster.intersectObjects(objectsToIntersect, true);
@@ -427,7 +439,14 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         <RollOverMesh selectedAsset={selectedAsset} />
       </group>
       <group ref={placedObjectsGroupRef}>
-        {placedObjects.map(obj => <Suspense key={obj.id} fallback={null}><PlacedAsset object={obj} isSelected={obj.id === selectedObjectId} isHovered={obj.id === hoveredObjectId} /></Suspense>)}
+        {placedObjects.map(obj => <Suspense key={obj.id} fallback={null}><PlacedAsset 
+          object={obj} 
+          isSelected={obj.id === selectedObjectId} 
+          isHovered={obj.id === hoveredObjectId}
+          onContextMenu={(e) => {
+            e.stopPropagation();
+            onObjectContextMenu(e.nativeEvent, obj.id);
+          }} /></Suspense>)}
       </group>
       <PortalConnections objects={placedObjects} />
       <primitive object={plane} onPointerMove={handlePointerMove} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerOut={() => setPointer(new THREE.Vector2(99, 99))} />

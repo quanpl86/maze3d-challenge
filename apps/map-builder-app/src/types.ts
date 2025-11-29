@@ -11,6 +11,7 @@ export type PrimitiveShape = 'torus' | 'cone' | 'sphere';
 export interface BuildableAsset {
     key: string;
     name: string;
+    thumbnail: string;
     path?: string; // Đường dẫn không còn là bắt buộc
     primitiveShape?: PrimitiveShape; // Hình dạng cơ bản để render
     type: 'block' | 'collectible' | 'interactible' | 'special';

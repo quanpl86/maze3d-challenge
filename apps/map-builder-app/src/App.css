@@ -6,17 +6,79 @@
 
 .builder-scene-wrapper {
   flex-grow: 1;
+  /* Thêm position relative để chứa nút toggle */
+  min-width: 0; /* FIX: Cho phép flex-item co lại đúng cách */
   height: 100%;
   position: relative;
 }
 
 .right-sidebar {
-  width: 320px;
+  /* width sẽ được quản lý bởi state trong React */
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: auto; /* Thêm thanh cuộn dọc khi nội dung bị tràn */
   flex-shrink: 0;
   border-left: 1px solid #444;
+}
+
+/* Style cho thanh kéo */
+.resizer {
+  width: 5px;
+  height: 100%;
+  background-color: #111;
+  cursor: col-resize;
+  flex-shrink: 0;
+  border-left: 1px solid #444;
+  border-right: 1px solid #444;
+  transition: background-color 0.2s;
+}
+
+.resizer:hover {
+  background-color: #007bff;
+}
+
+/* Style cho thanh kéo */
+.resizer {
+  width: 5px;
+  height: 100%;
+  background-color: #111;
+  cursor: col-resize;
+  flex-shrink: 0;
+  border-left: 1px solid #444;
+  border-right: 1px solid #444;
+  transition: background-color 0.2s;
+}
+
+.resizer:hover {
+  background-color: #007bff;
+}
+
+/* Style cho nút ẩn/hiện palette */
+.toggle-palette-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: #3c3c41;
+  color: white;
+  border: 1px solid #555;
+  border-left: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding: 10px 5px;
+  cursor: pointer;
+}
+
+.toggle-palette-btn.closed {
+  border-left: 1px solid #555;
+  border-right: none;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  left: -1px; /* Dịch qua trái để che đường viền của scene-wrapper */
 }
 
 .mode-switcher {
@@ -45,3 +107,108 @@
     color: white;
     font-weight: bold;
 }
+
+/* --- START: STYLE CHO MENU CHUỘT PHẢI --- */
+.context-menu {
+  position: fixed;
+  z-index: 1000;
+  background-color: #2a2a2e;
+  border: 1px solid #444;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  min-width: 150px;
+  padding: 5px 0;
+}
+
+.context-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.context-menu li {
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #e0e0e0;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- START: STYLE CHO SUB-MENU --- */
+.context-menu li.has-submenu {
+  position: relative;
+}
+
+.context-menu .sub-menu {
+  position: absolute;
+  top: -6px; /* Điều chỉnh để thẳng hàng với item cha */
+  left: 100%;
+  margin-left: 1px;
+  max-height: 400px; /* Giới hạn chiều cao và cho phép cuộn */
+  overflow-y: auto;
+  /* Thêm thanh cuộn tùy chỉnh cho đẹp hơn */
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2e;
+}
+
+.context-menu .sub-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.context-menu .sub-menu::-webkit-scrollbar-track {
+  background: #2a2a2e;
+}
+
+.context-menu .sub-menu::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+  border: 2px solid #2a2a2e;
+}
+
+/* --- END: STYLE CHO SUB-MENU --- */
+
+/* --- START: STYLE CHO THUMBNAIL TRONG MENU --- */
+.context-menu-thumbnail {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  background-color: #4f4f52;
+  border-radius: 3px;
+  flex-shrink: 0; /* Ngăn thumbnail bị co lại */
+}
+
+.context-menu li:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.context-menu li.delete:hover {
+  background-color: #dc3545;
+}
+
+.context-menu li.separator {
+  height: 1px;
+  background-color: #444;
+  margin: 5px 0;
+  padding: 0;
+  cursor: default;
+}
+
+.context-menu li.separator:hover {
+  background-color: #444;
+}
+
+/* Header cho các nhóm trong sub-menu */
+.context-menu li.separator-header {
+  color: #999;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
+  padding: 8px 15px 4px 15px;
+  cursor: default;
+  display: block; /* Ghi đè lại display: flex của li cha */
+}
+/* --- END: STYLE CHO MENU CHUỘT PHẢI --- */
