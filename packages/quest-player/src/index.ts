@@ -20,4 +20,8 @@ export type {
 
 // NEW: Export the schema for external validation
 export { questSchema } from './types/schemas';
-export { GameAssets } from './games/maze/config/gameAssets';
+export { GameAssets } from './games/maze/config/gameAssets'; // Giữ lại export này
+
+// SỬA LẠI: Export trực tiếp từ các file định nghĩa của game maze
+export { init } from './games/maze/blocks';
+export { mazeTheme } from '../theme'; // Trỏ đến file theme ở gốc /packages/quest-player/theme.ts

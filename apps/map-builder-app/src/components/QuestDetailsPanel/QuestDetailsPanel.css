@@ -50,4 +50,39 @@
 .json-editor-small {
     font-family: 'Courier New', Courier, monospace;
     font-size: 12px;
+    height: 600px; /* Tăng chiều cao mặc định */
+    min-height: 400px; /* Đặt chiều cao tối thiểu */
+}
+
+.json-editor {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    height: 800px; /* Tăng chiều cao mặc định */
+    min-height: 800px; /* Đặt chiều cao tối thiểu */
+}
+
+.label-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.label-with-button label {
+    margin-bottom: 0; /* Ghi đè margin mặc định */
+}
+
+.action-button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.action-button:hover {
+    background-color: #0056b3;
 }

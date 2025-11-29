@@ -2,7 +2,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": ["node"],
+    // Bắt buộc phải có "composite": true khi dự án này được tham chiếu bởi dự án khác
+    "composite": true
   },
   "include": ["src/**/*", "vite.config.ts"], 
   "exclude": ["node_modules", "dist"]

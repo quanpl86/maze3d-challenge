@@ -31,6 +31,12 @@ importers:
       '@thanh01.pmt/quest-player':
         specifier: workspace:*
         version: link:../../packages/quest-player
+      blockly:
+        specifier: 12.3.1
+        version: 12.3.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -44,6 +50,9 @@ importers:
         specifier: ^13.0.0
         version: 13.0.0
     devDependencies:
+      '@types/lodash':
+        specifier: ^4.17.21
+        version: 4.17.21
       '@types/node':
         specifier: ^20.11.28
         version: 20.19.21
@@ -767,6 +776,9 @@ packages:
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
+
+  '@types/lodash@4.17.21':
+    resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
 
   '@types/node@20.19.21':
     resolution: {integrity: sha512-CsGG2P3I5y48RPMfprQGfy4JPRZ6csfC3ltBZSRItG3ngggmNY/qs2uZKp4p9VbrpqNNSMzUZNFZKzgOGnd/VA==}
@@ -2348,6 +2360,8 @@ snapshots:
   '@types/draco3d@1.4.10': {}
 
   '@types/estree@1.0.8': {}
+
+  '@types/lodash@4.17.21': {}
 
   '@types/node@20.19.21':
     dependencies:
