@@ -31,8 +31,7 @@ export default defineConfig({
         i18n: path.resolve(__dirname, 'src/i18n.ts')
       },
       name: 'QuestPlayer',
-      formats: ['es', 'umd'],
-      fileName: (format) => `index.${format}.js`,
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'three', '@react-three/fiber', '@react-three/drei'],
