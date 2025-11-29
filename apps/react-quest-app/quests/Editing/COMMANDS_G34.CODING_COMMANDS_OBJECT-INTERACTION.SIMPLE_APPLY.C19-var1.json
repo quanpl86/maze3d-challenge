@@ -1,0 +1,299 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_object-interaction",
+  "level": 19,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Title": "Kho báu trên đỉnh",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Description": "Một viên pha lê đang chờ ở đỉnh cầu thang. Hãy leo lên và thu thập phần thưởng của bạn.",
+      "topic-title-coding_commands_object-interaction": "Tương tác với Đối tượng"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Title": "Treasure at the Top",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBJECT-INTERACTION.SIMPLE_APPLY.C19.Description": "A crystal is waiting at the top of the stairs. Climb up and collect your reward.",
+      "topic-title-coding_commands_object-interaction": "Tương tác với Đối tượng"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 16,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 5,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 6,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 7,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 8,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 9,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 10,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 7
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 8,
+          "y": 3,
+          "z": 7
+        }
+      }
+    ],
+    "interactibles": [],
+    "finish": {
+      "x": 10,
+      "y": 4,
+      "z": 7
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 1
+    },
+    "optimalBlocks": 11,
+    "optimalLines": 10,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "collect",
+      "jump",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

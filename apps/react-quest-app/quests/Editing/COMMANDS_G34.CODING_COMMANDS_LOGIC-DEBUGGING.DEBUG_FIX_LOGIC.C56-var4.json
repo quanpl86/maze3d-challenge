@@ -1,0 +1,255 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56-var4",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_logic-debugging",
+  "level": 56,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Title": "Gỡ lỗi Kép: Đâm tường và Vội vàng",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Description": "Chương trình này sai cả hai chỗ! Nó đang cố đi xuyên tường thay vì nhảy qua (sai lệnh) VÀ cố nhặt pha lê trước khi đến nơi (sai thứ tự). Hãy tìm và sửa cả hai lỗi.",
+      "topic-title-coding_commands_logic-debugging": "Gỡ lỗi Logic trong Chuỗi lệnh"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Title": "Debug Double: Wrong Command & Sequence",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C56.Description": "This code has two major flaws! It tries to walk through the obstacle instead of jumping (incorrect command) AND tries to collect the item before reaching it (sequence error). Find and fix both issues.",
+      "topic-title-coding_commands_logic-debugging": "Gỡ lỗi Logic trong Chuỗi lệnh"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 14,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": 12,
+          "y": 1,
+          "z": 9
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 12,
+          "y": 1,
+          "z": 11,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 12,
+          "y": 1,
+          "z": 7
+        }
+      }
+    ],
+    "interactibles": [],
+    "finish": {
+      "x": 12,
+      "y": 1,
+      "z": 5
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 1
+    },
+    "optimalBlocks": 9,
+    "optimalLines": 8,
+    "rawActions": [
+      "turnLeft",
+      "moveForward",
+      "jump",
+      "jump",
+      "moveForward",
+      "collect",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}
