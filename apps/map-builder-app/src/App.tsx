@@ -81,9 +81,9 @@ function App() {
   useEffect(() => {
     const handleMouseMove = (e: globalThis.MouseEvent) => {
       if (!isResizingRef.current) return;
-      // Tính toán chiều rộng mới, giới hạn từ 280px đến 600px
+      // Tính toán chiều rộng mới, giới hạn từ 280px đến 1000px
       const newWidth = window.innerWidth - e.clientX;
-      setSidebarWidth(Math.max(280, Math.min(newWidth, 600)));
+      setSidebarWidth(Math.max(280, Math.min(newWidth, 1400)));
     };
 
     const handleMouseUp = () => {
@@ -374,6 +374,11 @@ function App() {
     }
 
     setPlacedObjectsWithHistory(prev => [...prev.filter(o => !objectsToRemove.includes(o.id)), ...objectsToAdd]);
+  };
+
+  // Hàm mới để thêm một đối tượng đã được tạo sẵn (dùng cho Duplicate)
+  const handleAddNewObject = (newObject: PlacedObject) => {
+    setPlacedObjectsWithHistory(prev => [...prev, newObject]);
   };
 
   const handleRemoveObject = (id: string) => {
@@ -766,6 +771,8 @@ function App() {
           selectedObject={selectedObject}
           onUpdateObject={handleUpdateObject}
           onDeleteObject={handleRemoveObject} // Truyền hàm xóa vào
+          onAddObject={handleAddNewObject} // Thêm prop onAddObject
+          onCopyAsset={handleCopyObject} // Thêm prop onCopyAsset
           onClearSelection={() => setSelectedObjectId(null)}
         />
         {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}

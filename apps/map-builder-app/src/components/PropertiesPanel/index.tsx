@@ -1,12 +1,15 @@
 import { PlacedObject } from '../../types';
 import './PropertiesPanel.css';
 import { MouseEvent } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface PropertiesPanelProps {
   selectedObject: PlacedObject | null;
   onUpdateObject: (updatedObject: PlacedObject) => void;
   onClearSelection: () => void;
   onDeleteObject: (id: string) => void;
+  onAddObject: (newObject: PlacedObject) => void;
+  onCopyAsset: (id: string) => void; // Prop mới để sao chép asset
 }
 
 const renderPropertyInput = (key: string, value: any, onChange: (key: string, value: any) => void) => {
@@ -29,7 +32,7 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
   return <input type="text" value={value} onChange={(e) => onChange(key, e.target.value)} />;
 };
 
-export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelection, onDeleteObject }: PropertiesPanelProps) {
+export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelection, onDeleteObject, onAddObject, onCopyAsset }: PropertiesPanelProps) {
 
   const handleOverlayClick = (e: MouseEvent<HTMLDivElement>) => {
     // Chỉ bỏ chọn khi click trực tiếp vào overlay, không phải vào panel con
@@ -53,6 +56,27 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
     onDeleteObject(selectedObject.id);
   };
 
+  const handleDuplicate = () => {
+    if (!selectedObject) return;
+    // Tạo vị trí mới, ví dụ dịch sang 1 đơn vị trên trục X
+    const newPosition: [number, number, number] = [
+      selectedObject.position[0] + 1,
+      selectedObject.position[1],
+      selectedObject.position[2],
+    ];
+
+    const newObject: PlacedObject = {
+      ...selectedObject,
+      id: uuidv4(), // Tạo ID mới duy nhất
+      position: newPosition,
+    };
+    onAddObject(newObject);
+  };
+
+  const handleCopyAsset = () => {
+    if (!selectedObject) return;
+    onCopyAsset(selectedObject.id);
+  };
   const handlePropertyChange = (key: string, value: any) => {
     const updatedObject = {
       ...selectedObject,
@@ -94,7 +118,21 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
             <div className="action-description">
             Click an asset in the palette to **replace** this object.
             </div>
-            <div className="action-buttons">
+            {/* 
+              Thêm style để các nút tự động xuống dòng khi panel bị thu hẹp.
+              - display: 'flex' để các nút nằm trên một hàng.
+              - flexWrap: 'wrap' cho phép các nút xuống dòng.
+              - gap: '8px' tạo khoảng cách giữa các nút.
+            */}
+            <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <button onClick={handleCopyAsset} className="action-btn copy-btn">
+                <span className="icon">📋</span>
+                Copy Asset
+            </button>
+            <button onClick={handleDuplicate} className="action-btn duplicate-btn">
+                <span className="icon">🎨</span>
+                Duplicate
+            </button>
             <button onClick={handleDelete} className="action-btn delete-btn">
                 <span className="icon">🗑️</span>
                 Delete

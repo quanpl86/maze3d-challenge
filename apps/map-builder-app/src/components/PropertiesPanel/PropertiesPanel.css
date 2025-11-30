@@ -169,3 +169,23 @@
 .delete-btn:hover {
   background-color: #7a3b3b;
 }
+
+.copy-btn {
+  background-color: #2d4a5a;
+  color: #c2eaff;
+  border: 1px solid #3e6a80;
+}
+
+.copy-btn:hover {
+  background-color: #3b607a;
+}
+
+.duplicate-btn {
+  background-color: #5a532d;
+  color: #fffec2;
+  border: 1px solid #80773e;
+}
+
+.duplicate-btn:hover {
+  background-color: #7a703b;
+}
