@@ -86,3 +86,19 @@
 .action-button:hover {
     background-color: #0056b3;
 }
+
+.json-action-btn {
+    background-color: #4a4f5a;
+    color: #e0e0e0;
+    border: 1px solid #6c757d;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.json-action-btn:hover {
+    background-color: #5a626b;
+}

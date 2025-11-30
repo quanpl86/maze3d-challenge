@@ -154,7 +154,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
       <div className="quest-prop-group">
         <div className="label-with-button">
           <label>Start Blocks (XML)</label>
-          <button className="action-button" onClick={() => setBlocklyModalOpen(true)}>
+          <button className="json-action-btn" onClick={() => setBlocklyModalOpen(true)}>
             Hiển thị Blocks
           </button>
         </div>
