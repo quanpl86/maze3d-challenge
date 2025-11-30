@@ -45,7 +45,10 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
     // Cập nhật state cục bộ khi metadata từ bên ngoài thay đổi (ví dụ: import file mới)
     if (metadata) {
       setLocalSolution(JSON.stringify(metadata.solution, null, 2));
-      setLocalStartBlocks(getDeepValue(metadata, 'blocklyConfig.startBlocks') || '');
+      // Lấy chuỗi XML "sạch" và chuyển nó thành dạng "escaped" để hiển thị và sao chép dễ dàng
+      const rawXml = getDeepValue(metadata, 'blocklyConfig.startBlocks') || '';
+      const escapedXml = rawXml.replace(/"/g, '\\"');
+      setLocalStartBlocks(escapedXml);
     } else {
       setLocalSolution('');
       setLocalStartBlocks('');
@@ -68,12 +71,15 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
       {/* Render Modal nếu isBlocklyModalOpen là true */}
       {isBlocklyModalOpen && (
         <BlocklyModal
-          initialXml={localStartBlocks}
+          // Luôn truyền vào modal chuỗi XML đã được "làm sạch" (loại bỏ dấu \)
+          initialXml={localStartBlocks.replace(/\\"/g, '"')}
           onClose={() => setBlocklyModalOpen(false)}
           onSave={(newXml) => {
-            setLocalStartBlocks(newXml);
+            // Khi lưu, chuyển chuỗi XML "sạch" thành dạng "escaped" để hiển thị và lưu
+            const escapedXml = newXml.replace(/"/g, '\\"');
+            setLocalStartBlocks(escapedXml);
             // Cập nhật ngay lập tức vào state cha để thay đổi được lưu
-            handleComplexChange('blocklyConfig.startBlocks', newXml);
+            handleComplexChange('blocklyConfig.startBlocks', newXml); // Lưu chuỗi "sạch" vào metadata
             setBlocklyModalOpen(false);
           }}
         />
@@ -155,7 +161,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
         <textarea
           value={localStartBlocks}
           onChange={(e) => setLocalStartBlocks(e.target.value)}
-          onBlur={() => handleComplexChange('blocklyConfig.startBlocks', localStartBlocks)}
+          onBlur={() => handleComplexChange('blocklyConfig.startBlocks', localStartBlocks.replace(/\\"/g, '"'))}
           rows={4}
         />
       </div>

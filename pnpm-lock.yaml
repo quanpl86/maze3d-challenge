@@ -22,6 +22,9 @@ importers:
 
   apps/map-builder-app:
     dependencies:
+      '@blockly/theme-dark':
+        specifier: ^8.0.1
+        version: 8.0.1(blockly@12.3.1)
       '@react-three/drei':
         specifier: ^9.102.6
         version: 9.122.0(@react-three/fiber@8.18.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.162.0))(@types/react@18.3.26)(@types/three@0.162.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.162.0)(use-sync-external-store@1.6.0(react@18.3.1))
@@ -40,6 +43,9 @@ importers:
       i18next:
         specifier: ^25.6.0
         version: 25.6.0(typescript@5.9.3)
+      i18next-browser-languagedetector:
+        specifier: ^8.2.0
+        version: 8.2.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -49,6 +55,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+      react-i18next:
+        specifier: ^16.0.0
+        version: 16.0.0(i18next@25.6.0(typescript@5.9.3))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
       three:
         specifier: ^0.162.0
         version: 0.162.0
@@ -329,6 +338,12 @@ packages:
   '@blockly/field-angle@6.0.3':
     resolution: {integrity: sha512-LFzeSKTu3is6ofqI1UZ9iFBl9RmtyojhvJHjy1hgDMmXvtvsNnBgIlpEGC6KVAMhCAotl+d83rH8OVTK9ll0AA==}
     engines: {node: '>=8.0.0'}
+    peerDependencies:
+      blockly: 12.3.1
+
+  '@blockly/theme-dark@8.0.1':
+    resolution: {integrity: sha512-0Di3WIUwCVQw7jK9myUf/J+4oHLADWc8YxeF40KQgGsyulVrVnYipwtBolj+wxq2xjxIkqgvctAN3BdvM4mynA==}
+    engines: {node: '>=8.17.0'}
     peerDependencies:
       blockly: 12.3.1
 
@@ -1991,6 +2006,10 @@ snapshots:
       '@babel/helper-validator-identifier': 7.27.1
 
   '@blockly/field-angle@6.0.3(blockly@12.3.1)':
+    dependencies:
+      blockly: 12.3.1
+
+  '@blockly/theme-dark@8.0.1(blockly@12.3.1)':
     dependencies:
       blockly: 12.3.1
 

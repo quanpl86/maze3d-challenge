@@ -77,6 +77,8 @@ export function init(t: TFunction) {
         { "type": "input_dummy" },
         { "type": "input_statement", "name": "DO" }
       ],
+      "previousStatement": null,
+      "nextStatement": null,
       "style": "events_category",
       "tooltip": "This block is the starting point for your program.",
     },
@@ -192,7 +194,7 @@ export function init(t: TFunction) {
         { "type": "field_dropdown", "name": "TYPE", "options": ITEM_TYPES }
       ],
       "output": "Number",
-      "style": "actions_category",
+      "style": "math_blocks",
       "tooltip": "Returns the number of collected items of the specified type.",
     },
   ]);
