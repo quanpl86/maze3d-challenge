@@ -34,13 +34,6 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
 
 export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelection, onDeleteObject, onAddObject, onCopyAsset }: PropertiesPanelProps) {
 
-  const handleOverlayClick = (e: MouseEvent<HTMLDivElement>) => {
-    // Chỉ bỏ chọn khi click trực tiếp vào overlay, không phải vào panel con
-    if (e.target === e.currentTarget) {
-      onClearSelection();
-    }
-  };
-
   if (!selectedObject) {
     return (
       <aside className="properties-panel empty-state">
@@ -49,8 +42,6 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
       </aside>
     );
   }
-  // Khi có một đối tượng được chọn, chúng ta render cả panel và lớp phủ.
-  // Lớp phủ sẽ bắt sự kiện click bên ngoài panel.
 
   const handleDelete = () => {
     onDeleteObject(selectedObject.id);
@@ -78,6 +69,9 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
     onCopyAsset(selectedObject.id);
   };
   const handlePropertyChange = (key: string, value: any) => {
+    // Nếu không có đối tượng nào được chọn, không làm gì cả
+    if (!selectedObject) return;
+
     const updatedObject = {
       ...selectedObject,
       properties: {
@@ -89,57 +83,49 @@ export function PropertiesPanel({ selectedObject, onUpdateObject, onClearSelecti
   };
   
   return (
-    <div className="properties-panel-overlay" onClick={handleOverlayClick}>
-        <aside className="properties-panel">
-        <div className="panel-header">
-            <h2>Properties</h2>
-            <button onClick={onClearSelection} className="clear-btn">✖</button>
-        </div>
-
-        <div className="prop-group info-group">
-            <label>Asset</label>
-            <span>{selectedObject.asset.name}</span>
-        </div>
-        <div className="prop-group info-group">
-            <label>ID</label>
-            <span className="object-id">{selectedObject.id}</span>
-        </div>
-
-        <h3 className="props-title">Custom Properties</h3>
-        {Object.entries(selectedObject.properties).map(([key, value]) => (
-            <div key={key} className="prop-group">
-            <label>{key}</label>
-            {renderPropertyInput(key, value, handlePropertyChange)}
-            </div>
-        ))}
-
-        <div className="selection-controls single-object-controls">
-            <h3 className="props-title">Actions</h3>
-            <div className="action-description">
-            Click an asset in the palette to **replace** this object.
-            </div>
-            {/* 
-              Thêm style để các nút tự động xuống dòng khi panel bị thu hẹp.
-              - display: 'flex' để các nút nằm trên một hàng.
-              - flexWrap: 'wrap' cho phép các nút xuống dòng.
-              - gap: '8px' tạo khoảng cách giữa các nút.
-            */}
-            <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            <button onClick={handleCopyAsset} className="action-btn copy-btn">
-                <span className="icon">📋</span>
-                Copy Asset
-            </button>
-            <button onClick={handleDuplicate} className="action-btn duplicate-btn">
-                <span className="icon">🎨</span>
-                Duplicate
-            </button>
-            <button onClick={handleDelete} className="action-btn delete-btn">
-                <span className="icon">🗑️</span>
-                Delete
-            </button>
-            </div>
-        </div>
-        </aside>
+    <aside className="properties-panel">
+    <div className="panel-header">
+        <h2>Properties</h2>
+        <button onClick={onClearSelection} className="clear-btn">✖</button>
     </div>
+
+    <div className="prop-group info-group">
+        <label>Asset</label>
+        <span>{selectedObject.asset.name}</span>
+    </div>
+    <div className="prop-group info-group">
+        <label>ID</label>
+        <span className="object-id">{selectedObject.id}</span>
+    </div>
+
+    <h3 className="props-title">Custom Properties</h3>
+    {Object.entries(selectedObject.properties).map(([key, value]) => (
+        <div key={key} className="prop-group">
+        <label>{key}</label>
+        {renderPropertyInput(key, value, handlePropertyChange)}
+        </div>
+    ))}
+
+    <div className="selection-controls single-object-controls">
+        <h3 className="props-title">Actions</h3>
+        <div className="action-description">
+        Click an asset in the palette to **replace** this object.
+        </div>
+        <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <button onClick={handleCopyAsset} className="action-btn copy-btn">
+            <span className="icon">📋</span>
+            Copy Asset
+        </button>
+        <button onClick={handleDuplicate} className="action-btn duplicate-btn">
+            <span className="icon">🎨</span>
+            Duplicate
+        </button>
+        <button onClick={handleDelete} className="action-btn delete-btn">
+            <span className="icon">🗑️</span>
+            Delete
+        </button>
+        </div>
+    </div>
+    </aside>
   );
 }

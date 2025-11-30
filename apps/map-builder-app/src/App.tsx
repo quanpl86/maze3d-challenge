@@ -28,7 +28,7 @@ function App() {
   
   const [fillOptions, setFillOptions] = useState<FillOptions>({ type: 'volume', pattern: 'solid', spacing: 1 });
   
-  const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
+  const [selectedObjectIds, setSelectedObjectIds] = useState<string[]>([]);
   
   // State mới để lưu trữ siêu dữ liệu của quest
   const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
@@ -46,21 +46,25 @@ function App() {
   // State mới để quản lý hiển thị menu phụ của "Đổi Asset"
   const [assetSubMenuVisible, setAssetSubMenuVisible] = useState(false);
 
+  // --- START: SỬA LỖI HIỆU ỨNG ---
+  const [isMovingObject, setIsMovingObject] = useState(false);
+  // --- END: SỬA LỖI HIỆU ỨNG ---
   const sceneRef = useRef<SceneController>(null);
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null); // Ref cho right-sidebar
 
   // --- START: LOGIC CUỘN SIDEBAR LÊN KHI CHỌN ĐỐI TƯỢNG ---
   useEffect(() => {
+    const lastSelectedId = selectedObjectIds[selectedObjectIds.length - 1];
     // Nếu một đối tượng được chọn (và sidebar đã được render)
-    if (selectedObjectId && sidebarRef.current) {
+    if (lastSelectedId && sidebarRef.current) {
       // Cuộn sidebar lên trên cùng một cách mượt mà
       sidebarRef.current.scrollTo({
         top: 0,
         behavior: 'smooth'
       });
     }
-  }, [selectedObjectId]); // Chạy effect này mỗi khi selectedObjectId thay đổi
+  }, [selectedObjectIds]); // Chạy effect này mỗi khi selectedObjectIds thay đổi
 
   // Đóng context menu khi click ra ngoài
   useEffect(() => {
@@ -166,18 +170,19 @@ function App() {
       }
 
       // --- Phím tắt di chuyển đối tượng ---
-      if (selectedObjectId) {
+      // Chỉ cho phép di chuyển bằng phím khi chọn một đối tượng duy nhất
+      if (selectedObjectIds.length === 1) {
         let moved = false;
         if (event.shiftKey) {
           // Khi giữ Shift, chỉ xử lý di chuyển lên/xuống (trục Y)
-          if (event.key === 'ArrowUp')      { handleMoveObject(selectedObjectId, 'y', 1); moved = true; }
-          else if (event.key === 'ArrowDown') { handleMoveObject(selectedObjectId, 'y', -1); moved = true; }
+          if (event.key === 'ArrowUp')      { handleMoveObject(selectedObjectIds[0], 'y', 1); moved = true; }
+          else if (event.key === 'ArrowDown') { handleMoveObject(selectedObjectIds[0], 'y', -1); moved = true; }
         } else {
           // Khi không giữ Shift, xử lý di chuyển trên mặt phẳng XZ
-          if (event.key === 'ArrowUp')    { handleMoveObject(selectedObjectId, 'z', -1); moved = true; }
-          else if (event.key === 'ArrowDown')  { handleMoveObject(selectedObjectId, 'z', 1); moved = true; }
-          else if (event.key === 'ArrowLeft')  { handleMoveObject(selectedObjectId, 'x', -1); moved = true; }
-          else if (event.key === 'ArrowRight') { handleMoveObject(selectedObjectId, 'x', 1); moved = true; }
+          if (event.key === 'ArrowUp')    { handleMoveObject(selectedObjectIds[0], 'z', -1); moved = true; }
+          else if (event.key === 'ArrowDown')  { handleMoveObject(selectedObjectIds[0], 'z', 1); moved = true; }
+          else if (event.key === 'ArrowLeft')  { handleMoveObject(selectedObjectIds[0], 'x', -1); moved = true; }
+          else if (event.key === 'ArrowRight') { handleMoveObject(selectedObjectIds[0], 'x', 1); moved = true; }
         }
         
         if (moved) {
@@ -200,20 +205,20 @@ function App() {
         }
       } 
       // --- Nếu không có vùng chọn, xử lý phím tắt cho đối tượng đơn lẻ ---
-      else if (selectedObjectId) {
+      else if (selectedObjectIds.length > 0) {
         if (event.key.toLowerCase() === 'c') {
           event.preventDefault();
-          handleCopyObject(selectedObjectId);
+          handleCopyObject(selectedObjectIds[selectedObjectIds.length - 1]); // Sao chép đối tượng được chọn cuối cùng
         } else if (event.key === 'Delete' || event.key === 'Backspace') {
           event.preventDefault();
-          handleRemoveObject(selectedObjectId);
+          handleRemoveMultipleObjects(selectedObjectIds);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedObjectId, selectionBounds, placedObjects]); // Thêm selectionBounds vào dependencies
+  }, [selectedObjectIds, selectionBounds, placedObjects]); // Thêm selectionBounds vào dependencies
 
   // --- HÀM MỚI: Nhân bản đối tượng ---
   const handleDuplicateObject = (objectId: string) => {
@@ -252,8 +257,9 @@ function App() {
   }, []);
   
   const selectedObject = useMemo(() => {
-    return placedObjects.find(obj => obj.id === selectedObjectId) || null;
-  }, [selectedObjectId, placedObjects]);
+    const lastSelectedId = selectedObjectIds[selectedObjectIds.length - 1];
+    return placedObjects.find(obj => obj.id === lastSelectedId) || null;
+  }, [selectedObjectIds, placedObjects]);
 
   const outputJsonString = useMemo(() => {
     const blocks = placedObjects.filter(o => o.asset.type === 'block').map(o => ({ modelKey: o.asset.key, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
@@ -284,10 +290,10 @@ function App() {
 
   const handleSelectAsset = (asset: BuildableAsset) => {
     // --- LOGIC MỚI: THAY THẾ ĐỐI TƯỢNG ĐÃ CHỌN ---
-    if (selectedObjectId) {
+    if (selectedObjectIds.length > 0) {
       setPlacedObjectsWithHistory(prev => {
-        const objectIndex = prev.findIndex(obj => obj.id === selectedObjectId);
-        if (objectIndex === -1) return prev; // Không tìm thấy đối tượng, không làm gì cả
+        const objectIndex = prev.findIndex(obj => obj.id === selectedObjectIds[0]); // Chỉ thay thế đối tượng đầu tiên nếu chọn nhiều
+        if (objectIndex === -1) return prev;
 
         const oldObject = prev[objectIndex];
         let finalObjects = [...prev];
@@ -306,7 +312,7 @@ function App() {
         };
 
         // Cập nhật đối tượng trong mảng
-        const updatedIndex = finalObjects.findIndex(obj => obj.id === selectedObjectId);
+        const updatedIndex = finalObjects.findIndex(obj => obj.id === selectedObjectIds[0]);
         finalObjects[updatedIndex] = replacedObject;
 
         return finalObjects;
@@ -321,6 +327,34 @@ function App() {
     setSelectedAsset(asset);
     setBuilderMode('build-single');
   };
+  // --- START: SỬA LỖI HIỆU ỨNG ---
+  // Hàm xử lý lựa chọn đối tượng mới, được gọi từ BuilderScene
+  const handleSelectObject = (id: string | null, isShiftDown: boolean) => {
+    if (isShiftDown) {
+      // Logic chọn nhiều đối tượng
+      setSelectedObjectIds(prevIds => {
+        if (!id) return prevIds; // Giữ nguyên lựa chọn nếu click ra ngoài không gian
+        if (prevIds.includes(id)) {
+          return prevIds.filter(prevId => prevId !== id); // Bỏ chọn nếu đã có
+        } else {
+          return [...prevIds, id]; // Thêm vào danh sách chọn
+        }
+      });
+    } else {
+      // Logic chọn một đối tượng
+      // Bắt đầu di chuyển nếu click vào đối tượng duy nhất đã được chọn
+      if (id && selectedObjectIds.length === 1 && selectedObjectIds[0] === id) {
+        setIsMovingObject(true);
+      } else {
+        // Nếu không, chỉ chọn đối tượng đó (hoặc bỏ chọn tất cả nếu click ra ngoài)
+        setSelectedObjectIds(id ? [id] : []);
+        setIsMovingObject(false);
+      }
+    }
+  };
+  // --- END: SỬA LỖI HIỆU ỨNG ---
+
+
 
   const handleModeChange = (mode: BuilderMode) => {
     setBuilderMode(mode);
@@ -391,7 +425,13 @@ function App() {
         }
         return newObjects;
     });
-    if (selectedObjectId === id) setSelectedObjectId(null); // Bỏ chọn đối tượng sau khi xóa
+    // SỬA LỖI: Cập nhật logic để xóa ID khỏi mảng lựa chọn
+    setSelectedObjectIds(prevIds => prevIds.filter(prevId => prevId !== id));
+  };
+
+  const handleRemoveMultipleObjects = (ids: string[]) => {
+    setPlacedObjectsWithHistory(prev => prev.filter(obj => !ids.includes(obj.id)));
+    setSelectedObjectIds([]); // Xóa tất cả lựa chọn
   };
 
   const handleUpdateObject = (updatedObject: PlacedObject) => {
@@ -453,14 +493,17 @@ function App() {
     if (objectToCopy) {
       setSelectedAsset(objectToCopy.asset);
       setBuilderMode('build-single');       // Chuyển sang chế độ xây dựng
-      setSelectedObjectId(null);            // Bỏ chọn đối tượng gốc để tránh nhầm lẫn
+      setSelectedObjectIds([]);            // Bỏ chọn đối tượng gốc để tránh nhầm lẫn
     }
   };
 
   // --- START: LOGIC MENU CHUỘT PHẢI ---
   const handleObjectContextMenu = (event: { clientX: number, clientY: number, preventDefault: () => void }, objectId: string) => {
     event.preventDefault();
-    setSelectedObjectId(objectId); // Chọn đối tượng khi chuột phải
+    // Nếu đối tượng chưa được chọn, hãy chọn nó. Nếu đã có trong danh sách chọn, giữ nguyên.
+    if (!selectedObjectIds.includes(objectId)) {
+      setSelectedObjectIds([objectId]);
+    }
     setContextMenu({
       visible: true,
       x: event.clientX,
@@ -752,12 +795,15 @@ function App() {
           onAddObject={handleAddObject}
           onRemoveObject={handleRemoveObject}
           selectionBounds={selectionBounds}
+          selectionStart={selectionStart} // THÊM MỚI: Truyền prop selectionStart
           onSetSelectionStart={setSelectionStart}
           onSetSelectionEnd={setSelectionEnd}
-          selectedObjectId={selectedObjectId}
+          selectedObjectIds={selectedObjectIds}
           onMoveObject={handleMoveObjectToPosition}
-          onMoveObjectByStep={handleMoveObject}
-          onSelectObject={setSelectedObjectId}
+          onMoveObjectByStep={handleMoveObject} // Giữ nguyên
+          onSelectObject={handleSelectObject} // THAY ĐỔI: Sử dụng hàm xử lý mới
+          isMovingObject={isMovingObject} // THÊM MỚI: Truyền trạng thái di chuyển xuống
+          onSetIsMovingObject={setIsMovingObject} // THÊM MỚI: Cho phép Scene cập nhật trạng thái này
           onObjectContextMenu={handleObjectContextMenu}
         />
       </div>
@@ -773,7 +819,7 @@ function App() {
           onDeleteObject={handleRemoveObject} // Truyền hàm xóa vào
           onAddObject={handleAddNewObject} // Thêm prop onAddObject
           onCopyAsset={handleCopyObject} // Thêm prop onCopyAsset
-          onClearSelection={() => setSelectedObjectId(null)}
+          onClearSelection={() => setSelectedObjectIds([])}
         />
         {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}
         <QuestDetailsPanel 

@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { Suspense, useMemo, useRef, useState, useEffect, forwardRef, useImperativeHandle, Dispatch, SetStateAction } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber/dist/declarations/src/core/events';
 import { Grid, useGLTF, CameraControls, GizmoHelper, GizmoViewport, Line, Outlines } from '@react-three/drei';
@@ -7,6 +7,7 @@ import { buildableAssetGroups } from '../../config/gameAssets';
 import type { BuildableAsset, PlacedObject, BuilderMode, BoxDimensions, SelectionBounds, AssetGroup } from '../../types';
 import { BoundingBox } from '../BoundingBox';
 import { SelectionBox } from '../SelectionBox';
+import { SelectionHighlight } from '../PropertiesPanel/SelectionHighlight'; // THAY ĐỔI: Sửa đường dẫn import
 
 const TILE_SIZE = 2;
 
@@ -23,13 +24,18 @@ interface BuilderSceneProps {
     onAddObject: (position: [number, number, number], asset: BuildableAsset) => void;
     onRemoveObject: (id: string) => void;
     selectionBounds: SelectionBounds | null;
+    selectionStart: [number, number, number] | null; // THÊM MỚI: Định nghĩa prop selectionStart
     onSetSelectionStart: (pos: [number, number, number] | null) => void;
-    onSetSelectionEnd: (pos: [number, number, number] | null) => void;
-    selectedObjectId: string | null;
-    onSelectObject: (id: string | null) => void;
+    onSetSelectionEnd: Dispatch<SetStateAction<[number, number, number] | null>>;    
+    selectedObjectIds: string[];
+    onSelectObject: (id: string | null, isShiftDown: boolean) => void;
     onMoveObject: (objectId: string, newPosition: [number, number, number]) => void;
     onMoveObjectByStep: (objectId: string, direction: 'x' | 'y' | 'z', amount: 1 | -1) => void;
     onObjectContextMenu: (event: { clientX: number, clientY: number, preventDefault: () => void }, objectId: string) => void;
+    // --- START: SỬA LỖI HIỆU ỨNG ---
+    isMovingObject: boolean;
+    onSetIsMovingObject: (isMoving: boolean) => void;
+    // --- END: SỬA LỖI HIỆU ỨNG ---
 }
 
 // --- COMPONENT MỚI ĐỂ RENDER ASSET ---
@@ -47,34 +53,43 @@ const AssetRenderer = ({ asset, properties, material }: { asset: BuildableAsset,
   }
 
   // Render hình khối cơ bản
-  const color = properties?.color || '#ffffff';
+  const color = properties?.color || '#ffffffff';
   
   switch (asset.primitiveShape) {
     case 'torus':
       return (
-        <mesh>
+        <mesh material={material}>
           <torusGeometry args={[0.5, 0.2, 16, 48]} />
-          <meshStandardMaterial color={color} roughness={0.5} metalness={0.5} />
+          {!material && <meshStandardMaterial color={color} roughness={0.5} metalness={0.5} />}
         </mesh>
       );
     case 'cone':
        return (
-        <mesh>
+        <mesh material={material}>
           <coneGeometry args={[0.6, 1.2, 32]} />
-          <meshStandardMaterial color={"gold"} roughness={0.3} metalness={0.8} />
+          {!material && <meshStandardMaterial color={"gold"} roughness={0.3} metalness={0.8} />}
         </mesh>
       );
     // Có thể thêm các hình khác ở đây
     default:
       return (
-        <mesh>
+        <mesh material={material}>
           <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color={"magenta"} />
+          {!material && <meshStandardMaterial color={"magenta"} />}
         </mesh>
       );
   }
 };
 
+// --- START: THÊM LOGIC LỚP PHỦ KHI CHỌN ---
+// Tạo một vật liệu (material) mới cho lớp phủ.
+// Màu vàng, bán trong suốt và không bị ảnh hưởng bởi ánh sáng.
+const selectionOverlayMaterial = new THREE.MeshBasicMaterial({
+  color: '#ff5500',   // SỬA LỖI: Mã màu hex phải có 6 chữ số. Độ trong suốt được xử lý bởi 'opacity'.
+  opacity: 0.6,     // Tăng độ đậm của lớp phủ
+  transparent: true,
+  depthWrite: false // Render xuyên qua các vật thể khác để đảm bảo luôn thấy
+});
 
 function PlacedAsset({ object, isSelected, isHovered, onContextMenu }: { object: PlacedObject; isSelected: boolean, isHovered: boolean, onContextMenu: (e: ThreeEvent<MouseEvent>) => void }) {
   const worldPosition: [number, number, number] = [
@@ -91,11 +106,18 @@ function PlacedAsset({ object, isSelected, isHovered, onContextMenu }: { object:
       onContextMenu={onContextMenu}
     >
       <AssetRenderer asset={object.asset} properties={object.properties} />
-      {/* Hiệu ứng được chọn (màu vàng) sẽ ưu tiên hơn hiệu ứng hover */}
-      {isSelected 
-        ? <Outlines thickness={0.05} color="yellow" />
-        : isHovered && <Outlines thickness={0.03} color="#66aaff" />
-      }
+      
+      {/* --- THAY ĐỔI: Logic hiển thị hiệu ứng chọn và hover --- */}
+      {isSelected ? (
+        // Khi được chọn, render thêm một AssetRenderer nữa với vật liệu phủ màu vàng.
+        // Chúng ta tăng nhẹ scale để tránh z-fighting (hiện tượng các bề mặt chồng lấn gây nhấp nháy).
+        <group scale={[1.02, 1.02, 1.02]}>
+          <AssetRenderer asset={object.asset} material={selectionOverlayMaterial} />
+        </group>
+      ) : (
+        // Khi không được chọn, chỉ hiển thị hiệu ứng hover (viền xanh) nếu có.
+        isHovered && <Outlines thickness={0.03} color="#66aaff" />
+      )}
     </group>
   );
 }
@@ -149,16 +171,15 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   const [isShiftDown, setIsShiftDown] = useState(false); // <-- THÊM LẠI: Theo dõi phím Shift
   const [isSpaceDown, setIsSpaceDown] = useState(false); // <-- THAY ĐỔI: Theo dõi phím Space
   const [isAltDown, setIsAltDown] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isMovingObject, setIsMovingObject] = useState(false); // State mới để theo dõi việc kéo-thả
+  const [isDragging, setIsDragging] = useState(false); // Dùng cho chọn vùng
   const [hoveredObjectId, setHoveredObjectId] = useState<string | null>(null); // State cho hiệu ứng hover
   // Ref mới để lưu trạng thái bắt đầu kéo (vị trí đối tượng và vị trí chuột)
   const placedObjectsGroupRef = useRef<THREE.Group>(null!); // Ref cho group chứa các đối tượng
   const dragStartRef = useRef<{ objectPos: [number, number, number], mousePos: { x: number, y: number } } | null>(null);
 
   const {
-      builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, 
-      onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, onSetSelectionEnd, cameraControlsRef, selectedObjectId, onSelectObject, onMoveObject, onMoveObjectByStep, onObjectContextMenu
+      builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, isMovingObject, onSetIsMovingObject, selectionStart,
+      onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, onSetSelectionEnd, cameraControlsRef, selectedObjectIds, onSelectObject, onMoveObject, onMoveObjectByStep, onObjectContextMenu 
   } = props;
 
   const plane = useMemo(() => new THREE.Mesh(
@@ -176,7 +197,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         const NO_ACTION = 0;
 
         // --- LOGIC ĐIỀU HƯỚNG THEO NGỮ CẢNH (CẬP NHẬT) ---
-        if (builderMode === 'build-area' || selectedObjectId) {
+        if (builderMode === 'build-area' || selectedObjectIds.length > 0) {
           // KHI Ở CHẾ ĐỘ CHỌN VÙNG hoặc KHI CÓ ĐỐI TƯỢNG ĐƯỢC CHỌN:
           // Dành chuột trái cho tương tác (chọn vùng, di chuyển đối tượng).
           controls.mouseButtons.left = NO_ACTION;
@@ -194,7 +215,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         // Giữ nguyên các nút khác nếu cần
         controls.mouseButtons.middle = THREE.MOUSE.DOLLY;
     }
-  }, [builderMode, cameraControlsRef, isSpaceDown, selectedObjectId]); // Thêm selectedObjectId vào dependencies
+  }, [builderMode, cameraControlsRef, isSpaceDown, selectedObjectIds]); // Thêm selectedObjectIds vào dependencies
 
   const boundingBoxPosition = useMemo((): [number, number, number] => [
     (boxDimensions.width * TILE_SIZE) / 2,
@@ -262,8 +283,8 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       if (event.key === 'Escape') {
         // Nếu đang có đối tượng được chọn, Esc sẽ bỏ chọn.
         // Nếu không, Esc sẽ chuyển về chế độ Navigate.
-        if (selectedObjectId) {
-          onSelectObject(null);
+        if (selectedObjectIds.length > 0) {
+          onSelectObject(null, false);
         } else {
           onModeChange('navigate');
         }
@@ -280,7 +301,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [onModeChange, onSelectObject, selectedObjectId]); // Thêm selectedObjectId vào dependencies
+  }, [onModeChange, onSelectObject, selectedObjectIds]); // Thêm selectedObjectIds vào dependencies
 
   const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
     // --- LOGIC MỚI: Xử lý hiệu ứng Hover ---
@@ -303,18 +324,36 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     }
 
     if (builderMode === 'build-single') setPointer(event.pointer);
-    else if (builderMode === 'build-area' && isDragging) {
-      raycaster.setFromCamera(event.pointer, camera);
-      const intersects = raycaster.intersectObjects([plane, ...scene.children.filter(c => c.userData.isPlacedObject)], true);
-      const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
-      if (intersect) {
-        // Sử dụng hàm getGridPositionForSelection để tính toán vị trí
-        let gridPos = getGridPositionForSelection(intersect);
-        // Đảm bảo vị trí cuối cùng không bao giờ âm
-        if (gridPos && gridPos[1] < 0) gridPos[1] = 0;
-        if (gridPos) onSetSelectionEnd(gridPos);
+    else if (builderMode === 'build-area' && isDragging && selectionStart) {
+      // --- START: CẬP NHẬT LOGIC KÉO VÙNG CHỌN ---
+      if (isShiftDown) {
+        // KHI GIỮ SHIFT: Chỉ điều chỉnh chiều cao (trục Y) của vùng chọn.
+        const deltaY = (dragStartRef.current?.mousePos.y ?? 0) - event.clientY;
+        const PIXELS_PER_UNIT = 30; // Độ nhạy: cần kéo 30px để di chuyển 1 ô.
+        const unitsToMove = Math.round(deltaY / PIXELS_PER_UNIT);
+
+        // Lấy vị trí Y ban đầu của điểm cuối (khi bắt đầu giữ Shift)
+        // và cộng thêm khoảng di chuyển.
+        const startY = dragStartRef.current?.objectPos[1] ?? selectionStart[1];
+        let newY = startY + unitsToMove;
+        if (newY < 0) newY = 0; // Đảm bảo không chọn dưới mặt đất.
+
+        // Cập nhật điểm cuối với tọa độ Y mới, giữ nguyên X và Z.
+        onSetSelectionEnd(prev => prev ? [prev[0], newY, prev[2]] : null);
+      } else {
+        // KHI KHÔNG GIỮ SHIFT: Kéo trên mặt phẳng XZ như bình thường.
+        raycaster.setFromCamera(event.pointer, camera);
+        const intersects = raycaster.intersectObjects([plane, ...placedObjectsGroupRef.current.children], true);
+        const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+        if (intersect) {
+          let gridPos = getGridPositionForSelection(intersect);
+          if (gridPos && gridPos[1] < 0) gridPos[1] = 0;
+          // Cập nhật điểm cuối với tọa độ X và Z mới, giữ nguyên Y.
+          if (gridPos) onSetSelectionEnd(prev => prev ? [gridPos![0], prev[1], gridPos![2]] : gridPos);
+        }
       }
-    } else if (isMovingObject && selectedObjectId && dragStartRef.current) { // Khi đang kéo một đối tượng
+      // --- END: CẬP NHẬT LOGIC KÉO VÙNG CHỌN ---
+    } else if (isMovingObject && selectedObjectIds.length === 1 && dragStartRef.current) { // Khi đang kéo một đối tượng
       if (isShiftDown) {
         // --- LOGIC SNAP DỌC (TRỤC Y) ---
         const deltaY = dragStartRef.current.mousePos.y - event.clientY; // Kéo lên -> deltaY dương
@@ -324,7 +363,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         const newY = dragStartRef.current.objectPos[1] + unitsToMove;
         const finalPos: [number, number, number] = [dragStartRef.current.objectPos[0], newY, dragStartRef.current.objectPos[2]];        
         
-        onMoveObject(selectedObjectId, finalPos);
+        onMoveObject(selectedObjectIds[0], finalPos);
       } else {
         // --- LOGIC SNAP TRÊN MẶT PHẲNG (XZ) ---
         raycaster.setFromCamera(event.pointer, camera);
@@ -335,7 +374,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
           // Giữ nguyên trục Y của đối tượng hiện tại khi kéo trên mặt phẳng
           if (newGridPos) {
             const finalPos: [number, number, number] = [newGridPos[0], dragStartRef.current.objectPos[1], newGridPos[2]];
-            onMoveObject(selectedObjectId, finalPos);
+            onMoveObject(selectedObjectIds[0], finalPos);
           }
         }
       }
@@ -355,37 +394,24 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     // Lọc ra đối tượng rollover để tránh click vào chính nó
     const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
 
-    // --- LOGIC MỚI: Bắt đầu kéo-thả đối tượng ---
-    if (intersect?.object) {
-        let clickedObject: THREE.Object3D | null | undefined = intersect.object;
-        while(clickedObject && !clickedObject.userData.id) {
-            clickedObject = clickedObject.parent;
-        }
-        // Nếu click vào đối tượng đã chọn, bắt đầu di chuyển
-        if (clickedObject?.userData.id && clickedObject.userData.id === selectedObjectId) {
-            const objectToMove = placedObjects.find(o => o.id === selectedObjectId);
-            if (objectToMove) {
-              setIsMovingObject(true);
-              // Ghi lại vị trí ban đầu của đối tượng và chuột
-              dragStartRef.current = { objectPos: objectToMove.position, mousePos: { x: event.clientX, y: event.clientY } };
-              return; // Dừng lại để không thực hiện các hành động khác
-            }
-        }
-    }
-
-    // --- THAY ĐỔI: Logic chọn/bỏ chọn đối tượng được đưa ra ngoài ---
-    // Logic này sẽ chạy cho cả chế độ 'navigate' và khi không di chuyển đối tượng.
+    // --- START: LOGIC CLICK ĐÃ ĐƯỢC TÁI CẤU TRÚC ---
+    // 1. Luôn xác định đối tượng được click.
     let clickedObjectForSelection: THREE.Object3D | null | undefined = intersect?.object;
     while(clickedObjectForSelection && !clickedObjectForSelection.userData.id) {
         clickedObjectForSelection = clickedObjectForSelection.parent;
     }
     const clickedId = clickedObjectForSelection?.userData.id || null;
 
-    // Cập nhật đối tượng được chọn. Nếu click ra ngoài, clickedId sẽ là null.
-    if (builderMode === 'navigate' && clickedId !== selectedObjectId) {
-      onSelectObject(clickedId);
+    // 2. Gọi hàm xử lý lựa chọn ở App.tsx.
+    // App.tsx sẽ quyết định là chọn mới hay bắt đầu di chuyển.
+    onSelectObject(clickedId, isShiftDown);
+
+    // 3. Nếu App.tsx quyết định bắt đầu di chuyển, chúng ta lưu lại vị trí ban đầu.
+    const objectToMove = clickedId ? placedObjects.find(o => o.id === clickedId) : null;
+    if (objectToMove) {
+      dragStartRef.current = { objectPos: objectToMove.position, mousePos: { x: event.clientX, y: event.clientY } };
     }
-    // --- KẾT THÚC THAY ĐỔI ---
+    // --- END: LOGIC CLICK ĐÃ ĐƯỢC TÁI CẤU TRÚC ---
     
     if (!intersect) return;
     const gridPosition = getGridPositionFromIntersection(intersect);
@@ -398,18 +424,31 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
         if (x >= 0 && x < boxDimensions.width && y >= 0 && y < boxDimensions.height && z >= 0 && z < boxDimensions.depth) onAddObject(gridPosition, selectedAsset);
       }
     } else if (builderMode === 'build-area') {
-      const selectionGridPos = getGridPositionForSelection(intersect); // Sử dụng hàm mới
-      if (!selectionGridPos) return;
+      // --- START: CẬP NHẬT LOGIC CHỌN ĐIỂM BẮT ĐẦU ---
+      let startPos: [number, number, number] | null = null;
+
+      // Ưu tiên 1: Nếu click trúng một đối tượng, lấy vị trí của đối tượng đó làm điểm bắt đầu.
+      const clickedObject = clickedId ? placedObjects.find(o => o.id === clickedId) : null;
+      if (clickedObject) {
+        startPos = clickedObject.position;
+      } else {
+        // Ưu tiên 2: Nếu không, lấy vị trí trên lưới như bình thường.
+        startPos = getGridPositionForSelection(intersect);
+      }
+
+      if (!startPos) return;
+
       setIsDragging(true);
-      onSetSelectionStart(selectionGridPos);
-      onSetSelectionEnd(selectionGridPos);
+      onSetSelectionStart(startPos);
+      onSetSelectionEnd(startPos);
+      // --- END: CẬP NHẬT LOGIC CHỌN ĐIỂM BẮT ĐẦU ---
     }
   };
 
   const handlePointerUp = (event: ThreeEvent<PointerEvent>) => { 
     if (isDragging) setIsDragging(false); 
     if (isMovingObject) {
-      setIsMovingObject(false);
+      onSetIsMovingObject(false); // Cập nhật state ở App.tsx
       dragStartRef.current = null; // Xóa trạng thái khi nhả chuột
       // Logic để "commit" vị trí mới vào history có thể được thêm ở đây nếu cần
     }
@@ -441,7 +480,7 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       <group ref={placedObjectsGroupRef}>
         {placedObjects.map(obj => <Suspense key={obj.id} fallback={null}><PlacedAsset 
           object={obj} 
-          isSelected={obj.id === selectedObjectId} 
+          isSelected={selectedObjectIds.includes(obj.id)} 
           isHovered={obj.id === hoveredObjectId}
           onContextMenu={(e) => {
             e.stopPropagation();
