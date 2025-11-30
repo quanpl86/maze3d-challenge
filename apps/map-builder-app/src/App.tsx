@@ -5,7 +5,7 @@ import { BuilderScene, type SceneController } from './components/BuilderScene';
 import { ViewControls } from './components/ViewControls';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { QuestDetailsPanel } from './components/QuestDetailsPanel'; // THÊM MỚI
-import { JsonOutputPanel } from './components/JsonOutputPanel'; // SỬA LẠI ĐỂ CHO PHÉP EDIT
+import { JsonOutputPanel } from './components/JsonOutputPanel';
 import { buildableAssetGroups } from './config/gameAssets';
 import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds } from './types';
 import './App.css';
@@ -781,6 +781,7 @@ function App() {
           onMetadataChange={handleMetadataChange}
         />
         <JsonOutputPanel 
+          questId={questMetadata?.id || 'untitled-quest'}
           editedJson={editedJson}
           onJsonChange={setEditedJson}
           onRender={handleRenderEditedJson}
