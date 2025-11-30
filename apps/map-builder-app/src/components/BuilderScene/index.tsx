@@ -178,7 +178,8 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   const dragStartRef = useRef<{ objectPos: [number, number, number], mousePos: { x: number, y: number } } | null>(null);
 
   const {
-      builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, isMovingObject, onSetIsMovingObject, selectionStart,
+      builderMode, selectedAsset, placedObjects, boxDimensions, onModeChange, 
+      isMovingObject, onSetIsMovingObject, selectionStart,
       onAddObject, onRemoveObject, selectionBounds, onSetSelectionStart, onSetSelectionEnd, cameraControlsRef, selectedObjectIds, onSelectObject, onMoveObject, onMoveObjectByStep, onObjectContextMenu 
   } = props;
 
@@ -250,28 +251,6 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
   };
   // --- KẾT THÚC HÀM MỚI ---
 
-  useFrame(() => {
-    if (builderMode !== 'build-single' || !rollOverMeshRef.current) {
-      if (rollOverMeshRef.current) rollOverMeshRef.current.visible = false;
-      return;
-    }
-    raycaster.setFromCamera(pointer, camera);
-    // --- THAY ĐỔI: Đảm bảo raycaster nhắm vào cả mặt phẳng và các đối tượng đã đặt ---
-    // Chúng ta sẽ sử dụng placedObjectsGroupRef để có danh sách đối tượng chính xác nhất.
-    const intersects = raycaster.intersectObjects([plane, ...placedObjectsGroupRef.current.children], true);
-    const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
-    if (intersect?.face) {
-      const newPos = new THREE.Vector3().copy(intersect.point).add(intersect.face.normal)
-        .divideScalar(TILE_SIZE).floor().multiplyScalar(TILE_SIZE).addScalar(TILE_SIZE / 2);
-      if (!rollOverMeshRef.current.position.equals(newPos)) {
-        rollOverMeshRef.current.position.copy(newPos);
-      }
-      rollOverMeshRef.current.visible = true;
-    } else {
-      rollOverMeshRef.current.visible = false;
-    }
-  });
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Shift') setIsShiftDown(true); // <-- THÊM LẠI: Lắng nghe phím Shift
@@ -303,6 +282,29 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     };
   }, [onModeChange, onSelectObject, selectedObjectIds]); // Thêm selectedObjectIds vào dependencies
 
+  useFrame(() => {
+    // Luôn cập nhật raycaster theo con trỏ chuột
+    raycaster.setFromCamera(pointer, camera);
+
+    // Logic cho RollOverMesh (con trỏ build)
+    if (builderMode === 'build-single' && rollOverMeshRef.current) {
+      const intersects = raycaster.intersectObjects([plane, ...placedObjectsGroupRef.current.children], true);
+      const intersect = intersects.find(i => i.object.name !== 'RollOverMesh');
+
+      if (intersect?.face) {
+        const newPos = new THREE.Vector3().copy(intersect.point).add(intersect.face.normal)
+          .divideScalar(TILE_SIZE).floor().multiplyScalar(TILE_SIZE).addScalar(TILE_SIZE / 2);
+        if (!rollOverMeshRef.current.position.equals(newPos)) {
+          rollOverMeshRef.current.position.copy(newPos);
+        }
+        rollOverMeshRef.current.visible = true;
+      } else {
+        rollOverMeshRef.current.visible = false;
+      }
+    } else if (rollOverMeshRef.current) {
+      rollOverMeshRef.current.visible = false;
+    }
+  });
   const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
     // --- LOGIC MỚI: Xử lý hiệu ứng Hover ---
     // Chỉ chạy khi không kéo/di chuyển đối tượng để tránh xung đột
@@ -323,9 +325,11 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
       }
     }
 
-    if (builderMode === 'build-single') setPointer(event.pointer);
-    else if (builderMode === 'build-area' && isDragging && selectionStart) {
-      // --- START: CẬP NHẬT LOGIC KÉO VÙNG CHỌN ---
+    // Luôn cập nhật vị trí con trỏ để useFrame có thể sử dụng
+    setPointer(event.pointer);
+
+    // --- Logic kéo chọn vùng ---
+    if (builderMode === 'build-area' && isDragging && selectionStart) {
       if (isShiftDown) {
         // KHI GIỮ SHIFT: Chỉ điều chỉnh chiều cao (trục Y) của vùng chọn.
         const deltaY = (dragStartRef.current?.mousePos.y ?? 0) - event.clientY;
@@ -352,8 +356,9 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
           if (gridPos) onSetSelectionEnd(prev => prev ? [gridPos![0], prev[1], gridPos![2]] : gridPos);
         }
       }
-      // --- END: CẬP NHẬT LOGIC KÉO VÙNG CHỌN ---
-    } else if (isMovingObject && selectedObjectIds.length === 1 && dragStartRef.current) { // Khi đang kéo một đối tượng
+    }
+    // --- Logic di chuyển đối tượng ---
+    if (isMovingObject && selectedObjectIds.length === 1 && dragStartRef.current) {
       if (isShiftDown) {
         // --- LOGIC SNAP DỌC (TRỤC Y) ---
         const deltaY = dragStartRef.current.mousePos.y - event.clientY; // Kéo lên -> deltaY dương
@@ -418,10 +423,11 @@ const SceneContent = (props: BuilderSceneProps & { cameraControlsRef: React.RefO
     if (!gridPosition) return;
     
     if (builderMode === 'build-single') {
-      // Logic đặt khối chỉ chạy khi không giữ Shift
       if (selectedAsset) {
         const [x, y, z] = gridPosition;
-        if (x >= 0 && x < boxDimensions.width && y >= 0 && y < boxDimensions.height && z >= 0 && z < boxDimensions.depth) onAddObject(gridPosition, selectedAsset);
+        if (x >= 0 && x < boxDimensions.width && y >= 0 && y < boxDimensions.height && z >= 0 && z < boxDimensions.depth) {
+          onAddObject(gridPosition, selectedAsset);
+        }
       }
     } else if (builderMode === 'build-area') {
       // --- START: CẬP NHẬT LOGIC CHỌN ĐIỂM BẮT ĐẦU ---
