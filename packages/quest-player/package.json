@@ -1,5 +1,5 @@
 {
-  "name": "@thanh01.pmt/quest-player",
+  "name": "@repo/quest-player",
   "description": "A React component library for creating and playing interactive coding quests, inspired by Blockly Games.",
   "version": "1.0.3",
   "author": "thanh01.pmt",
@@ -11,9 +11,9 @@
     "gamedev",
     "learn-to-code"
   ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "files": [
     "dist"
   ],
@@ -25,17 +25,19 @@
       "development": {
         "import": "./src/index.ts"
       },
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     },
     "./i18n": {
       "development": {
         "import": "./src/i18n.ts"
       },
-      "import": "./dist/i18n.mjs"
+      "import": "./dist/i18n.js",
+      "require": "./dist/i18n.cjs",
+      "types": "./dist/i18n.d.ts"
     },
-    "./style.css": "./src/index.css",
-    "./dist/index.css": "./dist/index.css"
+    "./style.css": "./dist/style.css"
   },
   "scripts": {
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

@@ -1,6 +1,6 @@
 // apps/map-builder-app/src/config/gameAssets.ts
 
-import { GameAssets } from '@thanh01.pmt/quest-player';
+import { GameAssets } from '@repo/quest-player';
 import { BuildableAsset, AssetGroup } from '../types';
 
 function capitalize(s: string) {

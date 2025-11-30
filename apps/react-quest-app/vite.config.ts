@@ -2,16 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import sirv from 'sirv';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [
-    tsconfigPaths(), 
+    tsconfigPaths(),
     viteStaticCopy({
       targets: [
         {
@@ -20,13 +19,6 @@ export default defineConfig({
         }
       ]
     }),
-    {
-      name: 'serve-quest-player-assets',
-      configureServer(server) {
-        const assetsDir = path.resolve(__dirname, '../../packages/quest-player/public/assets');
-        server.middlewares.use('/assets', sirv(assetsDir, { dev: true, etag: true, single: false }));
-      },
-    },
     react(),
   ],
   
@@ -44,6 +36,9 @@ export default defineConfig({
   resolve: {
     dedupe: [
       'blockly'
-    ]
+    ],
+    alias: {
+      '@repo/quest-player': path.resolve(__dirname, '../../packages/quest-player/src')
+    }
   }
 });

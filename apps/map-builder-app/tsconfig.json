@@ -5,7 +5,7 @@
     "noEmit": true,
     "paths": {
       // Ánh xạ tên package đến mã nguồn thực tế của nó
-      "@thanh01.pmt/quest-player": ["../../packages/quest-player/src/index.ts"]
+      "@repo/quest-player": ["../../packages/quest-player/src/index.ts"]
     }
   },
   "include": [

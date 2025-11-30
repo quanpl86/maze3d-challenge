@@ -23,10 +23,20 @@
   gap: 8px;
 }
 
-.json-output-panel .render-btn,
-.json-output-panel .action-button,
-.json-output-panel .json-action-btn {
-  background-color: #4a4f5a;
+.json-output-panel .start-blocks-btn {
+  background-color: #007bff; /* Màu xanh dương nổi bật */
+  color: white;
+  border: none;
+}
+
+.json-output-panel .start-blocks-btn:hover {
+  background-color: #0056b3; /* Màu xanh dương đậm hơn khi hover */
+}
+
+.json-output-panel .header-buttons .render-btn,
+.json-output-panel .header-buttons .action-button,
+.json-output-panel .header-buttons .json-action-btn {
+  background-color: #4a4f5a !important; /* Thêm !important để ghi đè style khác */
   color: #e0e0e0;
   border: 1px solid #6c757d;
   padding: 6px 12px;
@@ -37,10 +47,10 @@
   transition: background-color 0.2s ease;
 }
 
-.json-output-panel .render-btn:hover,
-.json-output-panel .action-button:hover,
-.json-output-panel .json-action-btn:hover {
-  background-color: #5a5f6a;
+.json-output-panel .header-buttons .render-btn:hover,
+.json-output-panel .header-buttons .action-button:hover,
+.json-output-panel .header-buttons .json-action-btn:hover {
+  background-color: #5a5f6a !important; /* Thêm !important cho trạng thái hover */
 }
 
 .json-textarea {

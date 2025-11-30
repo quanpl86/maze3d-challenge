@@ -5,7 +5,7 @@ import 'blockly/blocks'; // <-- Thêm dòng này để import các khối lệnh
 import './BlocklyModal.css';
 // --- Bắt đầu thay đổi cho giao diện Scratch ---
 const customCategoryStyles = {
-  'events_category': { colour: '#FFD700' }, // Vàng cho Sự kiện
+  'events_category': { colour: '#ff6f00ff' }, // Vàng cho Sự kiện
   'movement_category': { colour: '#4C97FF' }, // Xanh dương cho Di chuyển
   'actions_category': { colour: '#5BC55B' }, // Xanh lá cho Hành động
   'logic_category': { colour: '#5B80A5' }, // Ghi đè màu Logic nếu muốn
@@ -27,7 +27,7 @@ const scratchWithCustomCategoriesTheme = Blockly.Theme.defineTheme('scratch_cust
     'movement_category': mazeTheme.blockStyles['movement_category'],
     'actions_category': mazeTheme.blockStyles['actions_category'],
   },
-  fontStyle: { family: 'sans-serif', weight: 'bold', size: 12 },
+  fontStyle: { family: 'sans-serif', weight: '700', size: 12 },
 });
 // --- Kết thúc thay đổi ---
 // Import các thành phần cần thiết từ quest-player
