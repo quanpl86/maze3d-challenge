@@ -170,8 +170,8 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
         <textarea
           value={localStartBlocks}
           onChange={(e) => setLocalStartBlocks(e.target.value)}
-          onBlur={() => handleComplexChange('blocklyConfig.startBlocks', localStartBlocks.replace(/\\"/g, '"'))}
-          rows={4}
+          onBlur={() => handleComplexChange('blocklyConfig.startBlocks', localStartBlocks.replace(/\\"/g, '"'))} // Giữ lại logic onBlur
+          rows={26} // Tăng chiều cao của textarea từ 4 lên 8 dòng
         />
       </div>
 
