@@ -77,9 +77,8 @@ export function init(t: TFunction) {
         { "type": "input_dummy" },
         { "type": "input_statement", "name": "DO" }
       ],
-      "previousStatement": null,
-      "nextStatement": null,
       "style": "events_category",
+      "topRow": true, // Thêm dòng này để hiển thị khối dưới dạng "hat"
       "tooltip": "This block is the starting point for your program.",
     },
     {
@@ -136,6 +135,7 @@ export function init(t: TFunction) {
         { "type": "input_statement", "name": "DO" }
       ],
       "previousStatement": null,
+      "nextStatement": null,
       "style": "loops_category",
       "tooltip": t('Maze.whileTooltip'),
     },
