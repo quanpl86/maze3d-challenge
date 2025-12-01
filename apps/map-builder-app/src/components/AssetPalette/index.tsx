@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { buildableAssetGroups } from '../../config/gameAssets';
 import { type BuildableAsset, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds } from '../../types';
 import './AssetPalette.css';
@@ -16,6 +16,7 @@ interface AssetPaletteProps {
   selectionBounds: SelectionBounds | null;
   onSelectionBoundsChange: (bounds: SelectionBounds) => void;
   onImportMap: (file: File) => void;
+  onLoadMapFromUrl: (url: string) => void; // Thêm prop bị thiếu
 }
 
 const DimensionInputRow = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
@@ -37,9 +38,29 @@ export function AssetPalette({
   onSelectionAction,
   selectionBounds,
   onSelectionBoundsChange,
-  onImportMap
+  onImportMap,
+  onLoadMapFromUrl // Nhận prop mới
 }: AssetPaletteProps) {
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [mapList, setMapList] = useState<Record<string, unknown> | null>(null);
+
+  // Sử dụng import.meta.glob của Vite để lấy danh sách các file map trong thư mục public/maps
+  useEffect(() => {
+    // Lấy danh sách các file JSON trong thư mục public/maps
+    // `eager: false` (mặc định) sẽ tạo ra các dynamic import, giúp không tải tất cả các file ngay từ đầu.
+    const mapFiles = import.meta.glob('/public/maps/*.json', { eager: true });
+    setMapList(mapFiles);
+  }, []);
+
+  const handleMapSelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const mapPath = e.target.value;
+    if (mapPath) {
+      // mapPath ở đây chính là URL công khai đến file JSON
+      onLoadMapFromUrl(mapPath);
+      // Reset dropdown để có thể chọn lại cùng một map
+      e.target.value = "";
+    }
+  };
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -82,6 +103,23 @@ export function AssetPalette({
           accept=".json"
           style={{ display: 'none' }} 
         />
+
+        {/* --- TÍNH NĂNG MỚI: LOAD MAP TỪ DANH SÁCH --- */}
+        <div className="palette-section">
+          <h3>Load Map from Project</h3>
+          <div className="prop-group">
+            <select onChange={handleMapSelect} defaultValue="">
+              <option value="" disabled>-- Choose a map --</option>
+              {mapList && Object.keys(mapList).map(path => {
+                // Lấy tên file từ đường dẫn, ví dụ: /public/maps/my-map.json -> my-map.json
+                const fileName = path.split('/').pop();
+                return (
+                  <option key={path} value={path}>{fileName}</option>
+                );
+              })}
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="mode-switcher">

@@ -704,6 +704,53 @@ function App() {
     reader.readAsText(file);
   };
 
+  // --- HÀM MỚI: TẢI MAP TỪ URL TRONG THƯ MỤC PUBLIC ---
+  const handleLoadMapFromUrl = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch map: ${response.statusText}`);
+      }
+      const json = await response.json();
+
+      let configToLoad;
+      if (json.gameConfig && typeof json.gameConfig === 'object') {
+        const { gameConfig, ...metadata } = json;
+        configToLoad = gameConfig;
+        setQuestMetadata(metadata);
+      } else if (json.blocks || json.players) {
+        configToLoad = json;
+        setQuestMetadata(null);
+      } else {
+        throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
+      }
+
+      const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = configToLoad;
+      const newPlacedObjects: PlacedObject[] = [];
+
+      for (const block of blocks) { if (assetMap.get(block.modelKey) && block.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(block.modelKey)!, position: [block.position.x, block.position.y, block.position.z], properties: {} }); }
+      for (const item of collectibles) { if (assetMap.get(item.type) && item.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(item.type)!, position: [item.position.x, item.position.y, item.position.z], properties: {} }); }
+      for (const item of interactibles) {
+        const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
+        const asset = assetMap.get(assetKey);
+        if(asset && item.position) { const { position, ...properties } = item; newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties }); }
+      }
+      if (finish) { const asset = assetMap.get('finish'); if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], properties: {} }); }
+      if (players[0]?.start) {
+        const asset = assetMap.get('player_start');
+        const startPos = players[0].start;
+        if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
+      }
+      
+      setPlacedObjectsWithHistory(() => newPlacedObjects); // Bắt đầu lịch sử mới khi load map
+      alert(`Map '${url.split('/').pop()}' loaded successfully!`);
+
+    } catch (error) {
+      console.error("Failed to load map from URL:", error);
+      alert(`Failed to load map: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
   // --- HÀM MỚI: CẬP NHẬT METADATA ---
   const handleMetadataChange = (path: string, value: any) => {
     setQuestMetadata(prev => {
@@ -783,6 +830,7 @@ function App() {
           onSelectionAction={handleSelectionAction}
           selectionBounds={selectionBounds}
           onSelectionBoundsChange={handleSelectionBoundsChange}
+          onLoadMapFromUrl={handleLoadMapFromUrl} // Truyền hàm mới vào
           onImportMap={handleImportMap}
         />
       )}

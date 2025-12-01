@@ -29,6 +29,26 @@
   background-color: #4a4a50;
 }
 
+/* --- CẬP NHẬT CHO TÍNH NĂNG LOAD MAP --- */
+.palette-section {
+  margin-top: 20px; /* Tăng khoảng cách với nút Import JSON ở trên */
+}
+
+.palette-section .prop-group {
+  display: flex;
+  flex-direction: column; /* Xếp chồng label và select theo chiều dọc */
+  margin-bottom: 10px;
+}
+
+.palette-section .prop-group select {
+  width: 100%; /* Đảm bảo select chiếm toàn bộ chiều rộng */
+  margin-top: 4px; /* Thêm một chút khoảng cách với label */
+  padding: 8px;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #555;
+}
+
 .asset-palette {
   width: 280px;
   height: 100%;
