@@ -139,6 +139,12 @@ function App() {
   // Thêm phím tắt cho Undo/Redo
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Bỏ qua nếu người dùng đang gõ trong một ô input, select, hoặc textarea
+      const activeEl = document.activeElement;
+      if (activeEl && ['INPUT', 'SELECT', 'TEXTAREA'].includes(activeEl.tagName)) {
+        return;
+      }
+
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         e.shiftKey ? handleRedo() : handleUndo();

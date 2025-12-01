@@ -38,22 +38,31 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
 
   // State cục bộ cho các editor để cập nhật UI ngay lập tức khi gõ
   const [localSolution, setLocalSolution] = useState('');
+  const [localRawActions, setLocalRawActions] = useState('');
+  const [localStructuredSolution, setLocalStructuredSolution] = useState('');
   const [localStartBlocks, setLocalStartBlocks] = useState('');
   const [isBlocklyModalOpen, setBlocklyModalOpen] = useState(false); // State để quản lý modal
 
   useEffect(() => {
     // Cập nhật state cục bộ khi metadata từ bên ngoài thay đổi (ví dụ: import file mới)
     if (metadata) {
-      setLocalSolution(JSON.stringify(metadata.solution, null, 2));
+      // Tách solution ra các phần riêng biệt
+      const solution = metadata.solution || {};
+      setLocalSolution(JSON.stringify(solution, null, 2)); // Giữ lại để xem tổng thể
+      setLocalRawActions(JSON.stringify(solution.rawActions, null, 2));
+      setLocalStructuredSolution(JSON.stringify(solution.structuredSolution, null, 2));
+
       // Lấy chuỗi XML "sạch" và chuyển nó thành dạng "escaped" để hiển thị và sao chép dễ dàng
       const rawXml = getDeepValue(metadata, 'blocklyConfig.startBlocks') || '';
       const escapedXml = rawXml.replace(/"/g, '\\"');
       setLocalStartBlocks(escapedXml);
     } else {
       setLocalSolution('');
+      setLocalRawActions('');
+      setLocalStructuredSolution('');
       setLocalStartBlocks('');
     }
-  }, [metadata]); // Chạy lại khi metadata thay đổi
+  }, [metadata]);
 
   if (!metadata) {
     return (
@@ -167,8 +176,43 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
       </div>
 
       <h3 className="props-title">Solution</h3>
-       <div className="quest-prop-group">
-        <label>Solution (JSON)</label>
+      <div className="quest-prop-group">
+        <label>Raw Actions (JSON)</label>
+        <textarea
+          className="json-editor-small"
+          value={localRawActions}
+          onChange={(e) => setLocalRawActions(e.target.value)}
+          onBlur={() => {
+            try {
+              const parsed = JSON.parse(localRawActions);
+              handleComplexChange('solution.rawActions', parsed);
+            } catch (error) {
+              console.warn("Invalid JSON in rawActions field", error);
+            }
+          }}
+          rows={6}
+        />
+      </div>
+      <div className="quest-prop-group">
+        <label>Structured Solution (JSON)</label>
+        <textarea
+          className="json-editor-small"
+          value={localStructuredSolution}
+          onChange={(e) => setLocalStructuredSolution(e.target.value)}
+          onBlur={() => {
+            try {
+              const parsed = JSON.parse(localStructuredSolution);
+              handleComplexChange('solution.structuredSolution', parsed);
+            } catch (error) {
+              console.warn("Invalid JSON in structuredSolution field", error);
+            }
+          }}
+          rows={10}
+        />
+      </div>
+      {/* Giữ lại trình soạn thảo solution tổng thể để tham khảo */}
+      <div className="quest-prop-group">
+        <label style={{ color: '#888' }}>Full Solution Object (Reference)</label>
         <textarea
           className="json-editor-small"
           value={localSolution}
@@ -183,7 +227,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
             } // Nếu JSON không hợp lệ, không cập nhật state cha nhưng giữ nguyên text đã nhập
           }}
           rows={10}
-        />
+        />  
       </div>
     </aside>
   );
