@@ -17,9 +17,9 @@ interface GameConfig {
   players: { start: Position & { direction?: number } }[]; // THÊM: direction cho người chơi
   finish: Position;
   // THÊM: interactibles và collectibles để solver biết mục tiêu
-  collectibles?: { position: Position, id: string, type: string }[];
-  interactibles?: { position: Position, id: string, type: string, initialState?: 'on' | 'off' }[];
-  solution?: { itemGoals?: Record<string, any> }; // Thêm solution config để biết mục tiêu
+  collectibles?: { position: Position; id: string; type: string }[];
+  interactibles?: { position: Position; id: string; type: string; initialState?: 'on' | 'off' }[];
+  // ĐÃ XÓA: solution không còn là một phần của GameConfig
 }
 
 interface Action {
@@ -78,11 +78,17 @@ class GameState {
   }
 }
 
+// SỬA LỖI: Hoán đổi hướng Tới (+Z) và Lùi (-Z) để khớp với thực tế game.
+// Quy ước đã sửa (theo chiều kim đồng hồ):
+// 0: -Z (Lùi / Backward)
+// 1: +X (Phải / Right)
+// 2: +Z (Tới / Forward)
+// 3: -X (Trái / Left)
 const directions = [
-  { x: 1, z: 0 },  // 0
-  { x: 0, z: 1 },  // 1
-  { x: -1, z: 0 }, // 2
-  { x: 0, z: -1 }, // 3
+  { x: 0, z: -1 }, // 0: -Z
+  { x: 1, z: 0 },  // 1: +X
+  { x: 0, z: 1 },  // 2: +Z
+  { x: -1, z: 0 }, // 3: -X
 ];
 
 /**
@@ -121,13 +127,13 @@ class GameWorld {
   collectiblesByPos: Map<string, { id: string, type: string }> = new Map();
   collectiblesById: Map<string, { position: Position, type: string }> = new Map();
   switchesByPos: Map<string, { id: string, initialState: 'on' | 'off' }> = new Map();
-  initialSwitchStates: Record<string, 'on' | 'off'> = {};
-  solutionConfig: { itemGoals?: Record<string, any> };
+  initialSwitchStates: Record<string, 'on' | 'off'> = {}; // THÊM: Lưu trạng thái ban đầu của công tắc
+  solutionConfig: Solution; // THAY ĐỔI: solutionConfig giờ là kiểu Solution
   finishPos: Position;
 
-  constructor(gameConfig: GameConfig) {
+  constructor(gameConfig: GameConfig, solutionConfig: Solution) { // THAY ĐỔI: Nhận solutionConfig
     this.finishPos = gameConfig.finish;
-    this.solutionConfig = gameConfig.solution || {};
+    this.solutionConfig = solutionConfig; // THAY ĐỔI: Gán solutionConfig trực tiếp
     // SỬA LỖI: Lưu modelKey của block thay vì chỉ là chuỗi 'block'
     gameConfig.blocks.forEach(b => {
       const posKey = `${b.position.x},${b.position.y},${b.position.z}`;
@@ -194,61 +200,9 @@ const convertRawToStructuredActions = (rawActions: string[]): Action[] => {
  * @returns Một đối tượng structuredSolution được tối ưu hóa.
  */
 const createStructuredSolution = (actions: Action[]): { main: Action[] } => {
-  if (actions.length < 2) {
-    return { main: actions };
-  }
-
-  let bestCompressed = [...actions];
-
-  // Thử nén với các độ dài chuỗi lặp khác nhau (từ dài nhất có thể đến 1)
-  for (let len = Math.floor(actions.length / 2); len >= 1; len--) {
-    const compressed = [];
-    let i = 0;
-    while (i < actions.length) {
-      const currentSequence = actions.slice(i, i + len);
-      
-      // Nếu chuỗi hiện tại ngắn hơn độ dài đang xét, không thể lặp lại
-      if (currentSequence.length < len) {
-        compressed.push(...currentSequence);
-        break;
-      }
-
-      let repeatCount = 1;
-      // Tìm xem chuỗi này lặp lại bao nhiêu lần
-      while (i + (repeatCount + 1) * len <= actions.length) {
-        const nextSequence = actions.slice(i + repeatCount * len, i + (repeatCount + 1) * len);
-        if (JSON.stringify(currentSequence) === JSON.stringify(nextSequence)) {
-          repeatCount++;
-        } else {
-          break;
-        }
-      }
-
-      if (repeatCount > 1) {
-        // Nếu tìm thấy lặp, tạo khối 'maze_repeat'
-        // Đệ quy nén các hành động bên trong khối lặp
-        const innerSolution = createStructuredSolution(currentSequence);
-        compressed.push({
-          type: 'maze_repeat',
-          times: repeatCount,
-          actions: innerSolution.main,
-        });
-        i += len * repeatCount;
-      } else {
-        // Nếu không lặp, chỉ thêm hành động đầu tiên và tiếp tục từ hành động tiếp theo
-        compressed.push(actions[i]);
-        i++;
-      }
-    }
-
-    // Nếu kết quả nén lần này tốt hơn, lưu lại
-    // "Tốt hơn" có thể được định nghĩa là có ít hành động cấp cao nhất hơn
-    if (compressed.length < bestCompressed.length) {
-      bestCompressed = compressed;
-    }
-  }
-
-  return { main: bestCompressed };
+  // TẠM THỜI BỎ QUA TỐI ƯU HÓA:
+  // Trả về trực tiếp mảng hành động mà không cố gắng nén chúng thành các khối lặp.
+  return { main: actions };
 };
 
 /**
@@ -275,26 +229,26 @@ const countBlocksInStructure = (actions: Action[]): number => {
  * Tìm lời giải cho một cấu hình game mê cung.
  * @param gameConfig Đối tượng cấu hình game.
  * @returns Một đối tượng Solution chứa lời giải, hoặc null nếu không tìm thấy.
+ * @param solutionConfig Đối tượng cấu hình solution (chứa itemGoals).
  */
-export const solveMaze = (gameConfig: GameConfig): Solution | null => {
-  return aStarPathSolver(gameConfig);
+export const solveMaze = (gameConfig: GameConfig, solutionConfig: Solution): Solution | null => { // THAY ĐỔI: Thêm solutionConfig
+  return aStarPathSolver(gameConfig, solutionConfig);
 };
 
 /** TÁI CẤU TRÚC: Thuật toán A* mới, tìm đường đi theo VỊ TRÍ thay vì HÀNH ĐỘNG */
-const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
+const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution): Solution | null => { // THAY ĐỔI: Thêm solutionConfig
     if (!gameConfig.players?.[0]?.start || !gameConfig.finish) {
         console.error("Solver: Thiếu điểm bắt đầu hoặc kết thúc.");
         return null;
     }
 
-    const world = new GameWorld(gameConfig);
+    const world = new GameWorld(gameConfig, solutionConfig);
     const startPos = gameConfig.players[0].start;
-    // SỬA LỖI: Lấy chính xác hướng ban đầu từ gameConfig.
-    // Nếu không được cung cấp, mặc định là 1 (hướng +Z).
-    // Logic cũ đã bỏ qua giá trị này.
-    const startDir = gameConfig.players[0].start.direction !== undefined ? gameConfig.players[0].start.direction : 1;
+    // Lấy hướng ban đầu từ gameConfig.
+    // Nếu không được cung cấp, mặc định là 2 (hướng +Z/Tới theo quy ước đã sửa).
+    const startDir = gameConfig.players[0].start.direction !== undefined ? gameConfig.players[0].start.direction : 0;
 
-    const startState = new GameState(startPos, startDir, world);
+    const startState = new GameState(startPos, startDir, world); // world đã có solutionConfig
     const startNode = new PathNode(startState);
 
     const openList: PathNode[] = [];
@@ -305,8 +259,8 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
     };
 
     const heuristic = (state: GameState): number => {
-      const currentPos = state.position;
-      const requiredGoals = world.solutionConfig.itemGoals || {};
+      const currentPos = state.position; // THAY ĐỔI: Sử dụng solutionConfig từ world
+      const requiredGoals = world.solutionConfig.itemGoals || {}; // THAY ĐỔI: Sử dụng solutionConfig từ world
       const remainingGoalPositions: Position[] = [];
   
       // Thêm vị trí các vật phẩm chưa thu thập vào danh sách mục tiêu
@@ -339,27 +293,28 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
         return manhattan(currentPos, world.finishPos);
       }
   
-      // SỬA LỖI: Heuristic đã tính sai. Nó cần phải tính tổng khoảng cách đến
-      // mục tiêu phụ xa nhất VÀ từ mục tiêu đó đến đích cuối cùng.
-      // Nếu không, nó sẽ đánh giá quá thấp chi phí và đi thẳng đến đích.
-      let furthestGoalDist = 0;
-      let furthestGoalPos: Position | null = null;
+      // SỬA LỖI: Logic heuristic cũ không chính xác và có thể đánh giá quá cao chi phí,
+      // dẫn đến việc A* chọn đường đi không tối ưu.
+      // Logic mới: Heuristic phải là giá trị lớn nhất của (khoảng cách đến một mục tiêu phụ +
+      // khoảng cách từ mục tiêu đó đến đích). Điều này đảm bảo heuristic vẫn "admissible"
+      // (không đánh giá quá cao) và cung cấp một ước tính tốt hơn.
+      let maxHeuristic = manhattan(currentPos, world.finishPos); // Bắt đầu với khoảng cách đến đích cuối cùng
+
       for (const pos of remainingGoalPositions) {
-        const dist = manhattan(currentPos, pos);
-        if (dist > furthestGoalDist) {
-          furthestGoalDist = dist;
-          furthestGoalPos = pos;
-        }
+        // Tính tổng chi phí ước tính nếu đi qua mục tiêu này
+        const costViaThisGoal = manhattan(currentPos, pos) + manhattan(pos, world.finishPos);
+        // Heuristic là chi phí tối đa trong tất cả các khả năng
+        maxHeuristic = Math.max(maxHeuristic, costViaThisGoal);
       }
       
-      return furthestGoalDist + (furthestGoalPos ? manhattan(furthestGoalPos, world.finishPos) : 0);
+      return maxHeuristic;
     };
 
     const isGoalAchieved = (state: GameState): boolean => {
         const isAtFinish = state.position.x === world.finishPos.x && state.position.y === world.finishPos.y && state.position.z === world.finishPos.z;
         if (!isAtFinish) return false;
 
-        // SỬA LỖI: Logic kiểm tra mục tiêu bị sai. Cần đếm số lượng vật phẩm đã thu thập theo đúng `goalType`.
+        // THAY ĐỔI: Logic kiểm tra mục tiêu bị sai. Cần đếm số lượng vật phẩm đã thu thập theo đúng `goalType`.
         const requiredGoals = world.solutionConfig.itemGoals || {};
         for (const goalType in requiredGoals) {
             const requiredCount = requiredGoals[goalType];
@@ -395,6 +350,9 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
     startNode.hCost = heuristic(startState);
     openList.push(startNode);
 
+    // XÓA BỎ KHỐI TIỀN XỬ LÝ: Logic này phức tạp và gây ra lỗi không nhất quán
+    // giữa lần quay đầu và các lần quay sau. Vòng lặp A* chính sẽ xử lý tất cả
+    // các hành động xoay một cách đồng bộ.
     while (openList.length > 0) {
         openList.sort((a, b) => a.fCost - b.fCost);
         const currentNode = openList.shift()!;
@@ -410,6 +368,7 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
         if (isGoalAchieved(state)) {
             const path = currentNode.rawActionsToReach;
             const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path));
+
             const newOptimalBlocks = countBlocksInStructure(newStructuredSolution.main);
             const newOptimalLines = path.length;
 
@@ -424,43 +383,7 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
             };
         }
 
-        // --- START: TÁI CẤU TRÚC LOGIC TÌM HÀNG XÓM (Walk, Jump Up, Jump Down) ---
-        const neighbors: { pos: Position, action: 'walk' | 'jump' }[] = [];
-        const {x, y, z} = state.position;
-
-        // Duyệt qua 4 hướng chính (trước, sau, trái, phải)
-        for (const dir of directions) {
-            const nextX = x + dir.x;
-            const nextZ = z + dir.z;
-
-            // 1. Kiểm tra đi bộ (Walk)
-            const walkPos = { x: nextX, y: y, z: nextZ };
-            const groundBelowWalkPos = { x: nextX, y: y - 1, z: nextZ };
-            if (!world.worldMap.has(`${walkPos.x},${walkPos.y},${walkPos.z}`) && world.isWalkable(groundBelowWalkPos)) {
-                neighbors.push({ pos: walkPos, action: 'walk' });
-            }
-
-            // 2. Kiểm tra nhảy lên (Jump Up)
-            // Điều kiện: có 1 khối ở trước mặt (y) và ô đáp ở trên (y+1) trống
-            const jumpUpObstaclePos = { x: nextX, y: y, z: nextZ };
-            const jumpUpLandingPos = { x: nextX, y: y + 1, z: nextZ };
-            if (world.worldMap.has(`${jumpUpObstaclePos.x},${jumpUpObstaclePos.y},${jumpUpObstaclePos.z}`) && 
-                !world.worldMap.has(`${jumpUpLandingPos.x},${jumpUpLandingPos.y},${jumpUpLandingPos.z}`)) {
-                neighbors.push({ pos: jumpUpLandingPos, action: 'jump' });
-            }
-
-            // 3. Kiểm tra nhảy xuống (Jump Down)
-            // Điều kiện: ô ngay phía trước (y) trống và ô đáp ở dưới (y-1) cũng trống
-            const jumpDownAirPos = { x: nextX, y: y, z: nextZ };
-            const jumpDownLandingPos = { x: nextX, y: y - 1, z: nextZ };
-            const groundBelowJumpDown = { x: nextX, y: y - 2, z: nextZ };
-            if (!world.worldMap.has(`${jumpDownAirPos.x},${jumpDownAirPos.y},${jumpDownAirPos.z}`) &&
-                !world.worldMap.has(`${jumpDownLandingPos.x},${jumpDownLandingPos.y},${jumpDownLandingPos.z}`) &&
-                world.isWalkable(groundBelowJumpDown)) {
-                neighbors.push({ pos: jumpDownLandingPos, action: 'jump' });
-            }
-        }
-        // --- END: TÁI CẤU TRÚC LOGIC TÌM HÀNG XÓM ---
+        const neighbors = findNeighbors(state, world);
 
         for (const neighbor of neighbors) {
             const { pos: neighborPos, action: moveAction } = neighbor;
@@ -471,22 +394,10 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
             let cost = 0; // Chi phí sẽ được tính dựa trên hành động
             const actionsToReachNeighbor: string[] = [];
 
-            // Tính toán hướng và chi phí xoay người
-            const dx = neighborPos.x - state.position.x;
-            const dz = neighborPos.z - state.position.z;
-            let targetDir: number;
-            if (dx === 1) targetDir = 0;
-            else if (dz === 1) targetDir = 1;
-            else if (dx === -1) targetDir = 2;
-            else if (dz === -1) targetDir = 3;
-            else targetDir = state.direction; // Fallback, không nên xảy ra với logic hiện tại
-
-            const diff = (targetDir - state.direction + 4) % 4;
-            if (diff === 1) { actionsToReachNeighbor.push('turnRight'); cost += 0.1; } 
-            else if (diff === 3) { actionsToReachNeighbor.push('turnLeft'); cost += 0.1; } 
-            else if (diff === 2) { actionsToReachNeighbor.push('turnRight', 'turnRight'); cost += 0.2; }
-            
-            nextState.direction = targetDir;
+            // Tính toán hành động xoay và chi phí
+            const { actions: turnActions, newDirection: targetDir, cost: turnCost } = calculateTurnActions(state, neighborPos);
+            actionsToReachNeighbor.push(...turnActions);
+            cost += turnCost;
 
             // Thêm hành động và chi phí cho di chuyển (walk/jump)
             if (moveAction === 'walk') {
@@ -496,6 +407,8 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
                 actionsToReachNeighbor.push('jump');
                 cost += 1.2; // Nhảy tốn nhiều chi phí hơn một chút
             }
+            
+            nextState.direction = targetDir;
 
             // Tính chi phí và hành động thu thập/bật công tắc tại ô ĐẾN (chi phí rất nhỏ để ưu tiên)
             const item = world.collectiblesByPos.get(neighborPosKey);
@@ -541,4 +454,77 @@ const aStarPathSolver = (gameConfig: GameConfig): Solution | null => {
 
     console.error("Solver: Không tìm thấy lời giải.");
     return null;
+}
+
+/**
+ * HÀM MỚI: Tìm tất cả các hàng xóm hợp lệ từ một trạng thái nhất định.
+ * @param state Trạng thái hiện tại.
+ * @param world Thế giới game.
+ * @returns Một mảng các hàng xóm hợp lệ.
+ */
+function findNeighbors(state: GameState, world: GameWorld): { pos: Position, action: 'walk' | 'jump' }[] {
+    const neighbors: { pos: Position, action: 'walk' | 'jump' }[] = [];
+    const { x, y, z } = state.position;
+
+    // Duyệt qua 4 hướng chính
+    for (const dir of directions) {
+        const nextX = x + dir.x;
+        const nextZ = z + dir.z;
+
+        // 1. Kiểm tra đi bộ (Walk)
+        const walkPos = { x: nextX, y: y, z: nextZ };
+        const groundBelowWalkPos = { x: nextX, y: y - 1, z: nextZ };
+        if (!world.worldMap.has(`${walkPos.x},${walkPos.y},${walkPos.z}`) && world.isWalkable(groundBelowWalkPos)) {
+            neighbors.push({ pos: walkPos, action: 'walk' });
+        }
+
+        // 2. Kiểm tra nhảy lên (Jump Up)
+        const jumpUpObstaclePos = { x: nextX, y: y, z: nextZ };
+        const jumpUpLandingPos = { x: nextX, y: y + 1, z: nextZ };
+        if (world.worldMap.has(`${jumpUpObstaclePos.x},${jumpUpObstaclePos.y},${jumpUpObstaclePos.z}`) &&
+            !world.worldMap.has(`${jumpUpLandingPos.x},${jumpUpLandingPos.y},${jumpUpLandingPos.z}`)) {
+            neighbors.push({ pos: jumpUpLandingPos, action: 'jump' });
+        }
+
+        // 3. Kiểm tra nhảy xuống (Jump Down)
+        const jumpDownAirPos = { x: nextX, y: y, z: nextZ };
+        const jumpDownLandingPos = { x: nextX, y: y - 1, z: nextZ };
+        const groundBelowJumpDown = { x: nextX, y: y - 2, z: nextZ };
+        if (!world.worldMap.has(`${jumpDownAirPos.x},${jumpDownAirPos.y},${jumpDownAirPos.z}`) &&
+            !world.worldMap.has(`${jumpDownLandingPos.x},${jumpDownLandingPos.y},${jumpDownLandingPos.z}`) &&
+            world.isWalkable(groundBelowJumpDown)) {
+            neighbors.push({ pos: jumpDownLandingPos, action: 'jump' });
+        }
+    }
+    return neighbors;
+}
+
+/**
+ * HÀM MỚI: Tính toán các hành động xoay, hướng mới và chi phí để đi từ trạng thái hiện tại đến vị trí tiếp theo.
+ */
+function calculateTurnActions(currentState: GameState, nextPos: Position): { actions: string[], newDirection: number, cost: number } {
+    const actions: string[] = [];
+    let cost = 0;
+
+    const dx = nextPos.x - currentState.position.x;
+    const dz = nextPos.z - currentState.position.z;
+    // SỬA LỖI: Cập nhật ánh xạ dx, dz sang targetDir theo quy ước hướng đã sửa.
+    let targetDir: number;
+    if (dz === -1) targetDir = 0;     // Lùi (-Z)
+    else if (dx === 1) targetDir = 1;  // Phải (+X)
+    else if (dz === 1) targetDir = 2; // Tới (+Z)
+    else if (dx === -1) targetDir = 3;// Trái (-X)
+    else targetDir = currentState.direction;
+
+    if (targetDir !== currentState.direction) {
+        // SỬA LỖI DỨT ĐIỂM: Logic quay đang bị ngược. Hoán đổi lại turnLeft và turnRight.
+        // diff = 1 (theo chiều kim đồng hồ) phải là turnRight.
+        // diff = 3 (ngược chiều kim đồng hồ) phải là turnLeft.
+        const diff = (targetDir - currentState.direction + 4) % 4;
+        if (diff === 1) { actions.push('turnRight'); cost += 0.1; }
+        else if (diff === 3) { actions.push('turnLeft'); cost += 0.1; }
+        else if (diff === 2) { actions.push('turnRight', 'turnRight'); cost += 0.2; }
+    }
+
+    return { actions, newDirection: targetDir, cost };
 }

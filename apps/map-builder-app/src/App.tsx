@@ -930,10 +930,22 @@ function App() {
   // --- HÀM MỚI: TÍCH HỢP BỘ GIẢI MÊ CUNG ---
   const handleSolveMaze = () => {
     try {
-      // SỬA LỖI: Phân tích cú pháp JSON một lần và sử dụng nó làm nguồn chân lý (source of truth).
-      // Điều này đảm bảo rằng các thay đổi thủ công (như `direction`) được áp dụng nhất quán.
-      const data = JSON.parse(editedJson); 
-      const gameConfig = data.gameConfig;
+      // --- START: SỬA LỖI HƯỚNG NHÂN VẬT KHI GIẢI ---
+      // Vấn đề: editedJson có thể không được cập nhật với những thay đổi mới nhất
+      // từ PropertiesPanel (ví dụ: thay đổi hướng của người chơi).
+      // Giải pháp: Luôn tạo lại chuỗi JSON từ `outputJsonString` (dựa trên `placedObjects` mới nhất)
+      // ngay trước khi giải. Điều này đảm bảo bộ giải luôn nhận được dữ liệu chính xác.
+      const currentMapStateJson = outputJsonString;
+      const data = JSON.parse(currentMapStateJson);
+
+      // Cập nhật lại state của trình soạn thảo JSON để người dùng thấy dữ liệu đang được giải
+      setEditedJson(currentMapStateJson);
+      // --- END: SỬA LỖI HƯỚNG NHÂN VẬT KHI GIẢI ---
+
+      // Logic cũ: Phân tích cú pháp JSON một lần và sử dụng nó làm nguồn chân lý (source of truth).
+      // const data = JSON.parse(editedJson);
+      const gameConfig = data.gameConfig; // Giờ đây gameConfig đã được cập nhật chính xác
+      const solutionConfig = data.solution; // THÊM MỚI: Trích xuất solution config
 
       if (!gameConfig) {
         alert("Error: 'gameConfig' not found in JSON. Cannot solve.");
@@ -943,9 +955,8 @@ function App() {
       // 1. Đồng bộ hóa trạng thái ứng dụng (placedObjects) với JSON đã chỉnh sửa.
       // Tham số `true` để không hiển thị alert, tham số `data` để tránh parse lại.
       handleRenderEditedJson(true, data);
-
-      // 2. Chạy bộ giải với cùng một gameConfig đã được parse.
-      const solution = solveMaze(gameConfig);
+      // 2. Chạy bộ giải với gameConfig và solutionConfig đã được parse.
+      const solution = solveMaze(gameConfig, solutionConfig);
 
       if (solution) {
         // 3. Cập nhật metadata với lời giải mới.

@@ -48,6 +48,9 @@ const compileActionsToXml = (actions: any[]): string => {
       case 'maze_collect': // Thêm trường hợp cho maze_collect
         currentBlockXml = `<block type="maze_collect"></block>`;
         break;
+      case 'maze_jump': // THÊM MỚI: Xử lý cho hành động jump
+        currentBlockXml = `<block type="maze_jump"></block>`;
+        break;
       case 'maze_toggleSwitch': // Thêm trường hợp cho maze_toggleSwitch
         currentBlockXml = `<block type="maze_toggle_switch"></block>`;
         break;
