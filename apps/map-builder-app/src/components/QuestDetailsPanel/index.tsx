@@ -7,6 +7,7 @@ import '../PropertiesPanel/BlocklyModal.css'; // Import CSS cho modal
 interface QuestDetailsPanelProps {
   metadata: Record<string, any> | null;
   onMetadataChange: (path: string, value: any) => void;
+  onSolveMaze: () => void; // THÊM MỚI: Prop để gọi solver
 }
 
 // Helper để lấy giá trị lồng sâu trong object
@@ -81,7 +82,7 @@ const compileActionsToXml = (actions: any[]): string => {
 };
 // --- END: HÀM MỚI ---
 
-export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPanelProps) {
+export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: QuestDetailsPanelProps) {
   // Hàm cập nhật metadata mới, xử lý các key có dấu chấm
   const handleComplexChange = (path: string, value: any) => {
     if (!metadata) return;
@@ -277,7 +278,12 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
         />
       </div>
 
-      <h3 className="props-title">Solution</h3>
+      <div className="label-with-button">
+        <h3 className="props-title" style={{ marginBottom: 0 }}>Solution</h3>
+        <button className="json-action-btn" onClick={onSolveMaze}>
+          Tự động giải
+        </button>
+      </div>
       <div className="quest-prop-group">
         <label>Raw Actions (JSON)</label>
         <textarea
@@ -285,11 +291,13 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
           value={localRawActions}
           onChange={(e) => setLocalRawActions(e.target.value)}
           onBlur={() => {
-            try {
-              const parsed = JSON.parse(localRawActions);
-              handleComplexChange('solution.rawActions', parsed);
-            } catch (error) {
-              console.warn("Invalid JSON in rawActions field", error);
+            if (localRawActions.trim()) { // Chỉ parse nếu chuỗi không rỗng
+              try {
+                const parsed = JSON.parse(localRawActions);
+                handleComplexChange('solution.rawActions', parsed);
+              } catch (error) {
+                console.warn("Invalid JSON in rawActions field", error);
+              }
             }
           }}
           rows={6}
@@ -307,11 +315,13 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
           value={localStructuredSolution}
           onChange={(e) => setLocalStructuredSolution(e.target.value)}
           onBlur={() => {
-            try {
-              const parsed = JSON.parse(localStructuredSolution);
-              handleComplexChange('solution.structuredSolution', parsed);
-            } catch (error) {
-              console.warn("Invalid JSON in structuredSolution field", error);
+            if (localStructuredSolution.trim()) { // Chỉ parse nếu chuỗi không rỗng
+              try {
+                const parsed = JSON.parse(localStructuredSolution);
+                handleComplexChange('solution.structuredSolution', parsed);
+              } catch (error) {
+                console.warn("Invalid JSON in structuredSolution field", error);
+              }
             }
           }}
           rows={10}
@@ -326,12 +336,14 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
           onChange={(e) => setLocalSolution(e.target.value)}
           // Cập nhật state cha khi người dùng click ra ngoài, đồng thời validate JSON
           onBlur={() => {
-            try {
-              const parsed = JSON.parse(localSolution);
-              handleComplexChange('solution', parsed);
-            } catch (error) {
-              console.warn("Invalid JSON in solution field", error);
-            } // Nếu JSON không hợp lệ, không cập nhật state cha nhưng giữ nguyên text đã nhập
+            if (localSolution.trim()) { // Chỉ parse nếu chuỗi không rỗng
+              try {
+                const parsed = JSON.parse(localSolution);
+                handleComplexChange('solution', parsed);
+              } catch (error) {
+                console.warn("Invalid JSON in solution field", error);
+              } // Nếu JSON không hợp lệ, không cập nhật state cha nhưng giữ nguyên text đã nhập
+            }
           }}
           rows={10}
         />  

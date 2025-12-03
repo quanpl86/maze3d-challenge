@@ -6,6 +6,7 @@ import { ViewControls } from './components/ViewControls';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { QuestDetailsPanel } from './components/QuestDetailsPanel'; // THÊM MỚI
 import { Themes } from './components/PropertiesPanel/theme'; // THÊM MỚI: Import theme
+import { solveMaze } from './components/QuestDetailsPanel/gameSolver'; // THÊM MỚI: Import solver
 import { JsonOutputPanel } from './components/JsonOutputPanel';
 import { buildableAssetGroups } from './config/gameAssets';
 import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds, type MapTheme } from './types';
@@ -318,7 +319,14 @@ function App() {
     const finish = finishObject ? { x: finishObject.position[0], y: finishObject.position[1], z: finishObject.position[2] } : null;
 
     const startObject = placedObjects.find(o => o.asset.key === 'player_start');
-    const players = startObject ? [{ id: "player1", start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: 1 } }] : [];
+    // CẢI TIẾN: Đọc hướng của người chơi từ `properties` của đối tượng,
+    // thay vì gán cứng giá trị là 1. Mặc định vẫn là 1 nếu không được chỉ định.
+    const players = startObject
+      ? [{
+          id: "player1",
+          start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: startObject.properties?.direction ?? 1 }
+        }]
+      : [];
 
     const gameConfig = { type: "maze", renderer: "3d", blocks, players, collectibles, interactibles, finish };
 
@@ -757,7 +765,12 @@ function App() {
         if (players[0]?.start) {
           const asset = assetMap.get('player_start');
           const startPos = players[0].start;
-          if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
+          // SỬA LỖI: Đọc và lưu lại thuộc tính `direction` của người chơi khi import map.
+          if (asset) newPlacedObjects.push({ 
+            id: uuidv4(), 
+            asset, 
+            position: [startPos.x, startPos.y, startPos.z], 
+            properties: { direction: startPos.direction } });
         }
         
         setPlacedObjectsWithHistory(newObjects => newPlacedObjects); // Bắt đầu lịch sử mới khi import
@@ -806,7 +819,12 @@ function App() {
       if (players[0]?.start) {
         const asset = assetMap.get('player_start');
         const startPos = players[0].start;
-        if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
+        // SỬA LỖI: Đọc và lưu lại thuộc tính `direction` của người chơi khi load map từ URL.
+        if (asset) newPlacedObjects.push({ 
+          id: uuidv4(), 
+          asset, 
+          position: [startPos.x, startPos.y, startPos.z], 
+          properties: { direction: startPos.direction } });
       }
       
       setPlacedObjectsWithHistory(() => newPlacedObjects); // Bắt đầu lịch sử mới khi load map
@@ -842,9 +860,11 @@ function App() {
   };
 
   // --- HÀM MỚI: RENDER LẠI MAP TỪ JSON ĐÃ CHỈNH SỬA ---
-  const handleRenderEditedJson = () => {
+  const handleRenderEditedJson = (silent = false, preParsedJson: any = null) => {
     try {
-      const json = JSON.parse(editedJson);
+      // Nếu JSON đã được phân tích cú pháp từ trước, sử dụng nó. Nếu không, phân tích cú pháp từ state.
+      const json = preParsedJson ? preParsedJson : JSON.parse(editedJson);
+
       let configToLoad;
       if (json.gameConfig && typeof json.gameConfig === 'object') {
         const { gameConfig, ...metadata } = json;
@@ -871,11 +891,16 @@ function App() {
       if (players[0]?.start) {
         const asset = assetMap.get('player_start');
         const startPos = players[0].start;
-        if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [startPos.x, startPos.y, startPos.z], properties: {} });
+        // SỬA LỖI: Đọc và lưu lại thuộc tính `direction` của người chơi khi render từ JSON đã chỉnh sửa.
+        if (asset) newPlacedObjects.push({ 
+          id: uuidv4(), 
+          asset, 
+          position: [startPos.x, startPos.y, startPos.z], 
+          properties: { direction: startPos.direction } });
       }
       
       setPlacedObjectsWithHistory(() => newPlacedObjects);
-      alert('Map rendered successfully from JSON!');
+      if (!silent) alert('Map rendered successfully from JSON!');
     } catch (error) {
       console.error("Failed to render map from JSON:", error);
       alert(`Failed to render map: ${error instanceof Error ? error.message : String(error)}`);
@@ -899,6 +924,42 @@ function App() {
       URL.revokeObjectURL(url);
     } catch (error) {
       alert(`Invalid JSON. Cannot save file. Please fix the errors in the JSON editor.\n\n${error}`);
+    }
+  };
+
+  // --- HÀM MỚI: TÍCH HỢP BỘ GIẢI MÊ CUNG ---
+  const handleSolveMaze = () => {
+    try {
+      // SỬA LỖI: Phân tích cú pháp JSON một lần và sử dụng nó làm nguồn chân lý (source of truth).
+      // Điều này đảm bảo rằng các thay đổi thủ công (như `direction`) được áp dụng nhất quán.
+      const data = JSON.parse(editedJson); 
+      const gameConfig = data.gameConfig;
+
+      if (!gameConfig) {
+        alert("Error: 'gameConfig' not found in JSON. Cannot solve.");
+        return;
+      }
+
+      // 1. Đồng bộ hóa trạng thái ứng dụng (placedObjects) với JSON đã chỉnh sửa.
+      // Tham số `true` để không hiển thị alert, tham số `data` để tránh parse lại.
+      handleRenderEditedJson(true, data);
+
+      // 2. Chạy bộ giải với cùng một gameConfig đã được parse.
+      const solution = solveMaze(gameConfig);
+
+      if (solution) {
+        // 3. Cập nhật metadata với lời giải mới.
+        setQuestMetadata(prev => ({
+          ...prev,
+          // Hợp nhất solution cũ (nếu có) với kết quả mới từ solver.
+          solution: { ...prev?.solution, ...solution },
+        }));
+        alert("Đã tìm thấy lời giải và cập nhật thành công!");
+      } else {
+        alert("Không tìm thấy đường đi đến điểm kết thúc.");
+      }
+    } catch (error) {
+      alert(`Error while solving maze: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
@@ -969,6 +1030,7 @@ function App() {
         <QuestDetailsPanel 
           metadata={questMetadata}
           onMetadataChange={handleMetadataChange}
+          onSolveMaze={handleSolveMaze} // Truyền hàm giải vào
         />
         <JsonOutputPanel 
           questId={questMetadata?.id || 'untitled-quest'}
