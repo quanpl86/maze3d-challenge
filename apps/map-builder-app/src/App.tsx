@@ -5,9 +5,10 @@ import { BuilderScene, type SceneController } from './components/BuilderScene';
 import { ViewControls } from './components/ViewControls';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { QuestDetailsPanel } from './components/QuestDetailsPanel'; // THÊM MỚI
+import { Themes } from './components/PropertiesPanel/theme'; // THÊM MỚI: Import theme
 import { JsonOutputPanel } from './components/JsonOutputPanel';
 import { buildableAssetGroups } from './config/gameAssets';
-import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds } from './types';
+import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds, type MapTheme } from './types';
 import './App.css';
 
 const defaultAsset = buildableAssetGroups[0]?.items[0];
@@ -19,6 +20,13 @@ function App() {
   const [history, setHistory] = useState<PlacedObject[][]>([[]]); // Mảng lưu các trạng thái của placedObjects
   const [historyIndex, setHistoryIndex] = useState(0); // Con trỏ tới trạng thái hiện tại trong lịch sử
   const placedObjects = useMemo(() => history[historyIndex] || [], [history, historyIndex]);
+  // --- START: SỬA LỖI ÁP DỤNG THEME NHIỀU LẦN ---
+  // State cho theme hiện tại
+  const [mapTheme, setMapTheme] = useState<MapTheme>(Themes.COMPREHENSIVE_THEMES[0]); // THÊM MỚI: State cho theme
+  // Ref để lưu lại theme *trước đó*. Điều này rất quan trọng để so sánh chính xác khi đổi theme.
+  const previousThemeRef = useRef<MapTheme>(mapTheme);
+  useEffect(() => { previousThemeRef.current = mapTheme; }, [mapTheme]);
+  // --- END: SỬA LỖI ÁP DỤNG THEME NHIỀU LẦN ---
   const [builderMode, setBuilderMode] = useState<BuilderMode>('build-single');
   const [sidebarWidth, setSidebarWidth] = useState(320); // State cho chiều rộng của sidebar
   const [boxDimensions, setBoxDimensions] = useState<BoxDimensions>({ width: 14, height: 14, depth: 14 });
@@ -32,6 +40,7 @@ function App() {
   
   // State mới để lưu trữ siêu dữ liệu của quest
   const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
+  const [currentMapFileName, setCurrentMapFileName] = useState<string>('untitled-quest.json');
 
   // State mới để lưu trữ chuỗi JSON đang được chỉnh sửa trong panel
   const [editedJson, setEditedJson] = useState('');
@@ -262,6 +271,39 @@ function App() {
     return map;
   }, []);
   
+  // --- START: LOGIC MỚI CHO VIỆC ÁP DỤNG THEME ---
+  const handleThemeChange = (newTheme: MapTheme) => {
+    // Lấy theme cũ từ ref thay vì state, đảm bảo luôn đúng ở các lần thay đổi sau
+    const oldTheme = previousThemeRef.current;
+
+    // Tìm asset object hoàn chỉnh cho ground và obstacle của theme mới
+    const newGroundAsset = assetMap.get(newTheme.ground);
+    const newObstacleAsset = assetMap.get(newTheme.obstacle);
+
+    // Nếu không tìm thấy asset tương ứng, không thực hiện thay đổi để tránh lỗi
+    if (!newGroundAsset || !newObstacleAsset) {
+      console.error("Không tìm thấy asset cho theme mới. Vui lòng kiểm tra lại cấu hình assets và theme.ts.");
+      return;
+    }
+
+    // Cập nhật lại toàn bộ các đối tượng trên bản đồ
+    setPlacedObjectsWithHistory(prevObjects => {
+      return prevObjects.map(obj => {
+        // Nếu asset của đối tượng là ground của theme cũ -> đổi sang ground của theme mới
+        if (obj.asset.key === oldTheme.ground) {
+          return { ...obj, asset: newGroundAsset };
+        }
+        // Nếu asset của đối tượng là obstacle của theme cũ -> đổi sang obstacle của theme mới
+        if (obj.asset.key === oldTheme.obstacle) {
+          return { ...obj, asset: newObstacleAsset };
+        }
+        // Giữ nguyên các đối tượng khác
+        return obj;
+      });
+    });
+
+    setMapTheme(newTheme); // Cuối cùng, cập nhật state của theme hiện tại thành theme mới
+  };
   const selectedObject = useMemo(() => {
     const lastSelectedId = selectedObjectIds[selectedObjectIds.length - 1];
     return placedObjects.find(obj => obj.id === lastSelectedId) || null;
@@ -288,6 +330,12 @@ function App() {
     // Nếu không, chỉ trả về gameConfig
     return JSON.stringify({ gameConfig }, null, 2);
   }, [placedObjects, questMetadata]);
+
+  // Lấy danh sách các asset key đang có trên map để truyền cho ThemeSelector
+  const currentMapItems = useMemo(() => {
+    const itemKeys = new Set(placedObjects.map(obj => obj.asset.key));
+    return Array.from(itemKeys);
+  }, [placedObjects]);
 
   // Đồng bộ hóa trình soạn thảo JSON khi outputJsonString thay đổi
   useEffect(() => {
@@ -374,12 +422,29 @@ function App() {
   const handleAddObject = (gridPosition: [number, number, number], asset: BuildableAsset) => {
     const coordId = gridPosition.join(',');
     if (placedObjects.some(obj => obj.position.join(',') === coordId)) return;
-    
+
+    // --- START: LOGIC MỚI ĐỂ ÁP DỤNG THEME KHI BUILD ---
+    let finalAsset = asset;
+    const defaultGroundAssetKey = 'ground.checker'; // Giả sử đây là ground mặc định trong palette
+    const defaultObstacleAssetKey = 'wall.brick02'; // Giả sử đây là obstacle mặc định trong palette
+
+    // Nếu asset đang được chọn là ground mặc định, hãy thay thế nó bằng ground của theme hiện tại.
+    if (asset.key === defaultGroundAssetKey) {
+      const themeGroundAsset = assetMap.get(mapTheme.ground);
+      if (themeGroundAsset) finalAsset = themeGroundAsset;
+    }
+    // Nếu asset đang được chọn là obstacle mặc định, hãy thay thế nó bằng obstacle của theme hiện tại.
+    else if (asset.key === defaultObstacleAssetKey) {
+      const themeObstacleAsset = assetMap.get(mapTheme.obstacle);
+      if (themeObstacleAsset) finalAsset = themeObstacleAsset;
+    }
+    // --- END: LOGIC MỚI ---
+
     let objectsToAdd: PlacedObject[] = [];
     let objectsToRemove: string[] = [];
-    
-    if (asset.key === 'finish' || asset.key === 'player_start') {
-      const existing = placedObjects.find(o => o.asset.key === asset.key);
+
+    if (finalAsset.key === 'finish' || finalAsset.key === 'player_start') {
+      const existing = placedObjects.find(o => o.asset.key === finalAsset.key);
       if (existing) objectsToRemove.push(existing.id);
     }
 
@@ -387,7 +452,7 @@ function App() {
       // --- LOGIC TẠO ID MỚI ---
       id: (() => {
         // Nếu là switch, tạo id dạng s1, s2, ...
-        if (asset.key === 'switch') {
+        if (finalAsset.key === 'switch') {
           const switchObjects = placedObjects.filter(o => o.asset.key === 'switch');
           const maxNum = switchObjects.reduce((max, o) => {
             const num = parseInt(o.id.substring(1), 10);
@@ -396,11 +461,11 @@ function App() {
           return `s${maxNum + 1}`;
         }
         // Giữ nguyên logic cũ cho portal và các đối tượng khác
-        return asset.defaultProperties?.type === 'portal' ? `${asset.key}_${uuidv4().substring(0, 4)}` : uuidv4();
+        return finalAsset.defaultProperties?.type === 'portal' ? `${finalAsset.key}_${uuidv4().substring(0, 4)}` : uuidv4();
       })(),
       position: gridPosition,
-      asset: asset,
-      properties: asset.defaultProperties ? { ...asset.defaultProperties } : {},
+      asset: finalAsset, // Sử dụng finalAsset đã được kiểm tra theme
+      properties: finalAsset.defaultProperties ? { ...finalAsset.defaultProperties } : {},
     };
     objectsToAdd.push(newObject);
 
@@ -657,6 +722,7 @@ function App() {
           // Để nhất quán, chúng ta sẽ coi nó là file gameConfig-only
           configToLoad = json;
           setQuestMetadata(null);
+          setCurrentMapFileName(file.name); // Cập nhật tên file
         } else {
             throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
         }
@@ -717,6 +783,7 @@ function App() {
       if (json.gameConfig && typeof json.gameConfig === 'object') {
         const { gameConfig, ...metadata } = json;
         configToLoad = gameConfig;
+        setCurrentMapFileName(url.split('/').pop() || 'untitled-quest.json'); // Cập nhật tên file
         setQuestMetadata(metadata);
       } else if (json.blocks || json.players) {
         configToLoad = json;
@@ -815,6 +882,26 @@ function App() {
     }
   };
 
+  // --- HÀM MỚI: LƯU (TẢI VỀ) FILE JSON ---
+  const handleSaveMap = () => {
+    try {
+      // Đảm bảo JSON hợp lệ trước khi lưu
+      JSON.parse(editedJson);
+
+      const blob = new Blob([editedJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentMapFileName; // Sử dụng tên file đã lưu
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      alert(`Invalid JSON. Cannot save file. Please fix the errors in the JSON editor.\n\n${error}`);
+    }
+  };
+
   return (
     <div className="app-container">
       {isPaletteVisible && (
@@ -873,6 +960,9 @@ function App() {
           onDeleteObject={handleRemoveObject} // Truyền hàm xóa vào
           onAddObject={handleAddNewObject} // Thêm prop onAddObject
           onCopyAsset={handleCopyObject} // Thêm prop onCopyAsset
+          currentMapItems={currentMapItems} // Prop cho theme
+          mapTheme={mapTheme} // Prop cho theme
+          onThemeChange={handleThemeChange} // Prop cho theme
           onClearSelection={() => setSelectedObjectIds([])}
         />
         {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}
@@ -885,6 +975,7 @@ function App() {
           editedJson={editedJson}
           onJsonChange={setEditedJson}
           onRender={handleRenderEditedJson}
+          //onSave={handleSaveMap} // Bỏ ghi chú dòng này để kích hoạt lại nút Save
         />
       </div>
       {/* --- END: THÊM THANH RESIZER VÀ ÁP DỤNG WIDTH ĐỘNG --- */}

@@ -13,7 +13,9 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
   plugins: [
     react(), 
-    tsconfigPaths(), // Plugin để đọc 'paths' từ tsconfig.json
+    tsconfigPaths({
+      root: path.resolve(__dirname, '../../../../'), // Chỉ định đường dẫn đến tsconfig.json gốc của monorepo
+    }),
     {
       name: 'serve-quest-player-assets-for-builder-dev',
       configureServer(server) {

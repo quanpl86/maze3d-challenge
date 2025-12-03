@@ -1,6 +1,13 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+
+    // --- START: THÊM CẤU HÌNH PATH ALIAS ---
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": ["apps/map-builder-app/src/config/*"]
+    }
+    // --- END: THÊM CẤU HÌNH PATH ALIAS ---
   }
 }

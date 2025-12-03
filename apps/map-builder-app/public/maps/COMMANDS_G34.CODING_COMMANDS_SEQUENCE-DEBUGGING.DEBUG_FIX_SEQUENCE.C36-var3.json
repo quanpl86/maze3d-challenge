@@ -1,21 +1,21 @@
 {
-  "id": "COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30-var2",
+  "id": "COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36-var3",
   "gameType": "maze",
-  "topic": "topic-title-coding_commands_3d-movement",
-  "level": 30,
-  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Title",
-  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Description",
-  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Description",
+  "topic": "topic-title-coding_commands_sequence-debugging",
+  "level": 36,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description",
   "translations": {
     "vi": {
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Title": "Nhảy bật công tắc",
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Description": "Công tắc nằm ở một hòn đảo riêng biệt. Bạn phải sử dụng lệnh jump để nhảy đến các vị trí có công tắc, sau đó mới có thể bật được công tắc.",
-      "topic-title-coding_commands_3d-movement": "Di chuyển trong Không gian 3D"
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title": "Sửa lỗi: Sai thứ tự nhiệm vụ",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description": "Chương trình đang cố gắng bật công tắc trước khi thu thập pha lê, nhưng đường đi lại được lập trình để lấy pha lê trước. Hãy sắp xếp lại các khối lệnh cho hợp lý.",
+      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
     },
     "en": {
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Title": "Leap for the Switch",
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_3D-MOVEMENT.COMPLEX_APPLY.C30.Description": "The switch is on a separate island. You must use the jump command to cross the gap before you can flip the switch.",
-      "topic-title-coding_commands_3d-movement": "Di chuyển trong Không gian 3D"
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title": "Fix the Bug: Wrong Objective Order",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description": "The program is trying to flip the switch before collecting the crystal, but the path is coded to get the crystal first. Rearrange the blocks logically.",
+      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
     }
   },
   "supportedEditors": [
@@ -63,6 +63,10 @@
           "contents": [
             {
               "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
               "type": "maze_toggle_switch"
             }
           ]
@@ -70,102 +74,14 @@
       ]
     },
     "maxBlocks": 24,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
     "renderer": "3d",
     "blocks": [
       {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
           "x": 7,
           "y": 0,
@@ -173,23 +89,63 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.normal",
         "position": {
           "x": 8,
           "y": 0,
-          "z": 6
+          "z": 11
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
           "x": 9,
           "y": 0,
-          "z": 6
+          "z": 11
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
           "x": 10,
           "y": 0,
@@ -197,7 +153,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
           "x": 10,
           "y": 0,
@@ -205,7 +161,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
           "x": 10,
           "y": 0,
@@ -213,59 +169,27 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
-          "x": 11,
+          "x": 10,
           "y": 0,
-          "z": 6
+          "z": 9
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
-          "x": 11,
+          "x": 10,
           "y": 0,
-          "z": 8
+          "z": 10
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.normal",
         "position": {
-          "x": 12,
+          "x": 10,
           "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 9,
-          "y": 1,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "stone.stone05",
-        "position": {
-          "x": 5,
-          "y": 1,
-          "z": 6
+          "z": 11
         }
       }
     ],
@@ -273,72 +197,83 @@
       {
         "id": "player1",
         "start": {
-          "x": 1,
+          "x": 7,
           "y": 1,
           "z": 6,
           "direction": 1
         }
       }
     ],
-    "collectibles": [],
-    "interactibles": [
+    "collectibles": [
       {
-        "id": "s1",
-        "type": "switch",
-        "initialState": "off",
-        "position": {
-          "x": 11,
-          "y": 1,
-          "z": 6
-        }
-      },
-      {
-        "id": "s2",
-        "type": "switch",
-        "initialState": "off",
+        "id": "c1",
+        "type": "crystal",
         "position": {
           "x": 7,
           "y": 1,
-          "z": 6
+          "z": 7
         }
+      }
+    ],
+    "interactibles": [
+      {
+        "id": "s2",
+        "type": "switch",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 11
+        },
+        "initialState": "off"
       }
     ],
     "finish": {
       "x": 10,
       "y": 1,
-      "z": 8
+      "z": 6
     }
   },
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "switch": 2
+      "crystal": 1,
+      "switch": 1
     },
     "optimalBlocks": 19,
     "optimalLines": 18,
     "rawActions": [
+      "turnRight",
+      "moveForward",
+      "collect",
       "moveForward",
       "moveForward",
       "moveForward",
-      "jump",
-      "jump",
-      "moveForward",
-      "toggleSwitch",
-      "moveForward",
-      "jump",
-      "jump",
       "moveForward",
       "toggleSwitch",
       "turnLeft",
-      "turnLeft",
+      "moveForward",
+      "moveForward",
       "moveForward",
       "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
       "moveForward",
       "moveForward"
     ],
     "structuredSolution": {
       "main": [
         {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
           "type": "maze_moveForward"
         },
         {
@@ -346,27 +281,6 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_toggleSwitch"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
         },
         {
           "type": "maze_moveForward"
@@ -379,8 +293,10 @@
           "direction": "turnLeft"
         },
         {
-          "type": "maze_turn",
-          "direction": "turnLeft"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -388,6 +304,15 @@
         {
           "type": "maze_turn",
           "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -407,28 +332,16 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_toggleSwitch"
-        },
-        {
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -441,8 +354,11 @@
           "direction": "turnLeft"
         },
         {
+          "type": "maze_moveForward"
+        },
+        {
           "type": "maze_turn",
-          "direction": "turnLeft"
+          "direction": "turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -450,6 +366,15 @@
         {
           "type": "maze_turn",
           "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"

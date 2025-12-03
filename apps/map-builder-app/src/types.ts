@@ -39,3 +39,11 @@ export interface SelectionBounds {
     min: [number, number, number];
     max: [number, number, number];
 }
+
+/**
+ * Định nghĩa cấu trúc cho một theme của map.
+ */
+export interface MapTheme {
+  ground: string;
+  obstacle: string;
+}

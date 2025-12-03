@@ -17,6 +17,70 @@ const getDeepValue = (obj: any, path: string) => {
   return path.split('.').reduce((o, k) => (o || {})[k], obj);
 };
 
+// --- START: HÀM MỚI ĐỂ BIÊN DỊCH STRUCTURED SOLUTION SANG XML ---
+/**
+ * Biên dịch một mảng các hành động từ structuredSolution thành chuỗi XML của Blockly.
+ * @param actions Mảng các đối tượng hành động.
+ * @returns Một chuỗi XML tương thích với Blockly.
+ */
+const compileActionsToXml = (actions: any[]): string => {
+  if (!Array.isArray(actions) || actions.length === 0) {
+    return '';
+  }
+
+  let previousBlockXml = '';
+
+  // Xử lý đệ quy mảng hành động từ dưới lên để xây dựng chuỗi <next>
+  for (let i = actions.length - 1; i >= 0; i--) {
+    const action = actions[i];
+    let currentBlockXml = '';
+
+    switch (action.type) { // Đã thay đổi từ action.name sang action.type
+      case 'maze_moveForward':
+        currentBlockXml = `<block type="maze_moveForward"></block>`;
+        break;
+      case 'maze_turn': // Đã thay đổi từ action.name sang action.type
+        // Giá trị action.direction đã là 'turnLeft' hoặc 'turnRight'
+        const turnDir = action.direction;
+        currentBlockXml = `<block type="maze_turn"><field name="DIR">${turnDir}</field></block>`;
+        break;
+      case 'maze_collect': // Thêm trường hợp cho maze_collect
+        currentBlockXml = `<block type="maze_collect"></block>`;
+        break;
+      case 'maze_toggleSwitch': // Thêm trường hợp cho maze_toggleSwitch
+        currentBlockXml = `<block type="maze_toggle_switch"></block>`;
+        break;
+      case 'maze_repeat': // Giả định structuredSolution sử dụng 'maze_repeat' cho vòng lặp
+        // Đệ quy để biên dịch các hành động con bên trong khối lặp
+        const innerBlocksXml = compileActionsToXml(action.actions || []);
+        currentBlockXml = `
+          <block type="maze_repeat">
+            <value name="TIMES">
+              <shadow type="math_number">
+                <field name="NUM">${action.times || 1}</field>
+              </shadow>
+            </value>
+            <statement name="DO">
+              ${innerBlocksXml}
+            </statement>
+          </block>`;
+        break;
+      default:
+        console.warn(`Loại hành động không xác định: ${action.type}`);
+        break;
+    }
+
+    // Gắn khối trước đó vào thẻ <next> của khối hiện tại
+    if (previousBlockXml) {
+      currentBlockXml = currentBlockXml.replace('</block>', `<next>${previousBlockXml}</next></block>`);
+    }
+    previousBlockXml = currentBlockXml;
+  }
+
+  return previousBlockXml;
+};
+// --- END: HÀM MỚI ---
+
 export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPanelProps) {
   // Hàm cập nhật metadata mới, xử lý các key có dấu chấm
   const handleComplexChange = (path: string, value: any) => {
@@ -63,6 +127,44 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
       setLocalStartBlocks('');
     }
   }, [metadata]);
+
+  // --- START: HÀM XỬ LÝ SỰ KIỆN CLICK NÚT BIÊN DỊCH ---
+  const handleCompileSolutionToXml = () => {
+    try {
+      // B1: Kiểm tra xem chuỗi JSON có rỗng hay không
+      if (!localStructuredSolution || localStructuredSolution.trim() === '') {
+        alert('Lỗi: Structured Solution (JSON) đang trống. Vui lòng nhập dữ liệu.');
+        return;
+      }
+
+      const structuredSolution = JSON.parse(localStructuredSolution);
+
+      // B2: Kiểm tra xem dữ liệu đã parse có thuộc tính 'main' là một mảng không
+      if (!structuredSolution || !Array.isArray(structuredSolution.main)) {
+        alert('Lỗi: Dữ liệu trong Structured Solution phải là một đối tượng JSON có thuộc tính "main" là một mảng (Array) các hành động.');
+        return;
+      }
+
+      const innerBlocksXml = compileActionsToXml(structuredSolution.main); // Truyền mảng 'main' vào hàm biên dịch
+
+      // Bọc các khối đã biên dịch vào khối maze_start và thẻ <xml>
+      const finalXml = `<xml><block type="maze_start" deletable="false" movable="false"><statement name="DO">${innerBlocksXml}</statement></block></xml>`;
+
+      // Định dạng lại XML để dễ đọc hơn (tùy chọn, nhưng hữu ích cho debug)
+      // const formattedXml = formatXml(finalXml); // Cần một hàm formatXml nếu muốn
+
+      // Cập nhật state cục bộ và state của component cha
+      const escapedXml = finalXml.replace(/"/g, '\\"');
+      setLocalStartBlocks(escapedXml);
+      handleComplexChange('blocklyConfig.startBlocks', finalXml); // Lưu chuỗi "sạch"
+
+      alert('Tạo Start Blocks XML thành công!');
+    } catch (error) {
+      console.error("Lỗi khi biên dịch structuredSolution sang XML:", error);
+      alert(`Lỗi: Không thể parse structuredSolution. Vui lòng kiểm tra lại định dạng JSON.\n\n${error}`);
+    }
+  };
+  // --- END: HÀM XỬ LÝ SỰ KIỆN ---
 
   if (!metadata) {
     return (
@@ -194,7 +296,12 @@ export function QuestDetailsPanel({ metadata, onMetadataChange }: QuestDetailsPa
         />
       </div>
       <div className="quest-prop-group">
-        <label>Structured Solution (JSON)</label>
+        <div className="label-with-button">
+          <label>Structured Solution (JSON)</label>
+          <button className="json-action-btn" onClick={handleCompileSolutionToXml}>
+            Start Blocks Create
+          </button>
+        </div>
         <textarea
           className="json-editor-small"
           value={localStructuredSolution}
