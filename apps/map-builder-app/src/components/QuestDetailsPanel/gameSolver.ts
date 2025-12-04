@@ -355,7 +355,73 @@ const countBlocksInStructure = (actions: Action[]): number => {
   return count;
 };
 
+/**
+ * HÀM MỚI: Đếm tổng số khối lệnh trong toàn bộ structuredSolution, bao gồm cả chương trình chính và các hàm.
+ * Tương đương với hàm `count_blocks` trong Python.
+ * @param structuredSolution Đối tượng structuredSolution chứa main và procedures.
+ * @returns Tổng số khối lệnh.
+ */
+const calculateTotalBlocksInSolution = (structuredSolution: { main: Action[], procedures?: Record<string, Action[]> }): number => {
+  let total = 0;
 
+  // Đếm khối "On start" cho chương trình chính
+  total += 1;
+  total += countBlocksInStructure(structuredSolution.main);
+
+  // Đếm các khối trong các hàm đã định nghĩa
+  if (structuredSolution.procedures) {
+    for (const procName in structuredSolution.procedures) {
+      total += 1; // Đếm khối "DEFINE PROCEDURE"
+      total += countBlocksInStructure(structuredSolution.procedures[procName]);
+    }
+  }
+  return total;
+};
+
+/**
+ * [REWRITTEN] Tính toán số dòng code logic (LLOC) từ structuredSolution.
+ * Logic này mô phỏng lại cách tính của `calculate_optimal_lines_from_structured` trong Python.
+ * @param structuredSolution Đối tượng structuredSolution chứa main và procedures.
+ * @returns Tổng số dòng code.
+ */
+const calculateOptimalLines = (structuredSolution: { main: Action[], procedures?: Record<string, Action[]> }): number => {
+  const _countLinesRecursively = (blockList: Action[], declaredVars: Set<string>): number => {
+    let lloc = 0;
+    if (!blockList) return 0;
+
+    for (const block of blockList) {
+      const blockType = block.type;
+      if (blockType === "variables_set") {
+        const varName = block.variable;
+        if (varName && !declaredVars.has(varName)) {
+          lloc++; // Đếm dòng 'var x;'
+          declaredVars.add(varName);
+        }
+        lloc++; // Đếm dòng 'x = ...;'
+      } else if (blockType === 'maze_repeat' || blockType === 'maze_for' || blockType === 'maze_repeat_variable' || blockType === 'maze_repeat_expression') {
+        lloc++; // Đếm dòng 'for (...) {'
+        lloc += _countLinesRecursively(block.actions || block.body, declaredVars);
+      } else if (blockType) { // Các khối khác (move, turn, call, collect...)
+        lloc++;
+      }
+    }
+    return lloc;
+  };
+
+  let totalLloc = 0;
+  const declaredVariables = new Set<string>();
+
+  if (structuredSolution.procedures) {
+    for (const procName in structuredSolution.procedures) {
+      totalLloc++; // Đếm dòng 'function procName() {'
+      totalLloc += _countLinesRecursively(structuredSolution.procedures[procName], declaredVariables);
+    }
+  }
+
+  totalLloc += _countLinesRecursively(structuredSolution.main, declaredVariables);
+
+  return totalLloc;
+};
 
 /**
  * Tìm lời giải cho một cấu hình game mê cung.
@@ -529,15 +595,13 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             // THAY ĐỔI: Truyền trực tiếp `availableBlocks` vào hàm tối ưu hóa
             const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks);
 
-            const newOptimalBlocks = countBlocksInStructure(newStructuredSolution.main);
-            const newOptimalLines = path.length;
+            // Tính toán số khối và số dòng tối ưu
+            const finalOptimalBlocks = calculateTotalBlocksInSolution(newStructuredSolution); // Đếm tổng số khối (bao gồm cả khối lồng nhau)
+            const finalOptimalLines = calculateOptimalLines(newStructuredSolution); // Đếm số dòng code logic (LLOC)
 
             return {
-                // SỬA LỖI: Không trả về các trường từ solution cũ nữa.
-                // Component cha sẽ chịu trách nhiệm hợp nhất kết quả này.
-                // Chỉ trả về những gì solver đã tính toán.
-                optimalBlocks: newOptimalBlocks,
-                optimalLines: newOptimalLines,
+                optimalBlocks: finalOptimalBlocks,
+                optimalLines: finalOptimalLines,
                 rawActions: path,
                 structuredSolution: newStructuredSolution,
             };

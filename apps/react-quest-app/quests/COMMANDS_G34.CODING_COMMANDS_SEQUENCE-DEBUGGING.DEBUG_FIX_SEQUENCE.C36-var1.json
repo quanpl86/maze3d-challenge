@@ -1,21 +1,21 @@
 {
-  "id": "COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36-var1",
+  "id": "FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25-var1",
   "gameType": "maze",
-  "topic": "topic-title-coding_commands_sequence-debugging",
-  "level": 36,
-  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title",
-  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description",
-  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description",
+  "topic": "topic-title-coding_functions_3d-application",
+  "level": 25,
+  "titleKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Title",
+  "questTitleKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Description",
+  "descriptionKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Description",
   "translations": {
     "vi": {
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title": "Sửa lỗi: Sai thứ tự nhiệm vụ",
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description": "Chương trình đang cố gắng bật công tắc trước khi thu thập pha lê, nhưng đường đi lại được lập trình để lấy pha lê trước. Hãy sắp xếp lại các khối lệnh cho hợp lý.",
-      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Title": "Cầu thang Gãy",
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Description": "Để vượt qua cây cầu thang bị gãy này, bạn cần lặp lại một hành động. Hãy tạo một hàm crossAndClimb để giải quyết mẫu lặp này.",
+      "topic-title-coding_functions_3d-application": "Ứng dụng Hàm trong Không gian 3D"
     },
     "en": {
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title": "Fix the Bug: Wrong Objective Order",
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description": "The program is trying to flip the switch before collecting the crystal, but the path is coded to get the crystal first. Rearrange the blocks logically.",
-      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Title": "The Broken Staircase",
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_3D-APPLICATION.COMPLEX_APPLY.C25.Description": "To cross this broken staircase, you need to repeat an action. Create a crossAndClimb function to solve this repeating pattern.",
+      "topic-title-coding_functions_3d-application": "Ứng dụng Hàm trong Không gian 3D"
     }
   },
   "supportedEditors": [
@@ -57,156 +57,18 @@
           ]
         },
         {
+          "kind": "sep"
+        },
+        {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATACTIONS}",
-          "categorystyle": "actions_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_collect"
-            },
-            {
-              "kind": "block",
-              "type": "maze_toggle_switch"
-            }
-          ]
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 20,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
-  },
-  "solution": {
-    "type": "reach_target",
-    "itemGoals": {
-      "crystal": 1,
-      "switch": 1
-    },
-    "optimalBlocks": 15,
-    "optimalLines": 15,
-    "rawActions": [
-      "turnRight",
-      "moveForward",
-      "collect",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "jump",
-      "moveForward",
-      "jump",
-      "turnRight",
-      "moveForward",
-      "toggleSwitch",
-      "moveForward",
-      "collect",
-      "moveForward"
-    ],
-    "structuredSolution": {
-      "main": [
-        {
-          "type": "maze_turn",
-          "direction": "turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnRight"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_toggleSwitch"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_moveForward"
-        }
-      ]
-    },
-    "structuredSolution_fixbug_version": {
-      "main": [
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_toggleSwitch"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnRight"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        }
-      ],
-      "procedures": {}
-    }
-  },
-  "sounds": {
-    "win": "/assets/maze/win.mp3",
-    "fail": "/assets/maze/fail_pegman.mp3"
+    "maxBlocks": 12,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"procedures_callnoreturn\"><mutation name=\"jump3\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"jump3\"/></block></next></block></statement></block><block type=\"procedures_defnoreturn\"><field name=\"NAME\">jump3</field><comment pinned=\"false\" h=\"80\" w=\"160\">Describe this function...</comment><statement name=\"STACK\"><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"/></next></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -215,32 +77,48 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 2,
+          "x": 3,
           "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
+          "y": 2,
           "z": 5
         }
       },
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 2,
-          "y": 0,
+          "x": 3,
+          "y": 3,
           "z": 6
         }
       },
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 2,
-          "y": 0,
+          "x": 3,
+          "y": 4,
           "z": 7
         }
       },
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 2,
-          "y": 0,
+          "x": 3,
+          "y": 5,
           "z": 8
         }
       },
@@ -248,64 +126,8 @@
         "modelKey": "ground.normal",
         "position": {
           "x": 3,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "stone.stone06",
-        "position": {
-          "x": 4,
-          "y": 1,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "stone.stone06",
-        "position": {
-          "x": 3,
-          "y": 1,
-          "z": 8
+          "y": 6,
+          "z": 9
         }
       }
     ],
@@ -313,49 +135,91 @@
       {
         "id": "player1",
         "start": {
-          "x": 5,
+          "x": 3,
           "y": 1,
-          "z": 5,
-          "direction": 1
+          "z": 3,
+          "direction": 2
         }
       }
     ],
-    "collectibles": [
-      {
-        "id": "c1",
-        "type": "crystal",
-        "position": {
-          "x": 2,
-          "y": 1,
-          "z": 6
-        }
-      },
-      {
-        "id": "c2",
-        "type": "crystal",
-        "position": {
-          "x": 5,
-          "y": 1,
-          "z": 6
-        }
-      }
-    ],
-    "interactibles": [
-      {
-        "id": "s2",
-        "type": "switch",
-        "initialState": "off",
-        "position": {
-          "x": 2,
-          "y": 1,
-          "z": 7
-        }
-      }
-    ],
+    "collectibles": [],
+    "interactibles": [],
     "finish": {
-      "x": 2,
-      "y": 1,
-      "z": 5
+      "x": 3,
+      "y": 7,
+      "z": 9
     }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 7,
+    "optimalLines": 6,
+    "rawActions": [
+      "jump",
+      "jump",
+      "jump",
+      "jump",
+      "jump",
+      "jump"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
+        }
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_jump"
+          },
+          {
+            "type": "maze_jump"
+          },
+          {
+            "type": "maze_jump"
+          }
+        ]
+      }
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        }
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_jump"
+          },
+          {
+            "type": "maze_jump"
+          },
+          {
+            "type": "maze_jump"
+          }
+        ]
+      }
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
   }
 }

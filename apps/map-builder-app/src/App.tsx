@@ -931,14 +931,32 @@ function App() {
     // để đảm bảo tính toàn vẹn dữ liệu, thay vì dựa vào các tham số có thể đã cũ.
     try {
       const currentFullJson = JSON.parse(outputJsonString);
-      const currentGC = currentFullJson.gameConfig;
-      const currentSC = currentFullJson.solution || {};
-      const currentBC = currentFullJson.blocklyConfig || {};
+      let currentGC = currentFullJson.gameConfig;
+      let currentSC = currentFullJson.solution || {};
+      let currentBC = currentFullJson.blocklyConfig || {};
 
       if (!currentGC) {
         alert("Error: 'gameConfig' not found in JSON. Cannot solve.");
         return;
       }
+
+      // --- START: CẬP NHẬT ITEMGOALS TỰ ĐỘNG ---
+      // Đếm số lượng crystal và switch có trên bản đồ hiện tại.
+      const crystalCount = currentGC.collectibles?.filter((c: any) => c.type === 'crystal').length || 0;
+      const switchCount = currentGC.interactibles?.filter((i: any) => i.type === 'switch').length || 0;
+
+      // Tạo hoặc cập nhật đối tượng itemGoals.
+      const newItemGoals: Record<string, any> = {};
+      if (crystalCount > 0) {
+        newItemGoals.crystal = crystalCount;
+      }
+      if (switchCount > 0) {
+        newItemGoals.switch = switchCount;
+      }
+      
+      // Cập nhật solution config với itemGoals mới nhất.
+      currentSC.itemGoals = newItemGoals;
+      // --- END: CẬP NHẬT ITEMGOALS TỰ ĐỘNG ---
 
       // 1. Đồng bộ hóa trạng thái ứng dụng (placedObjects) với JSON mới nhất một cách "âm thầm".
       // Điều này đảm bảo bộ giải chạy trên trạng thái map mới nhất mà người dùng thấy.
@@ -946,12 +964,20 @@ function App() {
       // 2. Chạy bộ giải với các config đã được truyền vào.
       const solution = solveMaze(currentGC, currentSC, currentBC);
 
-      if (solution) {
-        // 3. Cập nhật metadata với lời giải mới.
+      if (solution && solution.rawActions) {
+        // --- START: CẬP NHẬT METADATA VỚI LỜI GIẢI MỚI ---
+        const newOptimalBlocks = solution.optimalBlocks || 0;
+        const newMaxBlocks = newOptimalBlocks + 5;
+
         setQuestMetadata(prev => ({
           ...prev,
-          // Hợp nhất solution cũ (nếu có) với kết quả mới từ solver.
-          solution: { ...prev?.solution, ...solution },
+          // Cập nhật blocklyConfig với maxBlocks mới
+          blocklyConfig: {
+            ...(prev?.blocklyConfig || {}),
+            maxBlocks: newMaxBlocks,
+          },
+          // Hợp nhất solution config cũ với kết quả mới từ solver
+          solution: { ...currentSC, ...solution },
         }));
         alert("Đã tìm thấy lời giải và cập nhật thành công!");
       } else {
