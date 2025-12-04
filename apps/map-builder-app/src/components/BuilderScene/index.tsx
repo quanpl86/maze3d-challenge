@@ -101,6 +101,7 @@ function PlacedAsset({ object, isSelected, isHovered, onContextMenu }: { object:
   return (
     <group 
       position={worldPosition} 
+      rotation={object.rotation}
       scale={TILE_SIZE} 
       userData={{ isPlacedObject: true, id: object.id }}
       onContextMenu={onContextMenu}

@@ -21,6 +21,7 @@ export interface BuildableAsset {
 export interface PlacedObject {
     id: string; 
     position: [number, number, number];
+    rotation: [number, number, number];
     asset: BuildableAsset;
     properties: Record<string, any>;
 }

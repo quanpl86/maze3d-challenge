@@ -176,6 +176,21 @@ function App() {
     };
   }, [selectionStart, selectionEnd]);
 
+  // --- HÀM MỚI: Xoay một hoặc nhiều đối tượng ---
+  const handleRotateObject = useCallback((objectIds: string[]) => {
+    setPlacedObjectsWithHistory(prev => {
+      const objectIdsSet = new Set(objectIds);
+      return prev.map(obj => {
+        if (objectIdsSet.has(obj.id)) {
+          const newRotation: [number, number, number] = [...obj.rotation];
+          newRotation[1] += Math.PI / 2; // Xoay 90 độ quanh trục Y
+          return { ...obj, rotation: newRotation };
+        }
+        return obj;
+      });
+    });
+  }, [setPlacedObjectsWithHistory]);
+
   // Thêm phím tắt Delete/Backspace để xóa đối tượng được chọn
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -186,24 +201,30 @@ function App() {
       }
 
       // --- Phím tắt di chuyển đối tượng ---
-      // Chỉ cho phép di chuyển bằng phím khi chọn một đối tượng duy nhất
-      if (selectedObjectIds.length === 1) {
+      // SỬA LỖI: Cho phép di chuyển khi có một hoặc nhiều đối tượng được chọn
+      if (selectedObjectIds.length > 0) {
         let moved = false;
         if (event.shiftKey) {
           // Khi giữ Shift, chỉ xử lý di chuyển lên/xuống (trục Y)
-          if (event.key === 'ArrowUp')      { handleMoveObject(selectedObjectIds[0], 'y', 1); moved = true; }
-          else if (event.key === 'ArrowDown') { handleMoveObject(selectedObjectIds[0], 'y', -1); moved = true; }
+          if (event.key === 'ArrowUp')      { handleMoveObject(selectedObjectIds, 'y', 1); moved = true; }
+          else if (event.key === 'ArrowDown') { handleMoveObject(selectedObjectIds, 'y', -1); moved = true; }
         } else {
           // Khi không giữ Shift, xử lý di chuyển trên mặt phẳng XZ
-          if (event.key === 'ArrowUp')    { handleMoveObject(selectedObjectIds[0], 'z', -1); moved = true; }
-          else if (event.key === 'ArrowDown')  { handleMoveObject(selectedObjectIds[0], 'z', 1); moved = true; }
-          else if (event.key === 'ArrowLeft')  { handleMoveObject(selectedObjectIds[0], 'x', -1); moved = true; }
-          else if (event.key === 'ArrowRight') { handleMoveObject(selectedObjectIds[0], 'x', 1); moved = true; }
+          if (event.key === 'ArrowUp')    { handleMoveObject(selectedObjectIds, 'z', -1); moved = true; }
+          else if (event.key === 'ArrowDown')  { handleMoveObject(selectedObjectIds, 'z', 1); moved = true; }
+          else if (event.key === 'ArrowLeft')  { handleMoveObject(selectedObjectIds, 'x', -1); moved = true; }
+          else if (event.key === 'ArrowRight') { handleMoveObject(selectedObjectIds, 'x', 1); moved = true; }
         }
         
         if (moved) {
           event.preventDefault(); // Ngăn các hành vi mặc định của trình duyệt
         }
+      }
+
+      // THÊM MỚI: Phím tắt Ctrl+A để chọn tất cả
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+        event.preventDefault();
+        setSelectedObjectIds(placedObjects.map(obj => obj.id));
       }
 
       // --- Ưu tiên các phím tắt cho vùng chọn (select area) ---
@@ -228,13 +249,17 @@ function App() {
         } else if (event.key === 'Delete' || event.key === 'Backspace') {
           event.preventDefault();
           handleRemoveMultipleObjects(selectedObjectIds);
+        } else if (event.key.toLowerCase() === 'r') {
+          // THÊM MỚI: Phím tắt xoay đối tượng
+          event.preventDefault();
+          handleRotateObject(selectedObjectIds);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedObjectIds, selectionBounds, placedObjects]); // Thêm selectionBounds vào dependencies
+  }, [selectedObjectIds, selectionBounds, placedObjects, handleRotateObject]); // Thêm handleRotateObject và selectionBounds vào dependencies
 
   // --- HÀM MỚI: Nhân bản đối tượng ---
   const handleDuplicateObject = (objectId: string) => {
@@ -324,7 +349,10 @@ function App() {
     const players = startObject
       ? [{
           id: "player1",
-          start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: startObject.properties?.direction ?? 1 }
+          // SỬA LỖI: Đảm bảo giá trị direction luôn là số khi xuất ra JSON.
+          // Dùng parseFloat để xử lý cả trường hợp giá trị là chuỗi hoặc số.
+          // Mặc định là 1 nếu không tồn tại hoặc không hợp lệ.
+          start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: parseFloat(startObject.properties?.direction) || 0 }
         }]
       : [];
 
@@ -369,8 +397,11 @@ function App() {
         const replacedObject: PlacedObject = {
           id: oldObject.id,
           position: oldObject.position,
+          rotation: oldObject.rotation, // Giữ lại rotation khi thay thế
           asset: asset,
-          properties: asset.defaultProperties ? { ...asset.defaultProperties } : {},
+          // SỬA LỖI: Giữ lại các thuộc tính cũ và chỉ thêm các thuộc tính mặc định mới nếu chưa có.
+          // Điều này đảm bảo giá trị 'direction' đã được chỉnh sửa (dưới dạng số) không bị ghi đè.
+          properties: { ...asset.defaultProperties, ...oldObject.properties },
         };
 
         // Cập nhật đối tượng trong mảng
@@ -472,9 +503,17 @@ function App() {
         return finalAsset.defaultProperties?.type === 'portal' ? `${finalAsset.key}_${uuidv4().substring(0, 4)}` : uuidv4();
       })(),
       position: gridPosition,
+      rotation: [0, 0, 0], // THÊM MỚI: Khởi tạo rotation
       asset: finalAsset, // Sử dụng finalAsset đã được kiểm tra theme
       properties: finalAsset.defaultProperties ? { ...finalAsset.defaultProperties } : {},
     };
+
+    // SỬA LỖI: Đảm bảo 'direction' luôn là số khi tạo đối tượng player_start mới.
+    // Đây là bước cuối cùng để đảm bảo tính nhất quán của kiểu dữ liệu.
+    if (newObject.asset.key === 'player_start' && typeof newObject.properties.direction === 'string') {
+      newObject.properties.direction = parseInt(newObject.properties.direction, 10);
+    }
+
     objectsToAdd.push(newObject);
 
     if (newObject.properties.type === 'portal') {
@@ -541,30 +580,44 @@ function App() {
     });
   };
 
-  const handleMoveObject = (objectId: string, direction: 'x' | 'y' | 'z', amount: 1 | -1) => {
+  // NÂNG CẤP: Di chuyển một hoặc nhiều đối tượng theo bước
+  const handleMoveObject = (objectIds: string[], direction: 'x' | 'y' | 'z', amount: 1 | -1) => {
     setPlacedObjectsWithHistory(prev => {
-        const objectToMove = prev.find(o => o.id === objectId);
-        if (!objectToMove) return prev;
+        const objectsToMove = prev.filter(o => objectIds.includes(o.id));
+        if (objectsToMove.length === 0) return prev;
 
-        const newPosition: [number, number, number] = [...objectToMove.position];
         const axisIndex = { x: 0, y: 1, z: 2 }[direction];
-        newPosition[axisIndex] += amount;
+        const objectIdsSet = new Set(objectIds);
 
-        // --- VALIDATION ---
-        const [nx, ny, nz] = newPosition;
-        // 1. Kiểm tra có nằm ngoài vùng xây dựng không
-        if (nx < 0 || nx >= boxDimensions.width || ny < 0 || ny >= boxDimensions.height || nz < 0 || nz >= boxDimensions.depth) {
-            return prev; // Vị trí mới nằm ngoài giới hạn
-        }
-        // 2. Kiểm tra có va chạm với đối tượng khác không
-        const newPosString = newPosition.join(',');
-        if (prev.some(o => o.id !== objectId && o.position.join(',') === newPosString)) {
-            return prev; // Đã có đối tượng khác ở vị trí mới
+        // Kiểm tra xem tất cả các đối tượng có thể di chuyển không
+        for (const obj of objectsToMove) {
+            const newPosition: [number, number, number] = [...obj.position];
+            newPosition[axisIndex] += amount;
+
+            const [nx, ny, nz] = newPosition;
+            // 1. Kiểm tra có nằm ngoài vùng xây dựng không
+            if (nx < 0 || nx >= boxDimensions.width || ny < 0 || ny >= boxDimensions.height || nz < 0 || nz >= boxDimensions.depth) {
+                return prev; // Một đối tượng ra ngoài -> hủy di chuyển
+            }
+            // 2. Kiểm tra có va chạm với đối tượng khác (không nằm trong nhóm đang di chuyển) không
+            const newPosString = newPosition.join(',');
+            if (prev.some(o => !objectIdsSet.has(o.id) && o.position.join(',') === newPosString)) {
+                return prev; // Một đối tượng va chạm -> hủy di chuyển
+            }
         }
 
-        return prev.map(o => o.id === objectId ? { ...o, position: newPosition } : o);
+        // Nếu tất cả hợp lệ, thực hiện di chuyển
+        return prev.map(obj => {
+            if (objectIdsSet.has(obj.id)) {
+                const newPosition: [number, number, number] = [...obj.position];
+                newPosition[axisIndex] += amount;
+                return { ...obj, position: newPosition };
+            }
+            return obj;
+        });
     });
   };
+
 
   // --- HÀM MỚI: Sao chép asset của đối tượng để chuẩn bị đặt ---
   const handleCopyObject = (objectId: string) => {
@@ -656,6 +709,7 @@ function App() {
                 affectedObjects.push({
                   id: uuidv4(),
                   position: [x, y, z],
+                  rotation: [0, 0, 0], // THÊM MỚI: Khởi tạo rotation
                   asset: selectedAsset,
                   properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {}
                 });
@@ -665,6 +719,7 @@ function App() {
               if (existingObjectIndex !== -1 && selectedAsset) {
                 newPlacedObjects[existingObjectIndex] = { 
                     ...newPlacedObjects[existingObjectIndex], 
+                    rotation: newPlacedObjects[existingObjectIndex].rotation || [0, 0, 0], // Giữ rotation cũ
                     asset: selectedAsset,
                     properties: selectedAsset.defaultProperties ? { ...selectedAsset.defaultProperties } : {}
                 };
@@ -740,26 +795,26 @@ function App() {
 
         for (const block of blocks) {
           const asset = assetMap.get(block.modelKey);
-          if (asset && block.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [block.position.x, block.position.y, block.position.z], properties: {} });
+          if (asset && block.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [block.position.x, block.position.y, block.position.z], rotation: [0, 0, 0], properties: {} });
         }
         
         for (const item of collectibles) {
           const asset = assetMap.get(item.type);
-          if(asset && item.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [item.position.x, item.position.y, item.position.z], properties: {} });
+          if(asset && item.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [item.position.x, item.position.y, item.position.z], rotation: [0, 0, 0], properties: {} });
         }
 
         for (const item of interactibles) {
           const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
           const asset = assetMap.get(assetKey);
           if(asset && item.position) {
-              const { position, ...properties } = item;
-              newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties });
+              const { position, ...properties } = item; // rotation không có trong file JSON cũ
+              newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], rotation: [0, 0, 0], properties });
           }
         }
         
         if (finish) {
           const asset = assetMap.get('finish');
-          if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], properties: {} });
+          if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], rotation: [0, 0, 0], properties: {} });
         }
 
         if (players[0]?.start) {
@@ -769,8 +824,9 @@ function App() {
           if (asset) newPlacedObjects.push({ 
             id: uuidv4(), 
             asset, 
+            rotation: [0, 0, 0],
             position: [startPos.x, startPos.y, startPos.z], 
-            properties: { direction: startPos.direction } });
+            properties: { direction: parseFloat(startPos.direction) || 0 } });
         }
         
         setPlacedObjectsWithHistory(newObjects => newPlacedObjects); // Bắt đầu lịch sử mới khi import
@@ -807,14 +863,14 @@ function App() {
       const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = configToLoad;
       const newPlacedObjects: PlacedObject[] = [];
 
-      for (const block of blocks) { if (assetMap.get(block.modelKey) && block.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(block.modelKey)!, position: [block.position.x, block.position.y, block.position.z], properties: {} }); }
-      for (const item of collectibles) { if (assetMap.get(item.type) && item.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(item.type)!, position: [item.position.x, item.position.y, item.position.z], properties: {} }); }
+      for (const block of blocks) { if (assetMap.get(block.modelKey) && block.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(block.modelKey)!, position: [block.position.x, block.position.y, block.position.z], rotation: [0, 0, 0], properties: {} }); }
+      for (const item of collectibles) { if (assetMap.get(item.type) && item.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(item.type)!, position: [item.position.x, item.position.y, item.position.z], rotation: [0, 0, 0], properties: {} }); }
       for (const item of interactibles) {
         const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
         const asset = assetMap.get(assetKey);
-        if(asset && item.position) { const { position, ...properties } = item; newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties }); }
+        if(asset && item.position) { const { position, ...properties } = item; newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], rotation: [0, 0, 0], properties }); }
       }
-      if (finish) { const asset = assetMap.get('finish'); if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], properties: {} }); }
+      if (finish) { const asset = assetMap.get('finish'); if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], rotation: [0, 0, 0], properties: {} }); }
       if (players[0]?.start) {
         const asset = assetMap.get('player_start');
         const startPos = players[0].start;
@@ -822,8 +878,9 @@ function App() {
         if (asset) newPlacedObjects.push({ 
           id: uuidv4(), 
           asset, 
+          rotation: [0, 0, 0],
           position: [startPos.x, startPos.y, startPos.z], 
-          properties: { direction: startPos.direction } });
+          properties: { direction: parseFloat(startPos.direction) || 0 } });
       }
       
       setPlacedObjectsWithHistory(() => newPlacedObjects); // Bắt đầu lịch sử mới khi load map
@@ -878,14 +935,14 @@ function App() {
       const { blocks = [], collectibles = [], interactibles = [], finish, players = [] } = configToLoad;
       const newPlacedObjects: PlacedObject[] = [];
 
-      for (const block of blocks) { if (assetMap.get(block.modelKey) && block.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(block.modelKey)!, position: [block.position.x, block.position.y, block.position.z], properties: {} }); }
-      for (const item of collectibles) { if (assetMap.get(item.type) && item.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(item.type)!, position: [item.position.x, item.position.y, item.position.z], properties: {} }); }
+      for (const block of blocks) { if (assetMap.get(block.modelKey) && block.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(block.modelKey)!, position: [block.position.x, block.position.y, block.position.z], rotation: [0, 0, 0], properties: {} }); }
+      for (const item of collectibles) { if (assetMap.get(item.type) && item.position) newPlacedObjects.push({ id: uuidv4(), asset: assetMap.get(item.type)!, position: [item.position.x, item.position.y, item.position.z], rotation: [0, 0, 0], properties: {} }); }
       for (const item of interactibles) {
         const assetKey = item.type === 'portal' ? `${item.type}_${item.color}` : item.type;
         const asset = assetMap.get(assetKey);
-        if(asset && item.position) { const { position, ...properties } = item; newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], properties }); }
+        if(asset && item.position) { const { position, ...properties } = item; newPlacedObjects.push({ id: item.id, asset, position: [position.x, position.y, position.z], rotation: [0, 0, 0], properties }); }
       }
-      if (finish) { const asset = assetMap.get('finish'); if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], properties: {} }); }
+      if (finish) { const asset = assetMap.get('finish'); if (asset) newPlacedObjects.push({ id: uuidv4(), asset, position: [finish.x, finish.y, finish.z], rotation: [0, 0, 0], properties: {} }); }
       if (players[0]?.start) {
         const asset = assetMap.get('player_start');
         const startPos = players[0].start;
@@ -893,8 +950,9 @@ function App() {
         if (asset) newPlacedObjects.push({ 
           id: uuidv4(), 
           asset, 
+          rotation: [0, 0, 0],
           position: [startPos.x, startPos.y, startPos.z], 
-          properties: { direction: startPos.direction } });
+          properties: { direction: parseFloat(startPos.direction) || 0 } });
       }
       
       setPlacedObjectsWithHistory(() => newPlacedObjects);
@@ -1027,7 +1085,7 @@ function App() {
           onSetSelectionEnd={setSelectionEnd}
           selectedObjectIds={selectedObjectIds}
           onMoveObject={handleMoveObjectToPosition}
-          onMoveObjectByStep={handleMoveObject} // Giữ nguyên
+          onMoveObjectByStep={(objectId, dir, amt) => handleMoveObject([objectId], dir, amt)}
           onSelectObject={handleSelectObject} // THAY ĐỔI: Sử dụng hàm xử lý mới
           isMovingObject={isMovingObject} // THÊM MỚI: Truyền trạng thái di chuyển xuống
           onSetIsMovingObject={setIsMovingObject} // THÊM MỚI: Cho phép Scene cập nhật trạng thái này

@@ -5,18 +5,17 @@ import { v4 as uuidv4 } from 'uuid';
 import ThemeSelector from './ThemeSelector'; // SỬA ĐỔI: Đường dẫn import gọn hơn
 
 interface PropertiesPanelProps {
-  selectedObject: PlacedObject | null;
+  selectedObjects: PlacedObject[]; // Nhận mảng các đối tượng
+  _dummyPropForTypeRefresh?: boolean; // Thêm tạm thời để buộc TypeScript refresh
   onUpdateObject: (updatedObject: PlacedObject) => void;
   onClearSelection: () => void;
-  onDeleteObject: (id: string) => void;
+  onDeleteSelection: () => void; // THAY ĐỔI: Xóa cả vùng chọn
+  onRotateSelection: () => void; // THÊM MỚI: Xoay cả vùng chọn
   onAddObject: (newObject: PlacedObject) => void;
-  // onUpdateAllObjects: (newTheme: MapTheme) => void; // Prop này không còn cần thiết
   onCopyAsset: (id: string) => void; // Prop mới để sao chép asset
-  // --- START: THÊM PROPS CHO THEME ---
   currentMapItems: string[];
   mapTheme: MapTheme;
   onThemeChange: (newTheme: MapTheme) => void;
-  // --- END: THÊM PROPS CHO THEME ---
 }
 
 const renderPropertyInput = (key: string, value: any, onChange: (key: string, value: any) => void) => {
@@ -26,6 +25,17 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
       <select value={value} onChange={(e) => onChange(key, e.target.value)}>
         <option value="on">On</option>
         <option value="off">Off</option>
+      </select>
+    );
+  }
+  // THÊM MỚI: Trình chỉnh sửa riêng cho thuộc tính 'direction'
+  if (key === 'direction') {
+    return (
+      <select value={value} onChange={(e) => onChange(key, parseInt(e.target.value, 10))}>
+        <option value="0">0 (East, +X)</option>
+        <option value="1">1 (North, -Z)</option>
+        <option value="2">2 (West, -X)</option>
+        <option value="3">3 (South, +Z)</option>
       </select>
     );
   }
@@ -39,24 +49,56 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
   return <input type="text" value={value} onChange={(e) => onChange(key, e.target.value)} />;
 };
 
+// --- COMPONENT MỚI: Giao diện khi chọn nhiều đối tượng ---
+const MultipleSelectionPanel = ({
+  count,
+  onClear,
+  onDelete,
+  onRotate,
+}: {
+  count: number;
+  onClear: () => void;
+  onDelete: () => void;
+  onRotate: () => void;
+}) => (
+  <>
+    <div className="panel-header">
+      <h2>Multiple Objects</h2>
+      <button onClick={onClear} className="clear-btn">✖</button>
+    </div>
+    <div className="prop-group info-group">
+      <label>Selected</label>
+      <span>{count} items</span>
+    </div>
+    <div className="selection-controls">
+      <h3 className="props-title">Actions</h3>
+      <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <button onClick={onRotate} className="action-btn">
+          <span className="icon">🔄</span>
+          Rotate (R)
+        </button>
+        <button onClick={onDelete} className="action-btn delete-btn">
+          <span className="icon">🗑️</span>
+          Delete All
+        </button>
+      </div>
+    </div>
+  </>
+);
+
 export function PropertiesPanel({
-  selectedObject,
+  selectedObjects,
   onUpdateObject,
   onClearSelection,
-  onDeleteObject,
+  onDeleteSelection,
+  onRotateSelection,
   onAddObject,
-  // onUpdateAllObjects,
   onCopyAsset,
   currentMapItems,
   mapTheme,
   onThemeChange
 }: PropertiesPanelProps) {
-
-  // Khi có đối tượng được chọn, hiển thị cả ThemeSelector và các thuộc tính của đối tượng.
-  const handleDelete = () => {
-    if (!selectedObject) return; // Thêm kiểm tra null
-    onDeleteObject(selectedObject.id);
-  };
+  const selectedObject = selectedObjects.length === 1 ? selectedObjects[0] : null;
 
   const handleDuplicate = () => {
     if (!selectedObject) return;
@@ -97,8 +139,15 @@ export function PropertiesPanel({
     <aside className="properties-panel">
       <ThemeSelector currentMapItems={currentMapItems} selectedTheme={mapTheme} onSelectTheme={onThemeChange} />
 
-      {/* Hiển thị thuộc tính chỉ khi có đối tượng được chọn */}
-      {selectedObject ? (
+      {/* --- LOGIC MỚI: Hiển thị panel phù hợp --- */}
+      {selectedObjects.length > 1 ? (
+        <MultipleSelectionPanel
+          count={selectedObjects.length}
+          onClear={onClearSelection}
+          onDelete={onDeleteSelection}
+          onRotate={onRotateSelection}
+        />
+      ) : selectedObject ? ( // Hiển thị thuộc tính chỉ khi có một đối tượng được chọn
         <>
           <div className="panel-header">
               <h2>Properties</h2>
@@ -136,7 +185,7 @@ export function PropertiesPanel({
                   <span className="icon">🎨</span>
                   Duplicate
               </button>
-              <button onClick={handleDelete} className="action-btn delete-btn">
+              <button onClick={onDeleteSelection} className="action-btn delete-btn">
                   <span className="icon">🗑️</span>
                   Delete
               </button>

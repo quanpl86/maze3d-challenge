@@ -298,8 +298,10 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         <label>Max Blocks</label>
         <input
           type="number"
-          defaultValue={getDeepValue(metadata, 'blocklyConfig.maxBlocks') || 0}
-          onBlur={(e) => handleComplexChange('blocklyConfig.maxBlocks', parseInt(e.target.value, 10))}
+          // SỬA LỖI: Sử dụng `value` thay vì `defaultValue` để biến nó thành một "controlled component".
+          // Điều này đảm bảo input luôn hiển thị giá trị mới nhất từ prop `metadata`.
+          value={getDeepValue(metadata, 'blocklyConfig.maxBlocks') || ''}
+          onChange={(e) => handleComplexChange('blocklyConfig.maxBlocks', parseInt(e.target.value, 10) || 0)}
         />
       </div>
       <div className="quest-prop-group">
