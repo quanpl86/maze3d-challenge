@@ -27,6 +27,12 @@ interface Action {
   [key: string]: any; // Cho phép các thuộc tính khác như direction, times, actions
 }
 
+// THÊM: Định nghĩa cấu trúc cho Blockly Toolbox để dễ dàng xử lý
+interface BlocklyToolbox {
+  kind: 'categoryToolbox';
+  contents: ({ kind: string; type?: string; custom?: string; contents?: any[] })[];
+}
+
 // SỬA LỖI: Mở rộng interface Solution để bao gồm tất cả các trường có thể có
 // trong object solution của file JSON, không chỉ rawActions và structuredSolution.
 interface Solution {
@@ -37,6 +43,11 @@ interface Solution {
   rawActions: string[];
   structuredSolution: { main: Action[], procedures?: Record<string, any> };
   // Giữ lại các trường khác có thể tồn tại
+  [key: string]: any;
+}
+
+interface QuestBlocklyConfig {
+  toolbox?: BlocklyToolbox | any; // SỬA LỖI: `toolbox` là tùy chọn để tương thích với augmented config
   [key: string]: any;
 }
 
@@ -194,15 +205,135 @@ const convertRawToStructuredActions = (rawActions: string[]): Action[] => {
 };
 
 /**
- * Tối ưu hóa một chuỗi hành động thô thành một giải pháp có cấu trúc (với vòng lặp).
- * Thuật toán này tìm kiếm các chuỗi hành động lặp lại và nén chúng.
+ * HÀM NÂNG CẤP: Tối ưu hóa một chuỗi hành động thô thành một giải pháp có cấu trúc,
+ * dựa trên các khối lệnh có sẵn trong toolbox.
  * @param actions Mảng các hành động thô.
+ * @param blocklyConfig Cấu hình toolbox của thử thách.
  * @returns Một đối tượng structuredSolution được tối ưu hóa.
  */
-const createStructuredSolution = (actions: Action[]): { main: Action[] } => {
-  // TẠM THỜI BỎ QUA TỐI ƯU HÓA:
-  // Trả về trực tiếp mảng hành động mà không cố gắng nén chúng thành các khối lặp.
-  return { main: actions };
+const createStructuredSolution = (
+  initialActions: Action[],
+  availableBlocks: Set<string> // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
+): { main: Action[]; procedures?: Record<string, Action[]> } => {
+
+  let currentActions = [...initialActions];
+  const procedures: Record<string, Action[]> = {};
+  let procedureCount = 0;
+
+  // --- BƯỚC 2: TỐI ƯU HÓA VÒNG LẶP (LOOP COMPRESSION) ---
+  // THAY ĐỔI: Sử dụng trực tiếp `availableBlocks` được truyền vào
+  if (availableBlocks.has('maze_repeat') || availableBlocks.has('maze_for')) {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      let bestCompression = { benefit: 0, index: -1, length: 0, count: 0 };
+
+      for (let len = Math.floor(currentActions.length / 2); len > 0; len--) {
+        for (let i = 0; i <= currentActions.length - 2 * len; i++) {
+          const pattern = currentActions.slice(i, i + len);
+          let repeatCount = 1;
+          while (i + (repeatCount + 1) * len <= currentActions.length) {
+            const nextSegment = currentActions.slice(i + repeatCount * len, i + (repeatCount + 1) * len);
+            if (JSON.stringify(pattern) === JSON.stringify(nextSegment)) {
+              repeatCount++;
+            } else {
+              break;
+            }
+          }
+
+          if (repeatCount > 1) {
+            const blocksUsed = len * repeatCount;
+            const blocksAfter = 1 + len; // 1 khối repeat + các khối bên trong
+            const benefit = blocksUsed - blocksAfter;
+            if (benefit > bestCompression.benefit) {
+              bestCompression = { benefit, index: i, length: len, count: repeatCount };
+            }
+          }
+        }
+      }
+
+      if (bestCompression.benefit > 0) {
+        const { index, length, count } = bestCompression;
+        const pattern = currentActions.slice(index, index + length);
+        // Ưu tiên sử dụng 'maze_for' nếu có, nếu không thì dùng 'maze_repeat'
+        const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
+        const repeatBlock: Action = { type: loopType, times: count, actions: pattern };
+        currentActions.splice(index, length * count, repeatBlock);
+        changed = true;
+      }
+    }
+  }
+
+  // --- BƯỚC 3: TỐI ƯU HÓA BẰNG HÀM (FUNCTION EXTRACTION) ---
+  // THAY ĐỔI: Sử dụng trực tiếp `availableBlocks`
+  if (availableBlocks.has('PROCEDURE')) {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      let bestPattern = { benefit: 0, sequence: [] as Action[], occurrences: [] as number[] };
+
+      // Tìm tất cả các chuỗi con và tính lợi nhuận
+      for (let len = Math.floor(currentActions.length / 2); len > 0; len--) {
+        for (let i = 0; i <= currentActions.length - len; i++) {
+          const sequence = currentActions.slice(i, i + len);
+          const occurrences: number[] = [i];
+          let k = i + len;
+          while (k <= currentActions.length - len) {
+            const nextSegment = currentActions.slice(k, k + len);
+            if (JSON.stringify(sequence) === JSON.stringify(nextSegment)) {
+              occurrences.push(k);
+              k += len; // Bỏ qua phần đã khớp để tránh overlapping
+            } else {
+              k++;
+            }
+          }
+
+          if (occurrences.length > 1) {
+            const blocksUsed = occurrences.length * len;
+            const blocksAfter = len + occurrences.length; // Định nghĩa hàm + các lần gọi hàm
+            const benefit = blocksUsed - blocksAfter;
+
+            if (benefit > bestPattern.benefit) {
+              bestPattern = { benefit, sequence, occurrences };
+            }
+          }
+        }
+      }
+
+      // Nếu tìm thấy một mẫu có lợi, thực hiện thay thế
+      if (bestPattern.benefit > 0) {
+        procedureCount++;
+        const procName = `PROCEDURE_${procedureCount}`;
+        procedures[procName] = bestPattern.sequence;
+
+        const callBlock: Action = { type: 'CALL', name: procName };
+        
+        // Thay thế các chuỗi đã tìm thấy bằng khối gọi hàm, từ cuối lên đầu để không làm thay đổi chỉ số
+        for (let i = bestPattern.occurrences.length - 1; i >= 0; i--) {
+          const index = bestPattern.occurrences[i];
+          currentActions.splice(index, bestPattern.sequence.length, callBlock);
+        }
+        changed = true; // Lặp lại để tìm thêm hàm (có thể lồng nhau)
+      }
+    }
+  }
+
+  // --- BƯỚC 4: CHUYỂN ĐỔI CÁC KHỐI GỌI HÀM TẠM THỜI ---
+  // Chuyển các khối 'CALL' tạm thời thành khối 'procedures_callnoreturn' chuẩn của Blockly
+  const finalMain = currentActions.map(action => {
+    if (action.type === 'CALL' && action.name) {
+      return {
+        type: 'procedures_callnoreturn',
+        mutation: {
+          name: action.name // Tên hàm sẽ được hiển thị trên khối
+        }
+      };
+    }
+    return action;
+  });
+
+  // Trả về kết quả cuối cùng
+  return { main: finalMain, procedures: Object.keys(procedures).length > 0 ? procedures : undefined };
 };
 
 /**
@@ -215,7 +346,8 @@ const countBlocksInStructure = (actions: Action[]): number => {
   let count = 0;
   for (const action of actions) {
     count++; // Mỗi action ở cấp hiện tại được tính là 1 khối.
-    if (action.type === 'maze_repeat' && Array.isArray(action.actions)) {
+    // NÂNG CẤP: Đếm cả khối lồng nhau trong 'maze_repeat' và 'maze_for'
+    if ((action.type === 'maze_repeat' || action.type === 'maze_for') && Array.isArray(action.actions)) {
       // Nếu là khối lặp, đệ quy để đếm các khối bên trong nó.
       count += countBlocksInStructure(action.actions);
     }
@@ -229,24 +361,46 @@ const countBlocksInStructure = (actions: Action[]): number => {
  * Tìm lời giải cho một cấu hình game mê cung.
  * @param gameConfig Đối tượng cấu hình game.
  * @returns Một đối tượng Solution chứa lời giải, hoặc null nếu không tìm thấy.
+ * @param blocklyConfig Cấu hình toolbox của thử thách.
  * @param solutionConfig Đối tượng cấu hình solution (chứa itemGoals).
  */
-export const solveMaze = (gameConfig: GameConfig, solutionConfig: Solution): Solution | null => { // THAY ĐỔI: Thêm solutionConfig
-  return aStarPathSolver(gameConfig, solutionConfig);
+export const solveMaze = (gameConfig: GameConfig, solutionConfig: Solution, blocklyConfig?: QuestBlocklyConfig): Solution | null => { // THAY ĐỔI: Thêm blocklyConfig
+  return aStarPathSolver(gameConfig, solutionConfig, blocklyConfig);
 };
 
 /** TÁI CẤU TRÚC: Thuật toán A* mới, tìm đường đi theo VỊ TRÍ thay vì HÀNH ĐỘNG */
-const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution): Solution | null => { // THAY ĐỔI: Thêm solutionConfig
+const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, blocklyConfig?: QuestBlocklyConfig): Solution | null => { // THAY ĐỔI: Thêm blocklyConfig
     if (!gameConfig.players?.[0]?.start || !gameConfig.finish) {
         console.error("Solver: Thiếu điểm bắt đầu hoặc kết thúc.");
         return null;
     }
 
+    // BƯỚC 1: Phân tích toolbox để lấy các khối lệnh có sẵn ngay từ đầu.
+    const availableBlocks = new Set<string>();
+    // SỬA LỖI: Củng cố logic để xử lý các cấu trúc blocklyConfig khác nhau.
+    // `augmented_config` có thể lồng `toolbox` trong một cấp nữa.
+    const toolbox = (blocklyConfig as any)?.toolbox || blocklyConfig;
+    const toolboxContents = toolbox?.contents;
+
+    if (toolboxContents) {
+      const queue = [...toolboxContents];
+      while (queue.length > 0) {
+        const item = queue.shift();
+        if (!item) continue;
+        if (item.type) availableBlocks.add(item.type);
+        if (item.custom === 'PROCEDURE') availableBlocks.add('PROCEDURE');
+        // SỬA LỖI: Luôn duyệt vào 'contents' nếu nó tồn tại, không phụ thuộc vào các điều kiện khác.
+        // Điều này đảm bảo các category lồng nhau được xử lý chính xác.
+        if (Array.isArray(item.contents)) queue.push(...item.contents); 
+      }
+    }
+    console.log("Solver: Các khối lệnh có sẵn từ toolbox:", Array.from(availableBlocks));
+
     const world = new GameWorld(gameConfig, solutionConfig);
     const startPos = gameConfig.players[0].start;
     // Lấy hướng ban đầu từ gameConfig.
     // Nếu không được cung cấp, mặc định là 2 (hướng +Z/Tới theo quy ước đã sửa).
-    const startDir = gameConfig.players[0].start.direction !== undefined ? gameConfig.players[0].start.direction : 0;
+    const startDir = gameConfig.players[0].start.direction !== undefined ? gameConfig.players[0].start.direction : 2; // Sửa mặc định thành 2 (+Z)
 
     const startState = new GameState(startPos, startDir, world); // world đã có solutionConfig
     const startNode = new PathNode(startState);
@@ -299,6 +453,11 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution): Solu
       // khoảng cách từ mục tiêu đó đến đích). Điều này đảm bảo heuristic vẫn "admissible"
       // (không đánh giá quá cao) và cung cấp một ước tính tốt hơn.
       let maxHeuristic = manhattan(currentPos, world.finishPos); // Bắt đầu với khoảng cách đến đích cuối cùng
+
+      // Cải tiến Heuristic: Nếu có thể dùng hàm, giảm nhẹ heuristic để khuyến khích các đường đi có thể tối ưu hóa
+      if (availableBlocks.has('PROCEDURE')) {
+        maxHeuristic *= 0.95;
+      }
 
       for (const pos of remainingGoalPositions) {
         // Tính tổng chi phí ước tính nếu đi qua mục tiêu này
@@ -367,7 +526,8 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution): Solu
 
         if (isGoalAchieved(state)) {
             const path = currentNode.rawActionsToReach;
-            const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path));
+            // THAY ĐỔI: Truyền trực tiếp `availableBlocks` vào hàm tối ưu hóa
+            const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks);
 
             const newOptimalBlocks = countBlocksInStructure(newStructuredSolution.main);
             const newOptimalLines = path.length;
@@ -391,21 +551,34 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution): Solu
             nextState.position = neighborPos;
             const neighborPosKey = `${neighborPos.x},${neighborPos.y},${neighborPos.z}`;
 
-            let cost = 0; // Chi phí sẽ được tính dựa trên hành động
+            let cost = 0;
             const actionsToReachNeighbor: string[] = [];
+            const lastAction = currentNode.rawActionsToReach.length > 0 ? currentNode.rawActionsToReach[currentNode.rawActionsToReach.length - 1] : null;
 
-            // Tính toán hành động xoay và chi phí
-            const { actions: turnActions, newDirection: targetDir, cost: turnCost } = calculateTurnActions(state, neighborPos);
+            // --- LOGIC MỚI: Truyền `lastAction` vào `calculateTurnActions` để có thể áp dụng chiết khấu lặp lại ---
+            const { actions: turnActions, newDirection: targetDir, cost: turnCost } = calculateTurnActions(state, neighborPos, lastAction);
             actionsToReachNeighbor.push(...turnActions);
             cost += turnCost;
+
+            // --- LOGIC MỚI: KHUYẾN KHÍCH SỰ LẶP LẠI ---
+            // Giảm nhẹ chi phí nếu hành động giống hành động trước đó để A* ưu tiên các chuỗi lặp lại.
+            const REPETITION_DISCOUNT = 0.01; // Tăng nhẹ chiết khấu để có tác động rõ ràng hơn
 
             // Thêm hành động và chi phí cho di chuyển (walk/jump)
             if (moveAction === 'walk') {
                 actionsToReachNeighbor.push('moveForward');
-                cost += 1.0;
+                let moveCost = 1.0;
+                if (lastAction === 'moveForward') {
+                    moveCost -= REPETITION_DISCOUNT;
+                }
+                cost += moveCost;
             } else { // jump
                 actionsToReachNeighbor.push('jump');
-                cost += 1.2; // Nhảy tốn nhiều chi phí hơn một chút
+                let jumpCost = 1.2; // Nhảy tốn nhiều chi phí hơn một chút
+                if (lastAction === 'jump') {
+                    jumpCost -= REPETITION_DISCOUNT;
+                }
+                cost += jumpCost;
             }
             
             nextState.direction = targetDir;
@@ -502,18 +675,19 @@ function findNeighbors(state: GameState, world: GameWorld): { pos: Position, act
 /**
  * HÀM MỚI: Tính toán các hành động xoay, hướng mới và chi phí để đi từ trạng thái hiện tại đến vị trí tiếp theo.
  */
-function calculateTurnActions(currentState: GameState, nextPos: Position): { actions: string[], newDirection: number, cost: number } {
+function calculateTurnActions(currentState: GameState, nextPos: Position, lastAction: string | null): { actions: string[], newDirection: number, cost: number } {
     const actions: string[] = [];
+    const REPETITION_DISCOUNT = 0.01; // Tăng nhẹ chiết khấu để có tác động rõ ràng hơn
     let cost = 0;
 
     const dx = nextPos.x - currentState.position.x;
     const dz = nextPos.z - currentState.position.z;
     // SỬA LỖI: Cập nhật ánh xạ dx, dz sang targetDir theo quy ước hướng đã sửa.
     let targetDir: number;
-    if (dz === -1) targetDir = 0;     // Lùi (-Z)
-    else if (dx === 1) targetDir = 1;  // Phải (+X)
-    else if (dz === 1) targetDir = 2; // Tới (+Z)
+    if (dx === 1) targetDir = 1;      // Phải (+X)
     else if (dx === -1) targetDir = 3;// Trái (-X)
+    else if (dz === 1) targetDir = 2; // Tới (+Z)
+    else if (dz === -1) targetDir = 0;// Lùi (-Z)
     else targetDir = currentState.direction;
 
     if (targetDir !== currentState.direction) {
@@ -521,9 +695,16 @@ function calculateTurnActions(currentState: GameState, nextPos: Position): { act
         // diff = 1 (theo chiều kim đồng hồ) phải là turnRight.
         // diff = 3 (ngược chiều kim đồng hồ) phải là turnLeft.
         const diff = (targetDir - currentState.direction + 4) % 4;
-        if (diff === 1) { actions.push('turnRight'); cost += 0.1; }
-        else if (diff === 3) { actions.push('turnLeft'); cost += 0.1; }
-        else if (diff === 2) { actions.push('turnRight', 'turnRight'); cost += 0.2; }
+        if (diff === 1) {
+            actions.push('turnRight');
+            cost += (lastAction === 'turnRight' ? 0.1 - REPETITION_DISCOUNT : 0.1);
+        } else if (diff === 3) {
+            actions.push('turnLeft');
+            cost += (lastAction === 'turnLeft' ? 0.1 - REPETITION_DISCOUNT : 0.1);
+        } else if (diff === 2) {
+            actions.push('turnRight', 'turnRight');
+            cost += 0.2; // Khó áp dụng chiết khấu cho quay 180 độ, tạm giữ nguyên
+        }
     }
 
     return { actions, newDirection: targetDir, cost };

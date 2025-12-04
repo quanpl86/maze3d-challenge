@@ -1,21 +1,21 @@
 {
-  "id": "COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36-var4",
+  "id": "FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6-var1",
   "gameType": "maze",
-  "topic": "topic-title-coding_commands_sequence-debugging",
-  "level": 36,
-  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title",
-  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description",
-  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description",
+  "topic": "topic-title-coding_functions_decomposition",
+  "level": 6,
+  "titleKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Title",
+  "questTitleKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Description",
+  "descriptionKey": "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Description",
   "translations": {
     "vi": {
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title": "Sửa lỗi: Sai thứ tự nhiệm vụ",
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description": "Chương trình đang cố gắng bật công tắc trước khi thu thập pha lê, nhưng đường đi lại được lập trình để lấy pha lê trước. Hãy sắp xếp lại các khối lệnh cho hợp lý.",
-      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Title": "Nhiệm vụ Đa giai đoạn",
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Description": "Bài toán này có thể được chia thành các phần nhỏ hơn. Hãy tạo các hàm riêng biệt để giải quyết từng phần của nhiệm vụ một cách có tổ chức.",
+      "topic-title-coding_functions_decomposition": "Phân rã Vấn đề bằng Hàm"
     },
     "en": {
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Title": "Fix the Bug: Wrong Objective Order",
-      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C36.Description": "The program is trying to flip the switch before collecting the crystal, but the path is coded to get the crystal first. Rearrange the blocks logically.",
-      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Title": "Multi-Stage Mission",
+      "Challenge.FUNCTIONS_G34.CODING_FUNCTIONS_DECOMPOSITION.COMPLEX_APPLY.C6.Description": "This problem can be broken down into smaller parts. Create separate functions to solve each part of the mission in an organized way.",
+      "topic-title-coding_functions_decomposition": "Phân rã Vấn đề bằng Hàm"
     }
   },
   "supportedEditors": [
@@ -70,11 +70,20 @@
               "type": "maze_toggle_switch"
             }
           ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 26,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_toggle_switch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 20,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -83,15 +92,7 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 4,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 4,
+          "x": 2,
           "y": 0,
           "z": 7
         }
@@ -99,7 +100,7 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 4,
+          "x": 2,
           "y": 0,
           "z": 8
         }
@@ -107,7 +108,23 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 4,
+          "x": 2,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.normal",
+        "position": {
+          "x": 3,
           "y": 0,
           "z": 9
         }
@@ -117,23 +134,7 @@
         "position": {
           "x": 4,
           "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 12
+          "z": 9
         }
       },
       {
@@ -141,7 +142,7 @@
         "position": {
           "x": 5,
           "y": 0,
-          "z": 12
+          "z": 9
         }
       },
       {
@@ -149,29 +150,13 @@
         "position": {
           "x": 6,
           "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 7,
-          "y": 0,
           "z": 7
         }
       },
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 7,
+          "x": 6,
           "y": 0,
           "z": 8
         }
@@ -179,7 +164,7 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 7,
+          "x": 6,
           "y": 0,
           "z": 9
         }
@@ -187,25 +172,9 @@
       {
         "modelKey": "ground.normal",
         "position": {
-          "x": 7,
+          "x": 6,
           "y": 0,
           "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.normal",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 12
         }
       }
     ],
@@ -213,9 +182,9 @@
       {
         "id": "player1",
         "start": {
-          "x": 4,
+          "x": 2,
           "y": 1,
-          "z": 6,
+          "z": 7,
           "direction": 1
         }
       }
@@ -225,9 +194,18 @@
         "id": "c1",
         "type": "crystal",
         "position": {
-          "x": 4,
+          "x": 2,
           "y": 1,
-          "z": 7
+          "z": 9
+        }
+      },
+      {
+        "id": "c3",
+        "type": "crystal",
+        "position": {
+          "x": 6,
+          "y": 1,
+          "z": 8
         }
       }
     ],
@@ -238,45 +216,39 @@
         "position": {
           "x": 5,
           "y": 1,
-          "z": 12
+          "z": 9
         },
         "initialState": "off"
       }
     ],
     "finish": {
-      "x": 7,
+      "x": 6,
       "y": 1,
-      "z": 6
+      "z": 7
     }
   },
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "crystal": 1,
+      "crystal": 2,
       "switch": 1
     },
-    "optimalBlocks": 21,
-    "optimalLines": 20,
+    "optimalBlocks": 15,
+    "optimalLines": 14,
     "rawActions": [
       "turnRight",
       "moveForward",
+      "moveForward",
       "collect",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
       "turnLeft",
+      "moveForward",
+      "moveForward",
       "moveForward",
       "toggleSwitch",
       "moveForward",
-      "moveForward",
       "turnLeft",
       "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
+      "collect",
       "moveForward"
     ],
     "structuredSolution": {
@@ -289,26 +261,20 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_moveForward"
+        },
+        {
           "type": "maze_collect"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
         },
         {
           "type": "maze_turn",
           "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -320,9 +286,6 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
           "type": "maze_turn",
           "direction": "turnLeft"
         },
@@ -330,16 +293,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
@@ -349,37 +303,6 @@
     },
     "structuredSolution_fixbug_version": {
       "main": [
-        {
-          "type": "maze_toggleSwitch"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
         {
           "type": "maze_turn",
           "direction": "turnRight"
@@ -391,6 +314,9 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_collect"
+        },
+        {
           "type": "maze_turn",
           "direction": "turnLeft"
         },
@@ -404,10 +330,20 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"

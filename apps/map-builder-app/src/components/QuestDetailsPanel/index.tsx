@@ -7,7 +7,12 @@ import '../PropertiesPanel/BlocklyModal.css'; // Import CSS cho modal
 interface QuestDetailsPanelProps {
   metadata: Record<string, any> | null;
   onMetadataChange: (path: string, value: any) => void;
-  onSolveMaze: () => void; // THÊM MỚI: Prop để gọi solver
+  // SỬA LỖI: Thay đổi chữ ký của onSolveMaze để nó có thể nhận các tham số cần thiết cho solver.
+  onSolveMaze: (params: {
+    gameConfig: any;
+    solutionConfig: any;
+    blocklyConfig: any;
+  }) => void;
 }
 
 // Helper để lấy giá trị lồng sâu trong object
@@ -54,8 +59,19 @@ const compileActionsToXml = (actions: any[]): string => {
       case 'maze_toggleSwitch': // Thêm trường hợp cho maze_toggleSwitch
         currentBlockXml = `<block type="maze_toggle_switch"></block>`;
         break;
+      case 'procedures_callnoreturn': // THÊM MỚI: Xử lý cho khối gọi hàm
+        // SỬA LỖI: Đây là phần logic bị thiếu, gây ra lỗi "Loại hành động không xác định: CALL".
+        // Nó tạo ra XML chính xác cho một khối gọi hàm.
+        currentBlockXml = `<block type="procedures_callnoreturn"><mutation name="${action.mutation.name}"></mutation></block>`;
+        break;
+      case 'CALL': // THÊM MỚI: Xử lý cho định dạng "CALL" cũ để tương thích ngược
+        // Lỗi "Loại hành động không xác định: CALL" xảy ra ở đây.
+        // Thêm trường hợp này để xử lý các file JSON cũ có thể vẫn dùng "CALL".
+        currentBlockXml = `<block type="procedures_callnoreturn"><mutation name="${action.name}"></mutation></block>`;
+        break;
       case 'maze_repeat': // Giả định structuredSolution sử dụng 'maze_repeat' cho vòng lặp
-        // Đệ quy để biên dịch các hành động con bên trong khối lặp
+      case 'maze_for': // THÊM MỚI: Xử lý cho vòng lặp 'maze_for'
+        // Đệ quy để biên dịch các hành động con bên trong khối lặp (cả maze_repeat và maze_for)
         const innerBlocksXml = compileActionsToXml(action.actions || []);
         currentBlockXml = `
           <block type="maze_repeat">
@@ -114,11 +130,13 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
   useEffect(() => {
     // Cập nhật state cục bộ khi metadata từ bên ngoài thay đổi (ví dụ: import file mới)
     if (metadata) {
-      // Tách solution ra các phần riêng biệt
-      const solution = metadata.solution || {};
+      // SỬA LỖI: Đảm bảo `solution` luôn là một object để tránh lỗi khi truy cập thuộc tính.
+      const solution = metadata.solution || { rawActions: [], structuredSolution: {} };
       setLocalSolution(JSON.stringify(solution, null, 2)); // Giữ lại để xem tổng thể
-      setLocalRawActions(JSON.stringify(solution.rawActions, null, 2));
-      setLocalStructuredSolution(JSON.stringify(solution.structuredSolution, null, 2));
+      // SỬA LỖI & CẢI TIẾN: Đảm bảo rawActions và structuredSolution luôn được cập nhật từ metadata mới nhất.
+      // Điều này đồng bộ hóa kết quả từ solver (đã chuyển đổi 'CALL' thành 'procedures_callnoreturn') vào state cục bộ.
+      setLocalRawActions(JSON.stringify(solution.rawActions || [], null, 2));
+      setLocalStructuredSolution(JSON.stringify(solution.structuredSolution || {}, null, 2));
 
       // Lấy chuỗi XML "sạch" và chuyển nó thành dạng "escaped" để hiển thị và sao chép dễ dàng
       const rawXml = getDeepValue(metadata, 'blocklyConfig.startBlocks') || '';
@@ -149,10 +167,28 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         return;
       }
 
-      const innerBlocksXml = compileActionsToXml(structuredSolution.main); // Truyền mảng 'main' vào hàm biên dịch
+      let fullXmlContent = '';
 
-      // Bọc các khối đã biên dịch vào khối maze_start và thẻ <xml>
-      const finalXml = `<xml><block type="maze_start" deletable="false" movable="false"><statement name="DO">${innerBlocksXml}</statement></block></xml>`;
+      // 1. Biên dịch các hành động chính (main actions)
+      const mainBlocksXml = compileActionsToXml(structuredSolution.main);
+      fullXmlContent += `<block type="maze_start" deletable="false" movable="false"><statement name="DO">${mainBlocksXml}</statement></block>`;
+
+      // 2. Biên dịch các định nghĩa hàm (procedures), nếu có
+      if (structuredSolution.procedures) {
+        let yOffset = 100; // Vị trí Y bắt đầu cho các khối định nghĩa hàm
+        for (const procName in structuredSolution.procedures) {
+          const procActions = structuredSolution.procedures[procName];
+          const procInnerBlocksXml = compileActionsToXml(procActions);
+          fullXmlContent += `
+            <block type="procedures_defnoreturn" x="400" y="${yOffset}">
+              <field name="NAME">${procName}</field>
+              <comment pinned="false" h="80" w="160">Describe this function...</comment>
+              <statement name="STACK">${procInnerBlocksXml}</statement>
+            </block>`;
+          yOffset += (procActions.length * 50) + 100; // Ước tính vị trí Y cho khối hàm tiếp theo
+        }
+      }
+      const finalXml = `<xml>${fullXmlContent}</xml>`;
 
       // Định dạng lại XML để dễ đọc hơn (tùy chọn, nhưng hữu ích cho debug)
       // const formattedXml = formatXml(finalXml); // Cần một hàm formatXml nếu muốn
@@ -283,7 +319,16 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
 
       <div className="label-with-button">
         <h3 className="props-title" style={{ marginBottom: 0 }}>Solution</h3>
-        <button className="json-action-btn" onClick={onSolveMaze}>
+        {/* SỬA LỖI: Truyền các config cần thiết vào hàm onSolveMaze khi click.
+            Điều này đảm bảo rằng solver nhận được dữ liệu chính xác để hoạt động. */}
+        <button
+          className="json-action-btn"
+          onClick={() => onSolveMaze({
+            gameConfig: metadata.gameConfig,
+            // SỬA LỖI: Đảm bảo solutionConfig luôn là một object, kể cả khi metadata.solution là null/undefined.
+            solutionConfig: metadata.solution || { rawActions: [], structuredSolution: {} },
+            blocklyConfig: metadata.blocklyConfig
+          })}>
           Tự động giải
         </button>
       </div>

@@ -722,14 +722,14 @@ function App() {
         let configToLoad;
         if (json.gameConfig && typeof json.gameConfig === 'object') {
           // Đây là file quest đầy đủ
-          const { gameConfig, ...metadata } = json;
-          configToLoad = gameConfig;
-          setQuestMetadata(metadata);
+          configToLoad = json.gameConfig;
+          // SỬA LỖI: Giữ lại toàn bộ json làm metadata để gameConfig không bị mất
+          setQuestMetadata(json); 
         } else if (json.blocks || json.players) {
           // Đây có vẻ là file chỉ có gameConfig, nhưng không có key cha
           // Để nhất quán, chúng ta sẽ coi nó là file gameConfig-only
           configToLoad = json;
-          setQuestMetadata(null);
+          setQuestMetadata({ gameConfig: json }); // Bọc nó trong một object metadata chuẩn
           setCurrentMapFileName(file.name); // Cập nhật tên file
         } else {
             throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
@@ -794,13 +794,12 @@ function App() {
 
       let configToLoad;
       if (json.gameConfig && typeof json.gameConfig === 'object') {
-        const { gameConfig, ...metadata } = json;
-        configToLoad = gameConfig;
+        configToLoad = json.gameConfig;
         setCurrentMapFileName(url.split('/').pop() || 'untitled-quest.json'); // Cập nhật tên file
-        setQuestMetadata(metadata);
+        setQuestMetadata(json); // SỬA LỖI: Giữ lại toàn bộ json
       } else if (json.blocks || json.players) {
         configToLoad = json;
-        setQuestMetadata(null);
+        setQuestMetadata({ gameConfig: json }); // SỬA LỖI: Bọc trong metadata chuẩn
       } else {
         throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
       }
@@ -867,12 +866,11 @@ function App() {
 
       let configToLoad;
       if (json.gameConfig && typeof json.gameConfig === 'object') {
-        const { gameConfig, ...metadata } = json;
-        configToLoad = gameConfig;
-        setQuestMetadata(metadata);
+        configToLoad = json.gameConfig;
+        setQuestMetadata(json); // SỬA LỖI: Giữ lại toàn bộ json
       } else if (json.blocks || json.players) {
         configToLoad = json;
-        setQuestMetadata(null);
+        setQuestMetadata({ gameConfig: json }); // SỬA LỖI: Bọc trong metadata chuẩn
       } else {
         throw new Error("Invalid format: JSON does not contain a recognizable 'gameConfig' object.");
       }
@@ -928,35 +926,25 @@ function App() {
   };
 
   // --- HÀM MỚI: TÍCH HỢP BỘ GIẢI MÊ CUNG ---
-  const handleSolveMaze = () => {
+  const handleSolveMaze = ({ gameConfig, solutionConfig, blocklyConfig }: { gameConfig: any, solutionConfig: any, blocklyConfig: any }) => {
+    // SỬA LỖI: Luôn lấy gameConfig, solutionConfig, và blocklyConfig từ trạng thái JSON mới nhất
+    // để đảm bảo tính toàn vẹn dữ liệu, thay vì dựa vào các tham số có thể đã cũ.
     try {
-      // --- START: SỬA LỖI HƯỚNG NHÂN VẬT KHI GIẢI ---
-      // Vấn đề: editedJson có thể không được cập nhật với những thay đổi mới nhất
-      // từ PropertiesPanel (ví dụ: thay đổi hướng của người chơi).
-      // Giải pháp: Luôn tạo lại chuỗi JSON từ `outputJsonString` (dựa trên `placedObjects` mới nhất)
-      // ngay trước khi giải. Điều này đảm bảo bộ giải luôn nhận được dữ liệu chính xác.
-      const currentMapStateJson = outputJsonString;
-      const data = JSON.parse(currentMapStateJson);
+      const currentFullJson = JSON.parse(outputJsonString);
+      const currentGC = currentFullJson.gameConfig;
+      const currentSC = currentFullJson.solution || {};
+      const currentBC = currentFullJson.blocklyConfig || {};
 
-      // Cập nhật lại state của trình soạn thảo JSON để người dùng thấy dữ liệu đang được giải
-      setEditedJson(currentMapStateJson);
-      // --- END: SỬA LỖI HƯỚNG NHÂN VẬT KHI GIẢI ---
-
-      // Logic cũ: Phân tích cú pháp JSON một lần và sử dụng nó làm nguồn chân lý (source of truth).
-      // const data = JSON.parse(editedJson);
-      const gameConfig = data.gameConfig; // Giờ đây gameConfig đã được cập nhật chính xác
-      const solutionConfig = data.solution; // THÊM MỚI: Trích xuất solution config
-
-      if (!gameConfig) {
+      if (!currentGC) {
         alert("Error: 'gameConfig' not found in JSON. Cannot solve.");
         return;
       }
 
-      // 1. Đồng bộ hóa trạng thái ứng dụng (placedObjects) với JSON đã chỉnh sửa.
-      // Tham số `true` để không hiển thị alert, tham số `data` để tránh parse lại.
-      handleRenderEditedJson(true, data);
-      // 2. Chạy bộ giải với gameConfig và solutionConfig đã được parse.
-      const solution = solveMaze(gameConfig, solutionConfig);
+      // 1. Đồng bộ hóa trạng thái ứng dụng (placedObjects) với JSON mới nhất một cách "âm thầm".
+      // Điều này đảm bảo bộ giải chạy trên trạng thái map mới nhất mà người dùng thấy.
+      handleRenderEditedJson(true, currentFullJson);
+      // 2. Chạy bộ giải với các config đã được truyền vào.
+      const solution = solveMaze(currentGC, currentSC, currentBC);
 
       if (solution) {
         // 3. Cập nhật metadata với lời giải mới.
