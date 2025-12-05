@@ -1027,6 +1027,13 @@ function App() {
         const newOptimalBlocks = solution.optimalBlocks || 0;
         const newMaxBlocks = newOptimalBlocks + 5;
 
+        // THÊM MỚI: Tạo đối tượng "lời giải cơ bản" từ rawActions.
+        // Đây là một cấu trúc JSON đơn giản chỉ chứa các hành động tuần tự.
+        const basicSolution = {
+          main: solution.rawActions.map((action: string) => ({ type: `maze_${action}` })),
+          procedures: {}
+        };
+
         setQuestMetadata(prev => ({
           ...prev,
           // Cập nhật blocklyConfig với maxBlocks mới
@@ -1035,7 +1042,11 @@ function App() {
             maxBlocks: newMaxBlocks,
           },
           // Hợp nhất solution config cũ với kết quả mới từ solver
-          solution: { ...currentSC, ...solution },
+          solution: {
+            ...currentSC,
+            ...solution,
+            basicSolution: basicSolution // Lưu lời giải cơ bản vào metadata
+          },
         }));
         alert("Đã tìm thấy lời giải và cập nhật thành công!");
       } else {

@@ -50,6 +50,13 @@ const compileActionsToXml = (actions: any[]): string => {
         const turnDir = action.direction;
         currentBlockXml = `<block type="maze_turn"><field name="DIR">${turnDir}</field></block>`;
         break;
+      // SỬA LỖI: Thêm các trường hợp để xử lý định dạng từ "Lời Giải Cơ Bản"
+      case 'maze_turnLeft':
+        currentBlockXml = `<block type="maze_turn"><field name="DIR">turnLeft</field></block>`;
+        break;
+      case 'maze_turnRight':
+        currentBlockXml = `<block type="maze_turn"><field name="DIR">turnRight</field></block>`;
+        break;
       case 'maze_collect': // Thêm trường hợp cho maze_collect
         currentBlockXml = `<block type="maze_collect"></block>`;
         break;
@@ -123,8 +130,8 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
   // State cục bộ cho các editor để cập nhật UI ngay lập tức khi gõ
   const [localSolution, setLocalSolution] = useState('');
   const [localRawActions, setLocalRawActions] = useState('');
+  const [localBasicSolution, setLocalBasicSolution] = useState(''); // THÊM MỚI: State cho lời giải cơ bản
   const [localStructuredSolution, setLocalStructuredSolution] = useState('');
-  const [localStartBlocks, setLocalStartBlocks] = useState('');
   const [isBlocklyModalOpen, setBlocklyModalOpen] = useState(false); // State để quản lý modal
 
   useEffect(() => {
@@ -135,31 +142,27 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       setLocalSolution(JSON.stringify(solution, null, 2)); // Giữ lại để xem tổng thể
       // SỬA LỖI & CẢI TIẾN: Đảm bảo rawActions và structuredSolution luôn được cập nhật từ metadata mới nhất.
       // Điều này đồng bộ hóa kết quả từ solver (đã chuyển đổi 'CALL' thành 'procedures_callnoreturn') vào state cục bộ.
+      setLocalBasicSolution(JSON.stringify(solution.basicSolution || {}, null, 2)); // THÊM MỚI: Cập nhật state lời giải cơ bản
       setLocalRawActions(JSON.stringify(solution.rawActions || [], null, 2));
       setLocalStructuredSolution(JSON.stringify(solution.structuredSolution || {}, null, 2));
-
-      // Lấy chuỗi XML "sạch" và chuyển nó thành dạng "escaped" để hiển thị và sao chép dễ dàng
-      const rawXml = getDeepValue(metadata, 'blocklyConfig.startBlocks') || '';
-      const escapedXml = rawXml.replace(/"/g, '\\"');
-      setLocalStartBlocks(escapedXml);
     } else {
       setLocalSolution('');
+      setLocalBasicSolution('');
       setLocalRawActions('');
       setLocalStructuredSolution('');
-      setLocalStartBlocks('');
     }
   }, [metadata]);
 
   // --- START: HÀM XỬ LÝ SỰ KIỆN CLICK NÚT BIÊN DỊCH ---
-  const handleCompileSolutionToXml = () => {
+  const handleCompileToXml = (jsonSource: string, sourceName: string) => {
     try {
       // B1: Kiểm tra xem chuỗi JSON có rỗng hay không
-      if (!localStructuredSolution || localStructuredSolution.trim() === '') {
-        alert('Lỗi: Structured Solution (JSON) đang trống. Vui lòng nhập dữ liệu.');
+      if (!jsonSource || jsonSource.trim() === '') {
+        alert(`Lỗi: ${sourceName} (JSON) đang trống. Vui lòng nhập dữ liệu.`);
         return;
       }
 
-      const structuredSolution = JSON.parse(localStructuredSolution);
+      const structuredSolution = JSON.parse(jsonSource);
 
       // B2: Kiểm tra xem dữ liệu đã parse có thuộc tính 'main' là một mảng không
       if (!structuredSolution || !Array.isArray(structuredSolution.main)) {
@@ -190,18 +193,11 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       }
       const finalXml = `<xml>${fullXmlContent}</xml>`;
 
-      // Định dạng lại XML để dễ đọc hơn (tùy chọn, nhưng hữu ích cho debug)
-      // const formattedXml = formatXml(finalXml); // Cần một hàm formatXml nếu muốn
-
-      // Cập nhật state cục bộ và state của component cha
-      const escapedXml = finalXml.replace(/"/g, '\\"');
-      setLocalStartBlocks(escapedXml);
       handleComplexChange('blocklyConfig.startBlocks', finalXml); // Lưu chuỗi "sạch"
-
       alert('Tạo Start Blocks XML thành công!');
     } catch (error) {
       console.error("Lỗi khi biên dịch structuredSolution sang XML:", error);
-      alert(`Lỗi: Không thể parse structuredSolution. Vui lòng kiểm tra lại định dạng JSON.\n\n${error}`);
+      alert(`Lỗi: Không thể parse ${sourceName}. Vui lòng kiểm tra lại định dạng JSON.\n\n${error}`);
     }
   };
   // --- END: HÀM XỬ LÝ SỰ KIỆN ---
@@ -220,16 +216,14 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
   return (
     <aside className="quest-details-panel" key={metadata.id}>
       {/* Render Modal nếu isBlocklyModalOpen là true */}
-      {isBlocklyModalOpen && (
+      {isBlocklyModalOpen && metadata.blocklyConfig && (
         <BlocklyModal
-          // Luôn truyền vào modal chuỗi XML đã được "làm sạch" (loại bỏ dấu \)
-          initialXml={localStartBlocks.replace(/\\"/g, '"')}
+          // SỬA LỖI: Lấy XML trực tiếp từ metadata để đảm bảo luôn là dữ liệu mới nhất
+          initialXml={getDeepValue(metadata, 'blocklyConfig.startBlocks') || ''}
           onClose={() => setBlocklyModalOpen(false)}
           onSave={(newXml) => {
-            // Khi lưu, chuyển chuỗi XML "sạch" thành dạng "escaped" để hiển thị và lưu
-            const escapedXml = newXml.replace(/"/g, '\\"');
-            setLocalStartBlocks(escapedXml);
-            // Cập nhật ngay lập tức vào state cha để thay đổi được lưu
+            // Cập nhật ngay lập tức vào state cha để thay đổi được lưu.
+            // Không cần state cục bộ `localStartBlocks` nữa.
             handleComplexChange('blocklyConfig.startBlocks', newXml); // Lưu chuỗi "sạch" vào metadata
             setBlocklyModalOpen(false);
           }}
@@ -312,9 +306,9 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
           </button>
         </div>
         <textarea
-          value={localStartBlocks}
-          onChange={(e) => setLocalStartBlocks(e.target.value)}
-          onBlur={() => handleComplexChange('blocklyConfig.startBlocks', localStartBlocks.replace(/\\"/g, '"'))} // Giữ lại logic onBlur
+          // SỬA LỖI: Hiển thị giá trị trực tiếp từ metadata và cho phép chỉnh sửa
+          value={getDeepValue(metadata, 'blocklyConfig.startBlocks') || ''}
+          onChange={(e) => handleComplexChange('blocklyConfig.startBlocks', e.target.value)}
           rows={26} // Tăng chiều cao của textarea từ 4 lên 8 dòng
         />
       </div>
@@ -355,9 +349,35 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       </div>
       <div className="quest-prop-group">
         <div className="label-with-button">
+          <label>Basic Solution (JSON)</label>
+          {/* THÊM MỚI: Nút để tạo start blocks từ lời giải cơ bản */}
+          <button className="json-action-btn" onClick={() => handleCompileToXml(localBasicSolution, 'Basic Solution')}>
+            Tạo Start Blocks từ Lời Giải Cơ Bản
+          </button>
+        </div>
+        <textarea
+          className="json-editor-small"
+          value={localBasicSolution}
+          onChange={(e) => setLocalBasicSolution(e.target.value)}
+          onBlur={() => {
+            if (localBasicSolution.trim()) {
+              try {
+                const parsed = JSON.parse(localBasicSolution);
+                handleComplexChange('solution.basicSolution', parsed);
+              } catch (error) {
+                console.warn("Invalid JSON in basicSolution field", error);
+              }
+            }
+          }}
+          rows={10}
+        />
+      </div>
+      <div className="quest-prop-group">
+        <div className="label-with-button">
           <label>Structured Solution (JSON)</label>
-          <button className="json-action-btn" onClick={handleCompileSolutionToXml}>
-            Start Blocks Create
+          {/* THAY ĐỔI: Đổi tên nút và gọi hàm dùng chung */}
+          <button className="json-action-btn" onClick={() => handleCompileToXml(localStructuredSolution, 'Structured Solution')}>
+            Tạo Start Blocks từ Lời Giải Tối Ưu
           </button>
         </div>
         <textarea
