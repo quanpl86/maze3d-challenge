@@ -1097,7 +1097,7 @@ function App() {
     }
   };
 
-  return (
+ return (
     <div className="app-container">
       {isPaletteVisible && (
         <AssetPalette
