@@ -74,6 +74,18 @@ function App() {
     }
   }, [selectedObjectIds]); // Chạy effect này mỗi khi selectedObjectIds thay đổi
 
+  // --- HÀM TIỆN ÍCH MỚI: Chuẩn hóa URL cho môi trường deploy ---
+  const getCorrectedAssetUrl = (url: string): string => {
+    // Logic này tìm chuỗi '/public/' và lấy tất cả mọi thứ sau nó,
+    // đảm bảo đường dẫn fetch luôn đúng (ví dụ: '/templates/file.json')
+    // trên cả local và Netlify.
+    const publicIndex = url.indexOf('/public/');
+    if (publicIndex !== -1) {
+      return url.substring(publicIndex + '/public'.length);
+    }
+    return url;
+  };
+
   // Đóng context menu khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = () => {
@@ -869,17 +881,7 @@ function App() {
 
   // --- HÀM MỚI: TẢI MAP TỪ URL TRONG THƯ MỤC PUBLIC ---
   const handleLoadMapFromUrl = async (url: string) => {
-    // --- SỬA LỖI DEPLOY NETLIFY ---
-    // URL được tạo ra có thể chứa '/public/' một cách không cần thiết.
-    // Khi deploy, các file trong 'public' được phục vụ từ thư mục gốc ('/').
-    // Logic này tìm chuỗi '/public/' và lấy tất cả mọi thứ sau nó,
-    // đảm bảo đường dẫn fetch luôn đúng (ví dụ: '/templates/file.json').
-    let correctedUrl = url;
-    const publicIndex = correctedUrl.indexOf('/public/');
-    if (publicIndex !== -1) {
-      correctedUrl = correctedUrl.substring(publicIndex + '/public'.length);
-    }
-    // --- KẾT THÚC SỬA LỖI ---
+    const correctedUrl = getCorrectedAssetUrl(url); // Sử dụng hàm tiện ích mới
 
     try {
       const response = await fetch(correctedUrl); // Sử dụng URL đã được hiệu chỉnh
@@ -1114,6 +1116,8 @@ function App() {
           onSelectionAction={handleSelectionAction}
           selectionBounds={selectionBounds}
           onSelectionBoundsChange={handleSelectionBoundsChange}
+          // SỬA LỖI: Truyền hàm tiện ích mới vào AssetPalette
+          getCorrectedAssetUrl={getCorrectedAssetUrl}
           onLoadMapFromUrl={handleLoadMapFromUrl} // Truyền hàm mới vào
           onImportMap={handleImportMap}
         />

@@ -17,6 +17,7 @@ interface AssetPaletteProps {
   onSelectionBoundsChange: (bounds: SelectionBounds) => void;
   onImportMap: (file: File) => void;
   onLoadMapFromUrl: (url: string) => void; // Thêm prop bị thiếu
+  getCorrectedAssetUrl: (url: string) => string; // THÊM MỚI: Prop để sửa lỗi đường dẫn
 }
 
 const DimensionInputRow = ({ label, value, onChange }: { label: string, value: number, onChange: (val: number) => void }) => (
@@ -39,7 +40,8 @@ export function AssetPalette({
   selectionBounds,
   onSelectionBoundsChange,
   onImportMap,
-  onLoadMapFromUrl // Nhận prop mới
+  onLoadMapFromUrl, // Nhận prop mới
+  getCorrectedAssetUrl // Nhận prop mới
 }: AssetPaletteProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mapList, setMapList] = useState<Record<string, unknown> | null>(null);
@@ -136,7 +138,7 @@ export function AssetPalette({
                 if (path) {
                   const fileName = path.split('/').pop();
                   const a = document.createElement('a');
-                  a.href = path;
+                  a.href = getCorrectedAssetUrl(path); // SỬA LỖI: Sử dụng hàm tiện ích để lấy URL đúng
                   a.download = fileName || 'template.json';
                   document.body.appendChild(a);
                   a.click();
