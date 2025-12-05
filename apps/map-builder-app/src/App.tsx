@@ -869,8 +869,15 @@ function App() {
 
   // --- HÀM MỚI: TẢI MAP TỪ URL TRONG THƯ MỤC PUBLIC ---
   const handleLoadMapFromUrl = async (url: string) => {
+    // --- SỬA LỖI DEPLOY NETLIFY ---
+    // URL được tạo ra có thể chứa '/public/' một cách không cần thiết.
+    // Các file trong thư mục 'public' được phục vụ từ thư mục gốc ('/') khi deploy.
+    // Chúng ta cần đảm bảo đường dẫn fetch không chứa '/public/'.
+    const correctedUrl = url.startsWith('/public/') ? url.replace('/public/', '/') : url;
+    // --- KẾT THÚC SỬA LỖI ---
+
     try {
-      const response = await fetch(url);
+      const response = await fetch(correctedUrl); // Sử dụng URL đã được hiệu chỉnh
       if (!response.ok) {
         throw new Error(`Failed to fetch map: ${response.statusText}`);
       }
@@ -878,8 +885,8 @@ function App() {
 
       let configToLoad;
       if (json.gameConfig && typeof json.gameConfig === 'object') {
-        configToLoad = json.gameConfig;
-        setCurrentMapFileName(url.split('/').pop() || 'untitled-quest.json'); // Cập nhật tên file
+        configToLoad = json.gameConfig; 
+        setCurrentMapFileName(correctedUrl.split('/').pop() || 'untitled-quest.json'); // Cập nhật tên file từ URL đã sửa
         setQuestMetadata(json); // SỬA LỖI: Giữ lại toàn bộ json
       } else if (json.blocks || json.players) {
         configToLoad = json;
@@ -913,11 +920,11 @@ function App() {
       
       setPlacedObjectsWithHistory(() => newPlacedObjects); // Bắt đầu lịch sử mới khi load map
       detectAndSetTheme(newPlacedObjects); // SỬA LỖI: Cập nhật theme sau khi load từ URL
-      alert(`Map '${url.split('/').pop()}' loaded successfully!`);
+      alert(`Map '${correctedUrl.split('/').pop()}' loaded successfully!`);
 
     } catch (error) {
       console.error("Failed to load map from URL:", error);
-      alert(`Failed to load map: ${error instanceof Error ? error.message : String(error)}`);
+      alert(`Failed to load map from ${correctedUrl}: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
