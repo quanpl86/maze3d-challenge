@@ -1,0 +1,320 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_multi-objective",
+  "level": 27,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Title": "Kích hoạt song song",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Description": "Các công tắc được đặt trên hai cột song song của hình chữ H. Bạn cần tìm đường đi hiệu quả để kích hoạt tất cả.",
+      "topic-title-coding_commands_multi-objective": "Lập kế hoạch Đa mục tiêu"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Title": "Parallel Activation",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.COMPLEX_APPLY.C27.Description": "Switches are placed on the parallel columns of the H-shape. You need to find an efficient path to activate them all.",
+      "topic-title-coding_commands_multi-objective": "Lập kế hoạch Đa mục tiêu"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 20,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "switch": 2
+    },
+    "optimalBlocks": 19,
+    "optimalLines": 18,
+    "rawActions": [
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "toggleSwitch",
+      "turnLeft",
+      "turnLeft",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "toggleSwitch",
+      "turnLeft",
+      "turnLeft",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 5
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 4,
+          "y": 1,
+          "z": 3,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [
+      {
+        "id": "s1",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 5
+        }
+      },
+      {
+        "id": "s2",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 5
+        }
+      }
+    ],
+    "finish": {
+      "x": 7,
+      "y": 1,
+      "z": 3
+    }
+  }
+}

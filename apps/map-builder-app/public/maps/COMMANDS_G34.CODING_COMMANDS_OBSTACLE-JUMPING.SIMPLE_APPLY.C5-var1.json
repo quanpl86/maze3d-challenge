@@ -1,0 +1,216 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_obstacle-jumping",
+  "level": 5,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Title": "Bước nhảy đầu tiên",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Description": "Có một vật cản trên đường! Sử dụng lệnh jump để nhảy lên trên nó. Sau đó, dùng thêm một lệnh jump nữa để nhảy xuống đất ở phía bên kia.",
+      "topic-title-coding_commands_obstacle-jumping": "Vượt Chướng ngại vật bằng Lệnh Jump"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Title": "First Jump",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_OBSTACLE-JUMPING.SIMPLE_APPLY.C5.Description": "There's an obstacle in the way! Use the jump command to leap on top of it. Then, use another jump command to land on the ground on the other side.",
+      "topic-title-coding_commands_obstacle-jumping": "Vượt Chướng ngại vật bằng Lệnh Jump"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 12,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "wall.brick01",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 5
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 4,
+          "y": 1,
+          "z": 5,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": 10,
+      "y": 1,
+      "z": 5
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 7,
+    "optimalLines": 6,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "jump",
+      "jump",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

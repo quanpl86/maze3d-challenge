@@ -1,0 +1,316 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46-var2",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_maze-solving-basic",
+  "level": 46,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Title": "Mê cung Xoắn ốc",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Description": "Hãy tìm đường vào tâm của mê cung xoắn ốc. Cẩn thận, có những vật cản trên đường đi đòi hỏi bạn phải nhảy qua.",
+      "topic-title-coding_commands_maze-solving-basic": "Giải Mê cung bằng Lệnh Tuần tự"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Title": "The Spiral Labyrinth",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MAZE-SOLVING-BASIC.COMPLEX_APPLY.C46.Description": "Find your way to the center of the spiral labyrinth. Be careful, there are obstacles along the path that you'll need to jump over.",
+      "topic-title-coding_commands_maze-solving-basic": "Giải Mê cung bằng Lệnh Tuần tự"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 15,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "wall.brick03",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "wall.brick03",
+        "position": {
+          "x": 9,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "wall.brick03",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 6
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 8,
+          "y": 1,
+          "z": 8,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 9,
+          "y": 1,
+          "z": 7
+        }
+      }
+    ],
+    "interactibles": [],
+    "finish": {
+      "x": 6,
+      "y": 1,
+      "z": 6
+    },
+    "obstacles": [
+      {
+        "id": "o1",
+        "type": "obstacle",
+        "modelKey": "wall.brick03",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "id": "o2",
+        "type": "obstacle",
+        "modelKey": "wall.brick03",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "id": "o3",
+        "type": "obstacle",
+        "modelKey": "wall.brick03",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 6
+        }
+      }
+    ]
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 1
+    },
+    "optimalBlocks": 10,
+    "optimalLines": 9,
+    "rawActions": [
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "collect",
+      "jump",
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "jump"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

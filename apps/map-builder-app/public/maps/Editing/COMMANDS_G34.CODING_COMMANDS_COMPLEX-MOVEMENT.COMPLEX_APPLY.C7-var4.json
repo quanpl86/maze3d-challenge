@@ -1,0 +1,288 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7-var4",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_complex-movement",
+  "level": 7,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Title": "Nhảy và Rẽ",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Description": "Một thử thách kết hợp! Bạn cần đi thẳng, nhảy lên vật cản, rẽ ở trên đó, sau đó nhảy xuống và đi tiếp.",
+      "topic-title-coding_commands_complex-movement": "Di chuyển Tuần tự Phức tạp"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Title": "Jump and Turn",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C7.Description": "A combination challenge! You need to walk forward, jump onto the obstacle, make a turn while on top of it, then jump down and continue.",
+      "topic-title-coding_commands_complex-movement": "Di chuyển Tuần tự Phức tạp"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 18,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": -2,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": -2,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": -2,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": -2,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": -1,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick06",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "wall.brick04",
+        "position": {
+          "x": -2,
+          "y": 1,
+          "z": 9
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 4,
+          "y": 1,
+          "z": 7,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": -2,
+      "y": 1,
+      "z": 10
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 13,
+    "optimalLines": 12,
+    "rawActions": [
+      "turnLeft",
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "jump",
+      "jump"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

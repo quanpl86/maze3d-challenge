@@ -1,0 +1,306 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53-var2",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_complex-movement",
+  "level": 53,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Title": "Vẽ một hình vuông",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Description": "Sử dụng các lệnh đi thẳng và rẽ để điều khiển nhân vật đi một vòng khép kín theo hình vuông.",
+      "topic-title-coding_commands_complex-movement": "Di chuyển Tuần tự Phức tạp"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Title": "Drawing a Square",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_COMPLEX-MOVEMENT.COMPLEX_APPLY.C53.Description": "Use a combination of `moveForward` and `turn` commands to make the character walk in a complete square.",
+      "topic-title-coding_commands_complex-movement": "Di chuyển Tuần tự Phức tạp"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 20,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 12
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 0,
+          "y": 1,
+          "z": 9,
+          "direction": 2
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": 0,
+      "y": 1,
+      "z": 12
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 15,
+    "optimalLines": 14,
+    "rawActions": [
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9-var5",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_logic-debugging",
+  "level": 9,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Title": "Sửa lỗi: Mắc kẹt trên cao",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Description": "Nhân vật đã nhảy lên được vật cản, nhưng chương trình lại thiếu lệnh để nhảy xuống. Hãy thêm khối jump còn thiếu để hoàn thành đường đi.",
+      "topic-title-coding_commands_logic-debugging": "Gỡ lỗi Logic trong Chuỗi lệnh"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Title": "Fix the Bug: Stuck on Top",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_LOGIC-DEBUGGING.DEBUG_FIX_LOGIC.C9.Description": "The character successfully jumped onto the obstacle, but the program is missing the command to jump down. Add the missing jump block to complete the path.",
+      "topic-title-coding_commands_logic-debugging": "Gỡ lỗi Logic trong Chuỗi lệnh"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 14,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 9,
+    "optimalLines": 8,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "jump",
+      "jump",
+      "moveForward",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 1,
+          "z": 8
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 4,
+          "y": 1,
+          "z": 8,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": 12,
+      "y": 1,
+      "z": 8
+    }
+  }
+}

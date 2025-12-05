@@ -1,0 +1,209 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29-var2",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_sequence-debugging",
+  "level": 29,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Title": "Sửa lỗi: Bật công tắc từ xa",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Description": "Chương trình đang cố gắng bật công tắc trước khi nhân vật di chuyển đến vị trí của nó. Hãy sắp xếp lại các khối lệnh cho đúng thứ tự.",
+      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Title": "Fix the Bug: Remote Flipping",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_SEQUENCE-DEBUGGING.DEBUG_FIX_SEQUENCE.C29.Description": "The program is trying to flip the switch before the character moves to its location. Rearrange the blocks into the correct order.",
+      "topic-title-coding_commands_sequence-debugging": "Gỡ lỗi Thứ tự trong Chuỗi lệnh"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 11,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_toggle_switch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\" /></next></block></next></block></next></block></next></block></statement></block></xml>"
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "switch": 1
+    },
+    "optimalBlocks": 6,
+    "optimalLines": 5,
+    "rawActions": [
+      "moveForward",
+      "toggleSwitch",
+      "moveForward",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.earthChecker",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 2
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 9,
+          "y": 1,
+          "z": 2,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [
+      {
+        "id": "s1",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 10,
+          "y": 1,
+          "z": 2
+        }
+      }
+    ],
+    "finish": {
+      "x": 13,
+      "y": 1,
+      "z": 2
+    }
+  }
+}
