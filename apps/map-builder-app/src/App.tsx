@@ -871,9 +871,12 @@ function App() {
   const handleLoadMapFromUrl = async (url: string) => {
     // --- SỬA LỖI DEPLOY NETLIFY ---
     // URL được tạo ra có thể chứa '/public/' một cách không cần thiết.
-    // Các file trong thư mục 'public' được phục vụ từ thư mục gốc ('/') khi deploy.
-    // Chúng ta cần đảm bảo đường dẫn fetch không chứa '/public/'.
-    const correctedUrl = url.startsWith('/public/') ? url.replace('/public/', '/') : url;
+    // Các file trong thư mục 'public' (như maps, templates) được phục vụ từ thư mục gốc ('/') khi deploy.
+    // Logic này đảm bảo đường dẫn fetch luôn chính xác trên cả local và Netlify.
+    let correctedUrl = url;
+    if (correctedUrl.includes('/public/')) {
+      correctedUrl = correctedUrl.substring(correctedUrl.indexOf('/public/') + '/public'.length);
+    }
     // --- KẾT THÚC SỬA LỖI ---
 
     try {
