@@ -22,11 +22,6 @@ function App() {
   const [historyIndex, setHistoryIndex] = useState(0); // Con trỏ tới trạng thái hiện tại trong lịch sử
   const placedObjects = useMemo(() => history[historyIndex] || [], [history, historyIndex]);
   // --- START: SỬA LỖI ÁP DỤNG THEME NHIỀU LẦN ---
-  // State cho theme hiện tại
-  const [mapTheme, setMapTheme] = useState<MapTheme>(Themes.COMPREHENSIVE_THEMES[0]); // THÊM MỚI: State cho theme
-  // Ref để lưu lại theme *trước đó*. Điều này rất quan trọng để so sánh chính xác khi đổi theme.
-  const previousThemeRef = useRef<MapTheme>(mapTheme);
-  useEffect(() => { previousThemeRef.current = mapTheme; }, [mapTheme]);
   // --- END: SỬA LỖI ÁP DỤNG THEME NHIỀU LẦN ---
   const [builderMode, setBuilderMode] = useState<BuilderMode>('build-single');
   const [sidebarWidth, setSidebarWidth] = useState(320); // State cho chiều rộng của sidebar
@@ -41,6 +36,9 @@ function App() {
   
   // State mới để lưu trữ siêu dữ liệu của quest
   const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
+  // SỬA LỖI: State cho theme hiện tại, được khởi tạo với theme mặc định.
+  const [mapTheme, setMapTheme] = useState<MapTheme>(Themes.COMPREHENSIVE_THEMES[0]);
+
   const [currentMapFileName, setCurrentMapFileName] = useState<string>('untitled-quest.json');
 
   // State mới để lưu trữ chuỗi JSON đang được chỉnh sửa trong panel
@@ -299,10 +297,7 @@ function App() {
   
   // --- START: LOGIC MỚI CHO VIỆC ÁP DỤNG THEME ---
   const handleThemeChange = (newTheme: MapTheme) => {
-    // Lấy theme cũ từ ref thay vì state, đảm bảo luôn đúng ở các lần thay đổi sau
-    const oldTheme = previousThemeRef.current;
-
-    // Tìm asset object hoàn chỉnh cho ground và obstacle của theme mới
+    const oldTheme = mapTheme; // Lấy theme hiện tại từ state
     const newGroundAsset = assetMap.get(newTheme.ground);
     const newObstacleAsset = assetMap.get(newTheme.obstacle);
 
@@ -330,6 +325,33 @@ function App() {
 
     setMapTheme(newTheme); // Cuối cùng, cập nhật state của theme hiện tại thành theme mới
   };
+
+  // --- HÀM MỚI: Tự động phát hiện và thiết lập theme từ các đối tượng trên bản đồ ---
+  const detectAndSetTheme = useCallback((objects: PlacedObject[]) => {
+    const objectKeys = new Set(objects.map(o => o.asset.key));
+    let bestMatch: MapTheme | null = null;
+    let maxMatchCount = -1;
+
+    // Duyệt qua tất cả các theme có sẵn
+    for (const theme of Themes.COMPREHENSIVE_THEMES) {
+      let currentMatchCount = 0;
+      if (objectKeys.has(theme.ground)) currentMatchCount++;
+      if (objectKeys.has(theme.obstacle)) currentMatchCount++;
+
+      // Nếu theme này khớp hoàn hảo (cả ground và obstacle), chọn nó ngay lập tức.
+      if (currentMatchCount === 2) {
+        bestMatch = theme;
+        break;
+      }
+      // Nếu không, tìm theme khớp nhiều nhất.
+      if (currentMatchCount > maxMatchCount) {
+        maxMatchCount = currentMatchCount;
+        bestMatch = theme;
+      }
+    }
+    // Cập nhật state nếu tìm thấy theme phù hợp.
+    if (bestMatch) setMapTheme(bestMatch);
+  }, []); // Hàm này không có dependencies vì nó chỉ làm việc với tham số đầu vào.
   const selectedObject = useMemo(() => {
     const lastSelectedId = selectedObjectIds[selectedObjectIds.length - 1];
     return placedObjects.find(obj => obj.id === lastSelectedId) || null;
@@ -372,6 +394,11 @@ function App() {
     const itemKeys = new Set(placedObjects.map(obj => obj.asset.key));
     return Array.from(itemKeys);
   }, [placedObjects]);
+
+  // SỬA LỖI: Tự động phát hiện theme mỗi khi danh sách đối tượng thay đổi.
+  useEffect(() => {
+    detectAndSetTheme(placedObjects);
+  }, [placedObjects, detectAndSetTheme]);
 
   // Đồng bộ hóa trình soạn thảo JSON khi outputJsonString thay đổi
   useEffect(() => {
@@ -830,6 +857,7 @@ function App() {
         }
         
         setPlacedObjectsWithHistory(newObjects => newPlacedObjects); // Bắt đầu lịch sử mới khi import
+        detectAndSetTheme(newPlacedObjects); // SỬA LỖI: Cập nhật theme sau khi import
         alert('Map imported successfully!');
       } catch (error) {
         console.error("Failed to import map:", error);
@@ -884,6 +912,7 @@ function App() {
       }
       
       setPlacedObjectsWithHistory(() => newPlacedObjects); // Bắt đầu lịch sử mới khi load map
+      detectAndSetTheme(newPlacedObjects); // SỬA LỖI: Cập nhật theme sau khi load từ URL
       alert(`Map '${url.split('/').pop()}' loaded successfully!`);
 
     } catch (error) {
@@ -956,6 +985,7 @@ function App() {
       }
       
       setPlacedObjectsWithHistory(() => newPlacedObjects);
+      detectAndSetTheme(newPlacedObjects); // SỬA LỖI: Cập nhật theme sau khi render từ JSON
       if (!silent) alert('Map rendered successfully from JSON!');
     } catch (error) {
       console.error("Failed to render map from JSON:", error);
