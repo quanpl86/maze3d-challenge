@@ -211,14 +211,23 @@ function App() {
       }
 
       // --- Phím tắt di chuyển đối tượng ---
-      // SỬA LỖI: Cho phép di chuyển khi có một hoặc nhiều đối tượng được chọn
       if (selectedObjectIds.length > 0) {
         let moved = false;
-        if (event.shiftKey) {
+        // TÍNH NĂNG MỚI: Di chuyển tất cả đối tượng đã chọn mà không bị giới hạn
+        // Kích hoạt khi nhấn Ctrl + Shift + Mũi tên
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+          if (event.key === 'ArrowUp')    { handleMoveAllObjectsWithoutBounds('z', -1); moved = true; }
+          else if (event.key === 'ArrowDown')  { handleMoveAllObjectsWithoutBounds('z', 1); moved = true; }
+          else if (event.key === 'ArrowLeft')  { handleMoveAllObjectsWithoutBounds('x', -1); moved = true; }
+          else if (event.key === 'ArrowRight') { handleMoveAllObjectsWithoutBounds('x', 1); moved = true; }
+        }
+        // Logic di chuyển cũ (có giới hạn)
+        else if (event.shiftKey) {
           // Khi giữ Shift, chỉ xử lý di chuyển lên/xuống (trục Y)
           if (event.key === 'ArrowUp')      { handleMoveObject(selectedObjectIds, 'y', 1); moved = true; }
           else if (event.key === 'ArrowDown') { handleMoveObject(selectedObjectIds, 'y', -1); moved = true; }
-        } else {
+        } 
+        else {
           // Khi không giữ Shift, xử lý di chuyển trên mặt phẳng XZ
           if (event.key === 'ArrowUp')    { handleMoveObject(selectedObjectIds, 'z', -1); moved = true; }
           else if (event.key === 'ArrowDown')  { handleMoveObject(selectedObjectIds, 'z', 1); moved = true; }
@@ -627,25 +636,18 @@ function App() {
 
         const axisIndex = { x: 0, y: 1, z: 2 }[direction];
         const objectIdsSet = new Set(objectIds);
+        
+        // --- THAY ĐỔI: Loại bỏ kiểm tra giới hạn bản đồ khi di chuyển bằng phím tắt ---
+        // Logic mới sẽ chỉ kiểm tra va chạm với các đối tượng khác không nằm trong vùng chọn.
+        // Điều này cho phép di chuyển tự do các đối tượng ra ngoài ranh giới.
+        const canMove = objectsToMove.every(obj => {
+            const newPos: [number, number, number] = [...obj.position];
+            newPos[axisIndex] += amount;
+            return !prev.some(other => !objectIdsSet.has(other.id) && other.position.join(',') === newPos.join(','));
+        });
 
-        // Kiểm tra xem tất cả các đối tượng có thể di chuyển không
-        for (const obj of objectsToMove) {
-            const newPosition: [number, number, number] = [...obj.position];
-            newPosition[axisIndex] += amount;
+        if (!canMove) return prev; // Nếu có va chạm với đối tượng khác, hủy di chuyển.
 
-            const [nx, ny, nz] = newPosition;
-            // 1. Kiểm tra có nằm ngoài vùng xây dựng không
-            if (nx < 0 || nx >= boxDimensions.width || ny < 0 || ny >= boxDimensions.height || nz < 0 || nz >= boxDimensions.depth) {
-                return prev; // Một đối tượng ra ngoài -> hủy di chuyển
-            }
-            // 2. Kiểm tra có va chạm với đối tượng khác (không nằm trong nhóm đang di chuyển) không
-            const newPosString = newPosition.join(',');
-            if (prev.some(o => !objectIdsSet.has(o.id) && o.position.join(',') === newPosString)) {
-                return prev; // Một đối tượng va chạm -> hủy di chuyển
-            }
-        }
-
-        // Nếu tất cả hợp lệ, thực hiện di chuyển
         return prev.map(obj => {
             if (objectIdsSet.has(obj.id)) {
                 const newPosition: [number, number, number] = [...obj.position];
@@ -657,6 +659,25 @@ function App() {
     });
   };
 
+  // --- TÍNH NĂNG MỚI: Di chuyển tất cả đối tượng đã chọn mà không kiểm tra giới hạn ---
+  const handleMoveAllObjectsWithoutBounds = (direction: 'x' | 'y' | 'z', amount: 1 | -1) => {
+    setPlacedObjectsWithHistory(prev => {
+        const objectIdsSet = new Set(selectedObjectIds);
+        if (objectIdsSet.size === 0) return prev;
+
+        const axisIndex = { x: 0, y: 1, z: 2 }[direction];
+
+        // Thực hiện di chuyển mà không có bất kỳ validation nào
+        return prev.map(obj => {
+            if (objectIdsSet.has(obj.id)) {
+                const newPosition: [number, number, number] = [...obj.position];
+                newPosition[axisIndex] += amount;
+                return { ...obj, position: newPosition };
+            }
+            return obj;
+        });
+    });
+  };
 
   // --- HÀM MỚI: Sao chép asset của đối tượng để chuẩn bị đặt ---
   const handleCopyObject = (objectId: string) => {

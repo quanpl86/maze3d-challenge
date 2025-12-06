@@ -1,0 +1,207 @@
+{
+  "id": "LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_loops_refactoring",
+  "level": 5,
+  "titleKey": "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Title",
+  "questTitleKey": "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description",
+  "descriptionKey": "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description",
+  "translations": {
+    "vi": {
+      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Title": "Vẽ lại Hình vuông",
+      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description": "Đoạn code này dùng 12 khối lệnh để vẽ một hình vuông cạnh 3. Hãy dùng vòng lặp `repeat` để viết lại chương trình chỉ với vài khối lệnh và đạt 3 sao!",
+      "topic-title-coding_loops_refactoring": "Tái cấu trúc bằng Vòng lặp"
+    },
+    "en": {
+      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Title": "Redrawing the Square",
+      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description": "This code uses 12 blocks to draw a square with a side length of 3. Use a `repeat` loop to rewrite the program with just a few blocks and earn 3 stars!",
+      "topic-title-coding_loops_refactoring": "Tái cấu trúc bằng Vòng lặp"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOOPS}",
+          "categorystyle": "loops_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_repeat",
+              "inputs": {
+                "TIMES": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 5
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 99,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 6
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 0,
+          "y": 1,
+          "z": 3,
+          "direction": 2
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "id": "c2",
+        "type": "crystal",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "id": "c3",
+        "type": "crystal",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "id": "c4",
+        "type": "crystal",
+        "position": {
+          "x": 1,
+          "y": 1,
+          "z": 6
+        }
+      }
+    ],
+    "interactibles": [],
+    "finish": {
+      "x": 0,
+      "y": 1,
+      "z": 6
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 12
+    },
+    "optimalBlocks": 0,
+    "optimalLines": 0,
+    "rawActions": [],
+    "structuredSolution": {}
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

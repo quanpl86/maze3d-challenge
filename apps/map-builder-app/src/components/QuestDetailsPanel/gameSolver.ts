@@ -171,7 +171,10 @@ class GameWorld {
    */
   isWalkable(pos: Position): boolean {
     const groundModel = this.worldMap.get(`${pos.x},${pos.y},${pos.z}`);
-    return groundModel !== undefined && this.walkableGrounds.has(groundModel);
+    // SỬA ĐỔI: Không thể đi trên 'wall.stone01'
+    return groundModel !== undefined 
+        && groundModel !== 'wall.stone01' 
+        && this.walkableGrounds.has(groundModel);
   }
 }
 // --- END: LOGIC PORTED FROM PYTHON ---
@@ -211,114 +214,204 @@ const convertRawToStructuredActions = (rawActions: string[]): Action[] => {
  * @param blocklyConfig Cấu hình toolbox của thử thách.
  * @returns Một đối tượng structuredSolution được tối ưu hóa.
  */
+
+/**
+ * HÀM MỚI (PORTED FROM PYTHON): Tìm chuỗi con lặp lại không liền kề thường xuyên nhất.
+ * Được sử dụng để xác định các ứng cử viên tốt nhất cho việc tạo hàm (procedure).
+ * @param actions Chuỗi hành động cần phân tích.
+ * @param minLen Độ dài tối thiểu của chuỗi.
+ * @param maxLen Độ dài tối đa của chuỗi.
+ * @returns Một tuple chứa chuỗi tốt nhất và số lần xuất hiện, hoặc null.
+ */
+function findMostFrequentSequence(
+  actions: Action[],
+  minLen: number = 3,
+  maxLen: number = 10
+): { sequence: Action[]; count: number } | null {
+  const sequenceCounts = new Map<string, { sequence: Action[]; count: number }>();
+
+  // Giới hạn maxLen để tránh quá tải
+  const effectiveMaxLen = Math.min(maxLen, Math.floor(actions.length / 2));
+
+  for (let length = minLen; length <= effectiveMaxLen; length++) {
+    for (let i = 0; i <= actions.length - length; i++) {
+      const sequence = actions.slice(i, i + length);
+      const key = JSON.stringify(sequence);
+      if (sequenceCounts.has(key)) {
+        sequenceCounts.get(key)!.count++;
+      } else {
+        sequenceCounts.set(key, { sequence, count: 1 });
+      }
+    }
+  }
+
+  let bestSequence: Action[] | null = null;
+  let maxSavings = 0;
+
+  sequenceCounts.forEach(({ sequence, count }) => {
+    if (count > 1) {
+      const savings = (count - 1) * sequence.length - count; // (Lợi ích) - (chi phí gọi hàm)
+      if (savings > maxSavings) {
+        maxSavings = savings;
+        bestSequence = sequence;
+      }
+    }
+  });
+
+  if (bestSequence) {
+    const key = JSON.stringify(bestSequence);
+    return { sequence: bestSequence, count: sequenceCounts.get(key)!.count };
+  }
+
+  return null;
+}
+
+/**
+ * HÀM MỚI (PORTED FROM PYTHON): Tìm chuỗi con lặp lại liên tiếp dài nhất và mang lại "lợi ích" cao nhất.
+ * Lợi ích được tính bằng số khối lệnh tiết kiệm được.
+ */
+function findLongestRepeatingSequence(actions: Action[]): { sequence: Action[] | null, repeats: number, length: number, startIndex: number, savings: number } {
+    const n = actions.length;
+    let bestSeq: Action[] | null = null;
+    let bestRepeats = 0;
+    let bestLen = 0;
+    let bestStartIndex = -1;
+    let maxSavings = 0;
+
+    for (let length = 1; length <= Math.floor(n / 2); length++) {
+        for (let i = 0; i <= n - length; i++) {
+            let repeats = 1;
+            while (i + (repeats + 1) * length <= n) {
+                const currentSegment = actions.slice(i, i + length);
+                const nextSegment = actions.slice(i + repeats * length, i + (repeats + 1) * length);
+                if (JSON.stringify(currentSegment) === JSON.stringify(nextSegment)) {
+                    repeats++;
+                } else {
+                    break;
+                }
+            }
+
+            if (repeats > 1) {
+                // Lợi ích = (số khối ban đầu) - (số khối trong thân vòng lặp + 1 khối repeat)
+                const savings = (repeats * length) - (length + 1);
+                if (savings > maxSavings) {
+                    maxSavings = savings;
+                    bestSeq = actions.slice(i, i + length);
+                    bestRepeats = repeats;
+                    bestLen = length;
+                    bestStartIndex = i;
+                }
+            }
+        }
+    }
+    return { sequence: bestSeq, repeats: bestRepeats, length: bestLen, startIndex: bestStartIndex, savings: maxSavings };
+}
+
+/**
+ * HÀM MỚI (PORTED FROM PYTHON): Phân tích một số thành các thừa số nguyên.
+ * Dùng để quyết định có nên tạo vòng lặp lồng nhau hay không.
+ */
+function findFactors(n: number): [number, number] | null {
+    if (n < 4) return null;
+    const factors: [number, number][] = [];
+    for (let i = 2; i <= Math.sqrt(n); i++) {
+        if (n % i === 0) {
+            factors.push([n / i, i]);
+        }
+    }
+    if (factors.length === 0) return null;
+    // Ưu tiên các thừa số gần nhau nhất (ví dụ: 16 -> 4x4 thay vì 8x2)
+    factors.sort((a, b) => Math.abs(a[0] - a[1]) - Math.abs(b[0] - b[1]));
+    return factors[0];
+}
+
 const createStructuredSolution = (
   initialActions: Action[],
-  availableBlocks: Set<string> // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
+  availableBlocks: Set<string>, // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
+  solutionConfig: Solution // THÊM: solutionConfig để đọc các gợi ý tối ưu hóa
 ): { main: Action[]; procedures?: Record<string, Action[]> } => {
 
   let currentActions = [...initialActions];
   const procedures: Record<string, Action[]> = {};
   let procedureCount = 0;
 
-  // --- BƯỚC 2: TỐI ƯU HÓA VÒNG LẶP (LOOP COMPRESSION) ---
-  // THAY ĐỔI: Sử dụng trực tiếp `availableBlocks` được truyền vào
-  if (availableBlocks.has('maze_repeat') || availableBlocks.has('maze_for')) {
-    let changed = true;
-    while (changed) {
-      changed = false;
-      let bestCompression = { benefit: 0, index: -1, length: 0, count: 0 };
+  // Lấy cấu hình cấu trúc vòng lặp mong muốn (single, nested, auto)
+  const loopStructureConfig = solutionConfig.loop_structure || 'auto';
 
-      for (let len = Math.floor(currentActions.length / 2); len > 0; len--) {
-        for (let i = 0; i <= currentActions.length - 2 * len; i++) {
-          const pattern = currentActions.slice(i, i + len);
-          let repeatCount = 1;
-          while (i + (repeatCount + 1) * len <= currentActions.length) {
-            const nextSegment = currentActions.slice(i + repeatCount * len, i + (repeatCount + 1) * len);
-            if (JSON.stringify(pattern) === JSON.stringify(nextSegment)) {
-              repeatCount++;
-            } else {
-              break;
-            }
-          }
-
-          if (repeatCount > 1) {
-            const blocksUsed = len * repeatCount;
-            const blocksAfter = 1 + len; // 1 khối repeat + các khối bên trong
-            const benefit = blocksUsed - blocksAfter;
-            if (benefit > bestCompression.benefit) {
-              bestCompression = { benefit, index: i, length: len, count: repeatCount };
-            }
-          }
-        }
-      }
-
-      if (bestCompression.benefit > 0) {
-        const { index, length, count } = bestCompression;
-        const pattern = currentActions.slice(index, index + length);
-        // Ưu tiên sử dụng 'maze_for' nếu có, nếu không thì dùng 'maze_repeat'
-        const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
-        const repeatBlock: Action = { type: loopType, times: count, actions: pattern };
-        currentActions.splice(index, length * count, repeatBlock);
-        changed = true;
-      }
-    }
-  }
-
-  // --- BƯỚC 3: TỐI ƯU HÓA BẰNG HÀM (FUNCTION EXTRACTION) ---
-  // THAY ĐỔI: Sử dụng trực tiếp `availableBlocks`
+  // --- BƯỚC 1: TỐI ƯU HÓA BẰNG HÀM (FUNCTION EXTRACTION) ---
+  // [REWRITTEN] Logic được viết lại để ưu tiên tạo hàm trước, giống với Python.
   if (availableBlocks.has('PROCEDURE')) {
     let changed = true;
     while (changed) {
       changed = false;
-      let bestPattern = { benefit: 0, sequence: [] as Action[], occurrences: [] as number[] };
-
-      // Tìm tất cả các chuỗi con và tính lợi nhuận
-      for (let len = Math.floor(currentActions.length / 2); len > 0; len--) {
-        for (let i = 0; i <= currentActions.length - len; i++) {
-          const sequence = currentActions.slice(i, i + len);
-          const occurrences: number[] = [i];
-          let k = i + len;
-          while (k <= currentActions.length - len) {
-            const nextSegment = currentActions.slice(k, k + len);
-            if (JSON.stringify(sequence) === JSON.stringify(nextSegment)) {
-              occurrences.push(k);
-              k += len; // Bỏ qua phần đã khớp để tránh overlapping
-            } else {
-              k++;
-            }
-          }
-
-          if (occurrences.length > 1) {
-            const blocksUsed = occurrences.length * len;
-            const blocksAfter = len + occurrences.length; // Định nghĩa hàm + các lần gọi hàm
-            const benefit = blocksUsed - blocksAfter;
-
-            if (benefit > bestPattern.benefit) {
-              bestPattern = { benefit, sequence, occurrences };
-            }
-          }
-        }
-      }
-
-      // Nếu tìm thấy một mẫu có lợi, thực hiện thay thế
-      if (bestPattern.benefit > 0) {
+      const result = findMostFrequentSequence(currentActions);
+      if (result) {
+        const { sequence } = result;
         procedureCount++;
         const procName = `PROCEDURE_${procedureCount}`;
-        procedures[procName] = bestPattern.sequence;
 
-        const callBlock: Action = { type: 'CALL', name: procName };
+        // Tối ưu hóa đệ quy phần thân của hàm
+        procedures[procName] = createStructuredSolution(sequence, availableBlocks, solutionConfig).main;
         
-        // Thay thế các chuỗi đã tìm thấy bằng khối gọi hàm, từ cuối lên đầu để không làm thay đổi chỉ số
-        for (let i = bestPattern.occurrences.length - 1; i >= 0; i--) {
-          const index = bestPattern.occurrences[i];
-          currentActions.splice(index, bestPattern.sequence.length, callBlock);
+        const callBlock: Action = { type: 'CALL', name: procName };
+        const newActions: Action[] = [];
+        let i = 0;
+        while (i < currentActions.length) {
+          const subArray = currentActions.slice(i, i + sequence.length);
+          if (JSON.stringify(subArray) === JSON.stringify(sequence)) {
+            newActions.push(callBlock);
+            i += sequence.length;
+          } else {
+            newActions.push(currentActions[i]);
+            i++;
+          }
         }
-        changed = true; // Lặp lại để tìm thêm hàm (có thể lồng nhau)
+        currentActions = newActions;
+        changed = true; // Lặp lại để tìm thêm hàm
       }
     }
   }
 
-  // --- BƯỚC 4: CHUYỂN ĐỔI CÁC KHỐI GỌI HÀM TẠM THỜI ---
+  // --- BƯỚC 2: TỐI ƯU HÓA VÒNG LẶP (LOOP COMPRESSION) ---
+  // Logic này giờ sẽ chạy trên chuỗi hành động đã được tối ưu hóa bằng hàm.
+  if (availableBlocks.has('maze_repeat') || availableBlocks.has('maze_for') || availableBlocks.has('maze_repeat_variable')) {
+    let changedInLoop = true;
+    while (changedInLoop) {
+      changedInLoop = false;
+      const { sequence, repeats, length, startIndex, savings } = findLongestRepeatingSequence(currentActions);
+
+      if (sequence && savings > 0) {
+        let factors: [number, number] | null = null;
+        if (loopStructureConfig === 'nested') {
+            factors = findFactors(repeats);
+        } else if (loopStructureConfig === 'auto') {
+            factors = findFactors(repeats);
+        }
+
+        const beforeLoop = currentActions.slice(0, startIndex);
+        const afterLoop = currentActions.slice(startIndex + repeats * length);
+
+        // Quan trọng: Không gọi đệ quy createStructuredSolution ở đây nữa để tránh lặp vô hạn
+        // và vì phần thân vòng lặp đã được tối ưu hóa hàm từ trước.
+        const loopBody = sequence;
+
+        let loopBlock: Action;
+        if (factors && availableBlocks.has('maze_repeat')) { // Tạo vòng lặp lồng nhau
+            const [outerLoops, innerLoops] = factors;
+            const innerLoop: Action = { type: 'maze_repeat', times: innerLoops, actions: loopBody };
+            loopBlock = { type: 'maze_repeat', times: outerLoops, actions: [innerLoop] };
+        } else { // Tạo vòng lặp đơn
+            const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
+            loopBlock = { type: loopType, times: repeats, actions: loopBody };
+        }
+
+        currentActions = [...beforeLoop, loopBlock, ...afterLoop];
+        changedInLoop = true; // Lặp lại để tìm thêm cơ hội nén vòng lặp
+      }
+    }
+  }
+
+  // --- BƯỚC 3: CHUYỂN ĐỔI CÁC KHỐI GỌI HÀM TẠM THỜI ---
   // Chuyển các khối 'CALL' tạm thời thành khối 'procedures_callnoreturn' chuẩn của Blockly
   const finalMain = currentActions.map(action => {
     if (action.type === 'CALL' && action.name) {
@@ -509,15 +602,12 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
       }
   
       // Nếu không còn mục tiêu phụ, heuristic là khoảng cách đến đích
-      if (remainingGoalPositions.length === 0) {
+      // SỬA ĐỔI: Khi không còn mục tiêu phụ, heuristic chỉ cần là khoảng cách đến đích.
+      // Logic cũ tính toán phức tạp hơn một cách không cần thiết.
+      if (remainingGoalPositions.length === 0) { 
         return manhattan(currentPos, world.finishPos);
       }
   
-      // SỬA LỖI: Logic heuristic cũ không chính xác và có thể đánh giá quá cao chi phí,
-      // dẫn đến việc A* chọn đường đi không tối ưu.
-      // Logic mới: Heuristic phải là giá trị lớn nhất của (khoảng cách đến một mục tiêu phụ +
-      // khoảng cách từ mục tiêu đó đến đích). Điều này đảm bảo heuristic vẫn "admissible"
-      // (không đánh giá quá cao) và cung cấp một ước tính tốt hơn.
       let maxHeuristic = manhattan(currentPos, world.finishPos); // Bắt đầu với khoảng cách đến đích cuối cùng
 
       // Cải tiến Heuristic: Nếu có thể dùng hàm, giảm nhẹ heuristic để khuyến khích các đường đi có thể tối ưu hóa
@@ -536,9 +626,6 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
     };
 
     const isGoalAchieved = (state: GameState): boolean => {
-        const isAtFinish = state.position.x === world.finishPos.x && state.position.y === world.finishPos.y && state.position.z === world.finishPos.z;
-        if (!isAtFinish) return false;
-
         // THAY ĐỔI: Logic kiểm tra mục tiêu bị sai. Cần đếm số lượng vật phẩm đã thu thập theo đúng `goalType`.
         const requiredGoals = world.solutionConfig.itemGoals || {};
         for (const goalType in requiredGoals) {
@@ -569,7 +656,10 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             }
         }
 
-        return true;
+        // SỬA ĐỔI: Mục tiêu được coi là hoàn thành khi tất cả các itemGoals được thỏa mãn.
+        // Việc có ở ô kết thúc hay không sẽ được xử lý sau khi tìm thấy trạng thái này.
+        const allGoalsMet = Object.keys(requiredGoals).length > 0; // Đảm bảo có mục tiêu để kiểm tra
+        return allGoalsMet;
     };
 
     startNode.hCost = heuristic(startState);
@@ -591,9 +681,24 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
         const state = currentNode.state;
 
         if (isGoalAchieved(state)) {
-            const path = currentNode.rawActionsToReach;
+            // TÌM THẤY TRẠNG THÁI HOÀN THÀNH MỤC TIÊU!
+            // Bây giờ, cần tìm đường đi từ đây đến ô kết thúc.
+            const finalPathNode = findPathToFinish(currentNode, world, heuristic);
+
+            if (!finalPathNode) {
+                // Nếu không thể tìm thấy đường đến đích từ trạng thái hoàn thành mục tiêu,
+                // tiếp tục tìm kiếm các trạng thái hoàn thành mục tiêu khác.
+                console.warn("Solver: Đã hoàn thành mục tiêu nhưng không tìm thấy đường đến đích. Tiếp tục tìm kiếm...");
+                continue; 
+            }
+
+            // Lấy đường đi cuối cùng
+            const path = finalPathNode.rawActionsToReach;
+
+            console.log("Solver: Tìm thấy lời giải tối ưu!", path);
+
             // THAY ĐỔI: Truyền trực tiếp `availableBlocks` vào hàm tối ưu hóa
-            const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks);
+            const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks, solutionConfig);
 
             // Tính toán số khối và số dòng tối ưu
             const finalOptimalBlocks = calculateTotalBlocksInSolution(newStructuredSolution); // Đếm tổng số khối (bao gồm cả khối lồng nhau)
@@ -694,6 +799,75 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
 }
 
 /**
+ * HÀM MỚI: Sau khi đã hoàn thành tất cả các mục tiêu (itemGoals), hàm này sẽ
+ * tìm đường đi ngắn nhất từ trạng thái hiện tại đến ô kết thúc.
+ * Đây là một thuật toán A* thứ hai, đơn giản hơn, chỉ tập trung vào việc di chuyển.
+ * @param startNode Node bắt đầu (trạng thái đã hoàn thành mục tiêu).
+ * @param world Thế giới game.
+ * @param heuristic Hàm heuristic để ước tính khoảng cách.
+ * @returns Node kết thúc chứa đường đi hoàn chỉnh, hoặc null nếu không tìm thấy.
+ */
+function findPathToFinish(startNode: PathNode, world: GameWorld, heuristic: (state: GameState) => number): PathNode | null {
+    const openList: PathNode[] = [startNode];
+    const closedList: Map<string, number> = new Map(); // Chỉ cần key vị trí là đủ
+
+    while (openList.length > 0) {
+        openList.sort((a, b) => a.fCost - b.fCost);
+        const currentNode = openList.shift()!;
+        const posKey = currentNode.getPosKey();
+
+        if (closedList.has(posKey) && closedList.get(posKey)! <= currentNode.gCost) {
+            continue;
+        }
+        closedList.set(posKey, currentNode.gCost);
+
+        const state = currentNode.state;
+
+        // Kiểm tra xem đã đến đích chưa
+        if (state.position.x === world.finishPos.x && state.position.y === world.finishPos.y && state.position.z === world.finishPos.z) {
+            return currentNode; // Tìm thấy đường đi!
+        }
+
+        const neighbors = findNeighbors(state, world);
+
+        for (const neighbor of neighbors) {
+            const { pos: neighborPos, action: moveAction } = neighbor;
+            const nextState = state.clone();
+            nextState.position = neighborPos;
+
+            let cost = 0;
+            const actionsToReachNeighbor: string[] = [];
+            const lastAction = currentNode.rawActionsToReach.length > 0 ? currentNode.rawActionsToReach[currentNode.rawActionsToReach.length - 1] : null;
+
+            const { actions: turnActions, newDirection: targetDir, cost: turnCost } = calculateTurnActions(state, neighborPos, lastAction);
+            actionsToReachNeighbor.push(...turnActions);
+            cost += turnCost;
+
+            const moveActionStr = moveAction === 'walk' ? 'moveForward' : 'jump';
+            actionsToReachNeighbor.push(moveActionStr);
+            cost += 1; // Chi phí di chuyển cơ bản
+
+            nextState.direction = targetDir;
+
+            const newGCost = currentNode.gCost + cost;
+            const nextPosKey = `${nextState.position.x},${nextState.position.y},${nextState.position.z}`;
+
+            if (closedList.has(nextPosKey) && closedList.get(nextPosKey)! <= newGCost) {
+                continue;
+            }
+
+            const nextNode = new PathNode(nextState);
+            nextNode.parent = currentNode;
+            nextNode.gCost = newGCost;
+            nextNode.hCost = heuristic(nextState); // Heuristic bây giờ chỉ là khoảng cách đến đích
+            nextNode.rawActionsToReach = [...currentNode.rawActionsToReach, ...actionsToReachNeighbor];
+            openList.push(nextNode);
+        }
+    }
+    return null; // Không tìm thấy đường đến đích
+}
+
+/**
  * HÀM MỚI: Tìm tất cả các hàng xóm hợp lệ từ một trạng thái nhất định.
  * @param state Trạng thái hiện tại.
  * @param world Thế giới game.
@@ -711,14 +885,20 @@ function findNeighbors(state: GameState, world: GameWorld): { pos: Position, act
         // 1. Kiểm tra đi bộ (Walk)
         const walkPos = { x: nextX, y: y, z: nextZ };
         const groundBelowWalkPos = { x: nextX, y: y - 1, z: nextZ };
-        if (!world.worldMap.has(`${walkPos.x},${walkPos.y},${walkPos.z}`) && world.isWalkable(groundBelowWalkPos)) {
+        const blockAtWalkPos = world.worldMap.get(`${walkPos.x},${walkPos.y},${walkPos.z}`);
+        // SỬA ĐỔI: Kiểm tra tường minh khối `wall.stone01` như một vật cản không thể đi xuyên qua.
+        if (blockAtWalkPos !== 'wall.stone01' && !world.worldMap.has(`${walkPos.x},${walkPos.y},${walkPos.z}`) && 
+            world.isWalkable(groundBelowWalkPos)) {
             neighbors.push({ pos: walkPos, action: 'walk' });
         }
 
         // 2. Kiểm tra nhảy lên (Jump Up)
         const jumpUpObstaclePos = { x: nextX, y: y, z: nextZ };
         const jumpUpLandingPos = { x: nextX, y: y + 1, z: nextZ };
-        if (world.worldMap.has(`${jumpUpObstaclePos.x},${jumpUpObstaclePos.y},${jumpUpObstaclePos.z}`) &&
+        const obstacleKey = `${jumpUpObstaclePos.x},${jumpUpObstaclePos.y},${jumpUpObstaclePos.z}`;
+        const obstacleModel = world.worldMap.get(obstacleKey);
+        // SỬA ĐỔI: Không thể nhảy qua khối 'wall.stone01'
+        if (obstacleModel && obstacleModel !== 'wall.stone01' &&
             !world.worldMap.has(`${jumpUpLandingPos.x},${jumpUpLandingPos.y},${jumpUpLandingPos.z}`)) {
             neighbors.push({ pos: jumpUpLandingPos, action: 'jump' });
         }
@@ -746,12 +926,12 @@ function calculateTurnActions(currentState: GameState, nextPos: Position, lastAc
 
     const dx = nextPos.x - currentState.position.x;
     const dz = nextPos.z - currentState.position.z;
-    // SỬA LỖI: Cập nhật ánh xạ dx, dz sang targetDir theo quy ước hướng đã sửa.
+    // SỬA LỖI: Logic ánh xạ dx, dz sang targetDir vẫn chưa đúng. Cần sửa lại cho chính xác.
     let targetDir: number;
-    if (dx === 1) targetDir = 1;      // Phải (+X)
-    else if (dx === -1) targetDir = 3;// Trái (-X)
-    else if (dz === 1) targetDir = 2; // Tới (+Z)
-    else if (dz === -1) targetDir = 0;// Lùi (-Z)
+    if (dx === 1) targetDir = 1;       // +X -> Phải (1)
+    else if (dx === -1) targetDir = 3; // -X -> Trái (3)
+    else if (dz === 1) targetDir = 2;  // +Z -> Tới (2)
+    else if (dz === -1) targetDir = 0; // -Z -> Lùi (0)
     else targetDir = currentState.direction;
 
     if (targetDir !== currentState.direction) {

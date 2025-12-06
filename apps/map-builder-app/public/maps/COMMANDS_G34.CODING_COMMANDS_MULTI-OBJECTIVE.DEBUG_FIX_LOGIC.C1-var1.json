@@ -1,0 +1,289 @@
+{
+  "id": "COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_commands_multi-objective",
+  "level": 1,
+  "titleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Title",
+  "questTitleKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Description",
+  "descriptionKey": "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Description",
+  "translations": {
+    "vi": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Title": "Sửa lỗi: Lạc lối ở khúc cua",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Description": "Nhân vật đang đi thẳng và đâm vào tường ở một khúc cua chữ Z quan trọng. Hãy tìm và bổ sung lệnh rẽ còn thiếu để hoàn thành đường đi.",
+      "topic-title-coding_commands_multi-objective": "Di chuyển Tuần tự Nâng cao"
+    },
+    "en": {
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Title": "Fix the Bug: Lost at the Corner",
+      "Challenge.COMMANDS_G34.CODING_COMMANDS_MULTI-OBJECTIVE.DEBUG_FIX_LOGIC.C1.Description": "The character is walking straight into a wall at a crucial Z-shaped corner. Find and add the missing turn command to complete the path.",
+      "topic-title-coding_commands_multi-objective": "Di chuyển Tuần tự Nâng cao"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 14,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.mud",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 5
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 7,
+          "y": 1,
+          "z": 2,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": 10,
+      "y": 1,
+      "z": 5
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 9,
+    "optimalLines": 8,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnLeft",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}

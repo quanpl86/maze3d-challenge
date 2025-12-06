@@ -1,0 +1,427 @@
+{
+  "id": "OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_operators_application",
+  "level": 11,
+  "titleKey": "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Title",
+  "questTitleKey": "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Description",
+  "descriptionKey": "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Description",
+  "translations": {
+    "vi": {
+      "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Title": "Nhiệm vụ Kép",
+      "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Description": "Trên đường đi có nhiều pha lê và công tắc. Hãy lập trình để nhân vật chỉ thu thập pha lê NẾU nó ở trên một ô VÀ công tắc ở ô đó cũng đang được bật.",
+      "topic-title-coding_operators_application": "Áp dụng Toán tử Logic"
+    },
+    "en": {
+      "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Title": "Dual Condition Mission",
+      "Challenge.OPERATORS_G58.CODING_OPERATORS_APPLICATION.SIMPLE_APPLY.C11.Description": "There are many crystals and switches on the path. Program the character to collect a crystal ONLY IF it's on a tile AND the switch on that same tile is also on.",
+      "topic-title-coding_operators_application": "Áp dụng Toán tử Logic"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATEVENTS}",
+          "categorystyle": "events_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_start"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOGIC}",
+          "categorystyle": "logic_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "controls_if"
+            },
+            {
+              "kind": "block",
+              "type": "logic_operation"
+            },
+            {
+              "kind": "block",
+              "type": "logic_negate"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_path"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_item_present"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_switch_state"
+            },
+            {
+              "kind": "block",
+              "type": "maze_at_finish"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOOPS}",
+          "categorystyle": "loops_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_repeat"
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 20,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 12
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 3,
+          "y": 1,
+          "z": 12,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 11
+        }
+      },
+      {
+        "id": "c2",
+        "type": "crystal",
+        "position": {
+          "x": 10,
+          "y": 1,
+          "z": 12
+        }
+      }
+    ],
+    "interactibles": [
+      {
+        "id": "s3",
+        "type": "switch",
+        "position": {
+          "x": 9,
+          "y": 1,
+          "z": 13
+        },
+        "initialState": "off"
+      },
+      {
+        "id": "s4",
+        "type": "switch",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 12
+        },
+        "initialState": "off"
+      }
+    ],
+    "finish": {
+      "x": 11,
+      "y": 1,
+      "z": 12
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {
+      "crystal": 2
+    },
+    "optimalBlocks": 15,
+    "optimalLines": 14,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "collect",
+      "turnLeft",
+      "turnLeft",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "collect",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_repeat",
+          "times": 2,
+          "body": [
+            {
+              "type": "maze_moveForward"
+            },
+            {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_repeat",
+          "times": 2,
+          "body": [
+            {
+              "type": "maze_turn",
+              "direction": "turnLeft"
+            },
+            {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_repeat",
+          "times": 2,
+          "body": [
+            {
+              "type": "maze_moveForward"
+            },
+            {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_repeat",
+          "times": 2,
+          "body": [
+            {
+              "type": "maze_turn",
+              "direction": "turnLeft"
+            },
+            {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}
