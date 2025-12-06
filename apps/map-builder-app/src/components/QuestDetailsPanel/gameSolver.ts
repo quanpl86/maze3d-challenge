@@ -250,8 +250,12 @@ function findMostFrequentSequence(
 
   sequenceCounts.forEach(({ sequence, count }) => {
     if (count > 1) {
-      const savings = (count - 1) * sequence.length - count; // (Lợi ích) - (chi phí gọi hàm)
-      if (savings > maxSavings) {
+      // Lợi ích = (số khối tiết kiệm được) - (chi phí gọi hàm)
+      // SỬA ĐỔI: Thêm một trọng số nhỏ cho độ dài của chuỗi.
+      // Điều này giúp ưu tiên các chuỗi dài hơn và có ý nghĩa hơn khi "lợi ích" bằng nhau,
+      // tránh việc tạo ra các hàm từ các chuỗi con quá nhỏ.
+      const savings = (count - 1) * sequence.length - count + (sequence.length * 0.1);
+      if (savings > maxSavings) { // Chỉ cần lớn hơn, không cần >=
         maxSavings = savings;
         bestSequence = sequence;
       }
@@ -632,14 +636,18 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             const requiredCount = requiredGoals[goalType];
             if (goalType === 'switch') {
                 // [SỬA LỖI] Xử lý linh hoạt mục tiêu 'switch' dựa trên `requiredCount`.
+                // [SỬA LỖI & CẢI TIẾN] Xử lý linh hoạt mục tiêu 'switch' dựa trên `requiredCount`.
                 const toggledOnCount = Array.from(state.switchStates.values()).filter(s => s === 'on').length;
                 if (typeof requiredCount === 'string' && requiredCount.toLowerCase() === 'all') {
                     const totalSwitches = world.switchesByPos.size;
                     if (toggledOnCount < totalSwitches) {
                         return false;
                     }
+                    if (toggledOnCount < totalSwitches) return false;
                 } else {
+                    // Chuyển đổi requiredCount thành số để so sánh
                     const numericRequiredCount = Number(requiredCount);
+                    // Nếu requiredCount là một số hợp lệ, hãy so sánh số công tắc đã bật với nó.
                     if (!isNaN(numericRequiredCount) && toggledOnCount < numericRequiredCount) {
                         return false;
                     }
@@ -816,17 +824,19 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
  */
 function findPathToFinish(startNode: PathNode, world: GameWorld, heuristic: (state: GameState) => number): PathNode | null {
     const openList: PathNode[] = [startNode];
-    const closedList: Map<string, number> = new Map(); // Chỉ cần key vị trí là đủ
+    // SỬA LỖI: Sử dụng stateKey đầy đủ (bao gồm cả hướng) thay vì chỉ posKey.
+    // Điều này ngăn việc loại bỏ sớm các đường đi đến cùng một vị trí nhưng với hướng tốt hơn (chi phí quay đầu ít hơn).
+    const closedList: Map<string, number> = new Map(); 
 
     while (openList.length > 0) {
         openList.sort((a, b) => a.fCost - b.fCost);
         const currentNode = openList.shift()!;
-        const posKey = currentNode.getPosKey();
+        const stateKey = currentNode.state.getKey();
 
-        if (closedList.has(posKey) && closedList.get(posKey)! <= currentNode.gCost) {
+        if (closedList.has(stateKey) && closedList.get(stateKey)! <= currentNode.gCost) {
             continue;
         }
-        closedList.set(posKey, currentNode.gCost);
+        closedList.set(stateKey, currentNode.gCost);
 
         const state = currentNode.state;
 
@@ -857,9 +867,9 @@ function findPathToFinish(startNode: PathNode, world: GameWorld, heuristic: (sta
             nextState.direction = targetDir;
 
             const newGCost = currentNode.gCost + cost;
-            const nextPosKey = `${nextState.position.x},${nextState.position.y},${nextState.position.z}`;
+            const nextStateKey = nextState.getKey();
 
-            if (closedList.has(nextPosKey) && closedList.get(nextPosKey)! <= newGCost) {
+            if (closedList.has(nextStateKey) && closedList.get(nextStateKey)! <= newGCost) {
                 continue;
             }
 
@@ -933,12 +943,14 @@ function calculateTurnActions(currentState: GameState, nextPos: Position, lastAc
 
     const dx = nextPos.x - currentState.position.x;
     const dz = nextPos.z - currentState.position.z;
-    // SỬA LỖI: Logic ánh xạ dx, dz sang targetDir vẫn chưa đúng. Cần sửa lại cho chính xác.
+    
+    // SỬA LỖI VÀ TÁI CẤU TRÚC: Logic ánh xạ dx, dz sang targetDir đã được sửa lại cho chính xác và dễ đọc hơn.
+    // Quy ước hướng: 0: -Z, 1: +X, 2: +Z, 3: -X
     let targetDir: number;
-    if (dx === 1) targetDir = 1;       // +X -> Phải (1)
-    else if (dx === -1) targetDir = 3; // -X -> Trái (3)
-    else if (dz === 1) targetDir = 2;  // +Z -> Tới (2)
-    else if (dz === -1) targetDir = 0; // -Z -> Lùi (0)
+    if (dx === 1 && dz === 0) targetDir = 1;      // +X -> Phải
+    else if (dx === -1 && dz === 0) targetDir = 3; // -X -> Trái
+    else if (dx === 0 && dz === 1) targetDir = 2;   // +Z -> Tới
+    else if (dx === 0 && dz === -1) targetDir = 0;  // -Z -> Lùi
     else targetDir = currentState.direction;
 
     if (targetDir !== currentState.direction) {
