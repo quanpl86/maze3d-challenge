@@ -136,8 +136,8 @@
         }
       ]
     },
-    "maxBlocks": 18,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggleSwitch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggleSwitch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 35,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\"><field name=\"NAME\">PROCEDURE_1</field><statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_moveForward\"/></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"250\"><field name=\"NAME\">PROCEDURE_2</field><statement name=\"STACK\"><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"/></next></block></next></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -363,7 +363,25 @@
         "position": {
           "x": 5,
           "y": 1,
-          "z": 3
+          "z": 4
+        }
+      },
+      {
+        "id": "c3",
+        "type": "crystal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 2
+        }
+      },
+      {
+        "id": "c4",
+        "type": "crystal",
+        "position": {
+          "x": 5,
+          "y": 1,
+          "z": 2
         }
       }
     ],
@@ -371,22 +389,42 @@
       {
         "id": "s3",
         "type": "switch",
+        "initialState": "off",
         "position": {
           "x": 2,
           "y": 1,
           "z": 1
-        },
-        "initialState": "off"
+        }
       },
       {
         "id": "s4",
         "type": "switch",
+        "initialState": "off",
         "position": {
           "x": 4,
           "y": 1,
           "z": 1
-        },
-        "initialState": "off"
+        }
+      },
+      {
+        "id": "s5",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "id": "s6",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 2,
+          "y": 1,
+          "z": 3
+        }
       }
     ],
     "finish": {
@@ -398,11 +436,11 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "crystal": 2,
-      "switch": 2
+      "crystal": 4,
+      "switch": 4
     },
-    "optimalBlocks": 13,
-    "optimalLines": 12,
+    "optimalBlocks": 30,
+    "optimalLines": 29,
     "rawActions": [
       "turnLeft",
       "moveForward",
@@ -413,17 +451,147 @@
       "moveForward",
       "turnRight",
       "moveForward",
+      "collect",
+      "moveForward",
       "moveForward",
       "collect",
+      "turnRight",
       "moveForward",
       "turnRight",
       "moveForward",
+      "toggleSwitch",
+      "moveForward",
+      "turnLeft",
       "moveForward",
       "collect",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "toggleSwitch",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "collect",
+      "turnRight",
+      "turnRight",
       "moveForward",
       "moveForward"
     ],
     "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_2"
+          }
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_2"
+          }
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_toggle_switch"
+          },
+          {
+            "type": "maze_moveForward"
+          }
+        ],
+        "PROCEDURE_2": [
+          {
+            "type": "procedures_callnoreturn",
+            "mutation": {
+              "name": "PROCEDURE_1"
+            }
+          },
+          {
+            "type": "maze_turn",
+            "direction": "turnLeft"
+          },
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_collect"
+          }
+        ]
+      }
+    },
+    "structuredSolution_fixbug_version": {
       "main": [
         {
           "type": "maze_turn",
@@ -472,48 +640,106 @@
       ],
       "procedures": {}
     },
-    "structuredSolution_fixbug_version": {
+    "basicSolution": {
       "main": [
         {
-          "type": "maze_turn",
-          "direction": "turnLeft"
+          "type": "maze_turnLeft"
         },
         {
-          "type": "maze_repeat",
-          "times": 2,
-          "body": [
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_toggleSwitch"
-            },
-            {
-              "type": "maze_moveForward"
-            }
-          ]
+          "type": "maze_moveForward"
         },
         {
-          "type": "maze_repeat",
-          "times": 2,
-          "body": [
-            {
-              "type": "maze_turn",
-              "direction": "turnRight"
-            },
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_collect"
-            },
-            {
-              "type": "maze_moveForward"
-            }
-          ]
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"

@@ -164,8 +164,8 @@
         }
       ]
     },
-    "maxBlocks": 51,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+    "maxBlocks": 39,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"/></next></block></statement></block></statement><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"/></next></block></statement></block></next></block></next></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field></block></next></block></next></block></statement></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -1565,8 +1565,8 @@
     "itemGoals": {
       "crystal": 24
     },
-    "optimalBlocks": 46,
-    "optimalLines": 45,
+    "optimalBlocks": 34,
+    "optimalLines": 33,
     "rawActions": [
       "collect",
       "turnLeft",
@@ -1642,48 +1642,56 @@
     "structuredSolution": {
       "main": [
         {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_2"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_2"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
           "type": "maze_repeat",
-          "times": 3,
-          "body": [
+          "times": 2,
+          "actions": [
             {
-              "type": "maze_moveForward"
+              "type": "maze_turn",
+              "direction": "turnLeft"
+            },
+            {
+              "type": "maze_repeat",
+              "times": 2,
+              "actions": [
+                {
+                  "type": "maze_repeat",
+                  "times": 2,
+                  "actions": [
+                    {
+                      "type": "maze_moveForward"
+                    },
+                    {
+                      "type": "maze_collect"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "maze_turn",
+              "direction": "turnLeft"
+            },
+            {
+              "type": "maze_repeat",
+              "times": 2,
+              "actions": [
+                {
+                  "type": "maze_moveForward"
+                },
+                {
+                  "type": "maze_collect"
+                }
+              ]
             }
           ]
         },
         {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
           "type": "maze_turn",
           "direction": "turnRight"
         },
@@ -1697,33 +1705,58 @@
           "type": "maze_collect"
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
+          "type": "maze_repeat",
+          "times": 2,
+          "actions": [
+            {
+              "type": "maze_repeat",
+              "times": 2,
+              "actions": [
+                {
+                  "type": "maze_moveForward"
+                },
+                {
+                  "type": "maze_collect"
+                },
+                {
+                  "type": "maze_turn",
+                  "direction": "turnLeft"
+                }
+              ]
+            },
+            {
+              "type": "maze_repeat",
+              "times": 2,
+              "actions": [
+                {
+                  "type": "maze_moveForward"
+                },
+                {
+                  "type": "maze_collect"
+                },
+                {
+                  "type": "maze_turn",
+                  "direction": "turnRight"
+                }
+              ]
+            }
+          ]
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_repeat",
+          "times": 2,
+          "actions": [
+            {
+              "type": "maze_moveForward"
+            },
+            {
+              "type": "maze_collect"
+            },
+            {
+              "type": "maze_turn",
+              "direction": "turnLeft"
+            }
+          ]
         },
         {
           "type": "maze_moveForward"
@@ -1734,74 +1767,11 @@
         {
           "type": "maze_turn",
           "direction": "turnRight"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
         }
-      ],
-      "procedures": {
-        "PROCEDURE_1": [
-          {
-            "type": "maze_moveForward"
-          },
-          {
-            "type": "maze_collect"
-          },
-          {
-            "type": "maze_turn",
-            "direction": "turnLeft"
-          },
-          {
-            "type": "maze_moveForward"
-          },
-          {
-            "type": "maze_collect"
-          }
-        ],
-        "PROCEDURE_2": [
-          {
-            "type": "maze_repeat",
-            "times": 2,
-            "body": [
-              {
-                "type": "maze_moveForward"
-              },
-              {
-                "type": "maze_collect"
-              }
-            ]
-          }
-        ]
-      }
+      ]
     },
     "structuredSolution_fixbug_version": {
       "main": [
@@ -1966,6 +1936,215 @@
           }
         ]
       }
+    },
+    "basicSolution": {
+      "main": [
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
     }
   },
   "sounds": {

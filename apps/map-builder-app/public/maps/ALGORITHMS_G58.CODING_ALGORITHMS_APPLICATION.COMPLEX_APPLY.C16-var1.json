@@ -172,8 +172,8 @@
         }
       ]
     },
-    "maxBlocks": 40,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+    "maxBlocks": 37,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"/><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\"><field name=\"NAME\">PROCEDURE_1</field><statement name=\"STACK\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></statement></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"250\"><field name=\"NAME\">PROCEDURE_2</field><statement name=\"STACK\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"400\"><field name=\"NAME\">PROCEDURE_3</field><statement name=\"STACK\"><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -1558,1001 +1558,19 @@
       {
         "id": "s2",
         "type": "switch",
+        "initialState": "off",
         "position": {
           "x": 11,
           "y": 1,
           "z": 9
-        },
-        "initialState": "off"
+        }
       }
     ],
     "finish": {
       "x": 11,
       "y": 1,
       "z": 11
-    },
-    "obstacles": [
-      {
-        "id": "o1",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o2",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 1
-        }
-      },
-      {
-        "id": "o3",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o4",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "id": "o5",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o6",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "id": "o7",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o8",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "id": "o9",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o10",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "id": "o11",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o12",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "id": "o13",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o14",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o15",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o16",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o17",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o18",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o19",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "id": "o20",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o21",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o22",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "id": "o23",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o24",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o25",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o26",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o27",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o28",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o29",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o30",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o31",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o32",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o33",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "id": "o34",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o35",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "id": "o36",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o37",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o38",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o39",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o40",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o41",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o42",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o43",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o44",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o45",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 1
-        }
-      },
-      {
-        "id": "o46",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o47",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "id": "o48",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o49",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "id": "o50",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o51",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o52",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o53",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o54",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o55",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o56",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o57",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o58",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o59",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o60",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o61",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o62",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o63",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "id": "o64",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o65",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o66",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "id": "o67",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o68",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o69",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o70",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o71",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o72",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o73",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o74",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o75",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "id": "o76",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o77",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "id": "o78",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o79",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o80",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "id": "o81",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o82",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o83",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o84",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o85",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "id": "o86",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "id": "o87",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 1
-        }
-      },
-      {
-        "id": "o88",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "id": "o89",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "id": "o90",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "id": "o91",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "id": "o92",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "id": "o93",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "id": "o94",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "id": "o95",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "id": "o96",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "id": "o97",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "id": "o98",
-        "type": "obstacle",
-        "modelKey": "wall.stone01",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 12
-        }
-      }
-    ]
+    }
   },
   "solution": {
     "type": "reach_target",
@@ -2560,15 +1578,15 @@
       "crystal": 1,
       "switch": 1
     },
-    "optimalBlocks": 35,
-    "optimalLines": 34,
+    "optimalBlocks": 32,
+    "optimalLines": 31,
     "rawActions": [
       "turnRight",
       "moveForward",
       "moveForward",
       "collect",
-      "turnLeft",
-      "turnLeft",
+      "turnRight",
+      "turnRight",
       "moveForward",
       "moveForward",
       "turnRight",
@@ -2606,108 +1624,114 @@
       "moveForward",
       "moveForward",
       "toggleSwitch",
-      "turnLeft",
-      "turnLeft",
+      "turnRight",
+      "turnRight",
       "moveForward",
       "moveForward"
     ],
     "structuredSolution": {
       "main": [
         {
-          "type": "CALL",
-          "name": "PROCEDURE_2"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_2"
+          }
         },
         {
           "type": "maze_collect"
         },
         {
           "type": "maze_turn",
-          "direction": "turnLeft"
+          "direction": "turnRight"
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_3"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_2"
+          }
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_2"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_2"
+          }
         },
         {
           "type": "maze_turn",
           "direction": "turnRight"
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_3"
+          }
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_2"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
         },
         {
           "type": "maze_turn",
           "direction": "turnLeft"
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_1"
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_3"
+          }
         },
         {
           "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_2"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_3"
-        },
-        {
-          "type": "CALL",
-          "name": "PROCEDURE_3"
-        },
-        {
-          "type": "maze_toggleSwitch"
         },
         {
           "type": "maze_turn",
           "direction": "turnLeft"
         },
         {
-          "type": "CALL",
-          "name": "PROCEDURE_3"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_2"
+          }
         }
       ],
       "procedures": {
         "PROCEDURE_1": [
           {
             "type": "maze_repeat",
-            "times": 3,
-            "body": [
+            "times": 2,
+            "actions": [
               {
-                "type": "maze_moveForward"
+                "type": "maze_repeat",
+                "times": 2,
+                "actions": [
+                  {
+                    "type": "maze_moveForward"
+                  }
+                ]
               }
             ]
           }
@@ -2726,14 +1750,20 @@
         ],
         "PROCEDURE_3": [
           {
+            "type": "procedures_callnoreturn",
+            "mutation": {
+              "name": "PROCEDURE_1"
+            }
+          },
+          {
+            "type": "procedures_callnoreturn",
+            "mutation": {
+              "name": "PROCEDURE_2"
+            }
+          },
+          {
             "type": "maze_turn",
             "direction": "turnLeft"
-          },
-          {
-            "type": "maze_moveForward"
-          },
-          {
-            "type": "maze_moveForward"
           }
         ]
       }
@@ -2864,6 +1894,152 @@
           }
         ]
       }
+    },
+    "basicSolution": {
+      "main": [
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
     }
   },
   "sounds": {
