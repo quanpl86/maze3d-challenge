@@ -631,13 +631,18 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
         for (const goalType in requiredGoals) {
             const requiredCount = requiredGoals[goalType];
             if (goalType === 'switch') {
-                // SỬA LỖI: Yêu cầu là TẤT CẢ công tắc phải được bật, không chỉ một số lượng.
-                // Lấy tất cả ID công tắc từ bản đồ
-                const allSwitchIds = Array.from(world.switchesByPos.values()).map(s => s.id);
-                // Kiểm tra xem tất cả chúng có ở trạng thái 'on' không
-                const allSwitchesOn = allSwitchIds.every(id => state.switchStates.get(id) === 'on');
-                if (!allSwitchesOn) {
-                    return false;
+                // [SỬA LỖI] Xử lý linh hoạt mục tiêu 'switch' dựa trên `requiredCount`.
+                const toggledOnCount = Array.from(state.switchStates.values()).filter(s => s === 'on').length;
+                if (typeof requiredCount === 'string' && requiredCount.toLowerCase() === 'all') {
+                    const totalSwitches = world.switchesByPos.size;
+                    if (toggledOnCount < totalSwitches) {
+                        return false;
+                    }
+                } else {
+                    const numericRequiredCount = Number(requiredCount);
+                    if (!isNaN(numericRequiredCount) && toggledOnCount < numericRequiredCount) {
+                        return false;
+                    }
                 }
             } else {
                 // Đếm số vật phẩm đã thu thập thuộc `goalType` này
@@ -656,10 +661,12 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             }
         }
 
-        // SỬA ĐỔI: Mục tiêu được coi là hoàn thành khi tất cả các itemGoals được thỏa mãn.
-        // Việc có ở ô kết thúc hay không sẽ được xử lý sau khi tìm thấy trạng thái này.
-        const allGoalsMet = Object.keys(requiredGoals).length > 0; // Đảm bảo có mục tiêu để kiểm tra
-        return allGoalsMet;
+        // [SỬA LỖI QUAN TRỌNG] Logic trả về bị sai.
+        // Hàm chỉ nên trả về `true` nếu vòng lặp `for` hoàn tất mà không `return false` lần nào.
+        // Điều này có nghĩa là tất cả các mục tiêu đã được đáp ứng.
+        // Nếu không có mục tiêu nào (`requiredGoals` rỗng), nó cũng nên trả về `true` để cho phép
+        // các màn chơi chỉ cần đi đến đích.
+        return true;
     };
 
     startNode.hCost = heuristic(startState);
