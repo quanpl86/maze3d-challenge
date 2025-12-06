@@ -40,8 +40,9 @@ interface Solution {
   itemGoals?: Record<string, any>;
   optimalBlocks?: number;
   optimalLines?: number;
-  rawActions: string[];
+  rawActions: (string | Action)[]; // SỬA LỖI: Cho phép cả chuỗi và đối tượng Action
   structuredSolution: { main: Action[], procedures?: Record<string, any> };
+  basicSolution?: { main: Action[]; procedures?: Record<string, any> }; // SỬA LỖI: Cho phép basicSolution có procedures
   // Giữ lại các trường khác có thể tồn tại
   [key: string]: any;
 }
@@ -185,24 +186,29 @@ class GameWorld {
  * @param rawActions Mảng các chuỗi hành động thô.
  * @returns Một mảng các đối tượng Action.
  */
-const convertRawToStructuredActions = (rawActions: string[]): Action[] => {
-  return rawActions.map(actionString => {
-    switch (actionString) {
+const convertRawToStructuredActions = (rawActions: (string | Action)[]): Action[] => {
+  // SỬA LỖI: Xử lý cả chuỗi và đối tượng trong mảng đầu vào để đảm bảo tính nhất quán.
+  return rawActions.map(action => {
+    const actionType = typeof action === 'string' ? action : action.type;
+
+    switch (actionType) {
       case 'moveForward':
         return { type: 'maze_moveForward' };
       case 'turnLeft':
+      case 'maze_turnLeft': // Xử lý các biến thể
         return { type: 'maze_turn', direction: 'turnLeft' };
       case 'turnRight':
+      case 'maze_turnRight': // Xử lý các biến thể
         return { type: 'maze_turn', direction: 'turnRight' };
       case 'collect':
         return { type: 'maze_collect' };
       case 'toggleSwitch':
-        // SỬA LỖI: Trả về đúng type 'maze_toggleSwitch' theo cấu trúc chuẩn.
-        return { type: 'maze_toggleSwitch' };
+        // SỬA LỖI: Trả về đúng type 'maze_toggle_switch' để khớp với định nghĩa trong toolbox.
+        return { type: 'maze_toggle_switch' };
       case 'jump':
         return { type: 'maze_jump' };
       default:
-        return { type: actionString }; // Fallback cho các action khác
+        return typeof action === 'string' ? { type: action } : action; // Giữ nguyên các khối đã có cấu trúc
     }
   });
 };
@@ -329,21 +335,77 @@ function findFactors(n: number): [number, number] | null {
     return factors[0];
 }
 
-const createStructuredSolution = (
-  initialActions: Action[],
-  availableBlocks: Set<string>, // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
-  solutionConfig: Solution // THÊM: solutionConfig để đọc các gợi ý tối ưu hóa
+/**
+ * HÀM MỚI: Tối ưu hóa chỉ bằng vòng lặp.
+ */
+const optimizeWithLoops = (
+  actions: Action[],
+  availableBlocks: Set<string>,
+  solutionConfig: Solution
 ): { main: Action[]; procedures?: Record<string, Action[]> } => {
+  const loopStructureConfig = solutionConfig.loop_structure || 'auto';
 
+  // Hàm đệ quy nội bộ để xử lý tối ưu hóa
+  const optimizeRecursively = (currentActions: Action[]): Action[] => {
+    // Đệ quy vào bên trong các khối lặp hiện có trước (tối ưu từ trong ra ngoài)
+    let optimizedInnerActions = currentActions.map(action => {
+      if ((action.type === 'maze_repeat' || action.type === 'maze_for') && Array.isArray(action.actions)) {
+        return { ...action, actions: optimizeRecursively(action.actions) };
+      }
+      return action;
+    });
+
+    // Bây giờ, tìm chuỗi lặp lại ở cấp độ hiện tại
+    const { sequence, repeats, length, startIndex, savings } = findLongestRepeatingSequence(optimizedInnerActions);
+
+    if (sequence && savings > 0) {
+      let factors: [number, number] | null = null;
+      if ((loopStructureConfig === 'nested' || loopStructureConfig === 'auto') && availableBlocks.has('maze_repeat')) {
+          factors = findFactors(repeats);
+      }
+
+      const beforeLoop = optimizedInnerActions.slice(0, startIndex);
+      const afterLoop = optimizedInnerActions.slice(startIndex + repeats * length);
+      
+      // Tối ưu hóa phần thân của vòng lặp mới một lần nữa
+      const loopBody = optimizeRecursively(sequence);
+
+      let loopBlock: Action;
+      // SỬA LỖI: Chỉ tạo vòng lặp lồng nhau nếu có thừa số VÀ khối bên trong không phải là một vòng lặp duy nhất
+      const isSingleInnerLoop = loopBody.length === 1 && (loopBody[0].type === 'maze_repeat' || loopBody[0].type === 'maze_for');
+      if (factors && !isSingleInnerLoop) {
+            const [outerLoops, innerLoops] = factors;
+            const innerLoop: Action = { type: 'maze_repeat', times: innerLoops, actions: loopBody };
+            loopBlock = { type: 'maze_repeat', times: outerLoops, actions: [innerLoop] };
+        } else {
+            const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
+            loopBlock = { type: loopType, times: repeats, actions: loopBody };
+        }
+
+      // Sau khi thay thế, gọi lại đệ quy trên toàn bộ chuỗi để tìm thêm cơ hội
+      return optimizeRecursively([...beforeLoop, loopBlock, ...afterLoop]);
+    }
+
+    // Nếu không còn gì để tối ưu hóa ở cấp này, trả về chuỗi hành động đã tối ưu hóa bên trong
+    return optimizedInnerActions;
+  };
+
+  const finalActions = optimizeRecursively(actions);
+  return { main: finalActions };
+};
+
+/**
+ * HÀM MỚI: Tối ưu hóa chỉ bằng hàm (procedure).
+ */
+const optimizeWithFunctions = (
+  initialActions: Action[],
+  availableBlocks: Set<string>,
+  solutionConfig: Solution
+): { main: Action[]; procedures?: Record<string, Action[]> } => {
   let currentActions = [...initialActions];
   const procedures: Record<string, Action[]> = {};
   let procedureCount = 0;
 
-  // Lấy cấu hình cấu trúc vòng lặp mong muốn (single, nested, auto)
-  const loopStructureConfig = solutionConfig.loop_structure || 'auto';
-
-  // --- BƯỚC 1: TỐI ƯU HÓA BẰNG HÀM (FUNCTION EXTRACTION) ---
-  // [REWRITTEN] Logic được viết lại để ưu tiên tạo hàm trước, giống với Python.
   if (availableBlocks.has('PROCEDURE')) {
     let changed = true;
     while (changed) {
@@ -353,7 +415,7 @@ const createStructuredSolution = (
         const { sequence } = result;
         procedureCount++;
         const procName = `PROCEDURE_${procedureCount}`;
-
+        
         // Tối ưu hóa đệ quy phần thân của hàm
         procedures[procName] = createStructuredSolution(sequence, availableBlocks, solutionConfig).main;
         
@@ -361,8 +423,7 @@ const createStructuredSolution = (
         const newActions: Action[] = [];
         let i = 0;
         while (i < currentActions.length) {
-          const subArray = currentActions.slice(i, i + sequence.length);
-          if (JSON.stringify(subArray) === JSON.stringify(sequence)) {
+          if (i <= currentActions.length - sequence.length && JSON.stringify(currentActions.slice(i, i + sequence.length)) === JSON.stringify(sequence)) {
             newActions.push(callBlock);
             i += sequence.length;
           } else {
@@ -371,53 +432,47 @@ const createStructuredSolution = (
           }
         }
         currentActions = newActions;
-        changed = true; // Lặp lại để tìm thêm hàm
+        changed = true;
       }
     }
   }
+  return { main: currentActions, procedures };
+};
 
-  // --- BƯỚC 2: TỐI ƯU HÓA VÒNG LẶP (LOOP COMPRESSION) ---
-  // Logic này giờ sẽ chạy trên chuỗi hành động đã được tối ưu hóa bằng hàm.
-  if (availableBlocks.has('maze_repeat') || availableBlocks.has('maze_for') || availableBlocks.has('maze_repeat_variable')) {
-    let changedInLoop = true;
-    while (changedInLoop) {
-      changedInLoop = false;
-      const { sequence, repeats, length, startIndex, savings } = findLongestRepeatingSequence(currentActions);
+const createStructuredSolution = (
+  initialActions: Action[],
+  availableBlocks: Set<string>, // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
+  solutionConfig: Solution // THÊM: solutionConfig để đọc các gợi ý tối ưu hóa
+): { main: Action[]; procedures?: Record<string, Action[]> } => {
 
-      if (sequence && savings > 0) {
-        let factors: [number, number] | null = null;
-        if (loopStructureConfig === 'nested') {
-            factors = findFactors(repeats);
-        } else if (loopStructureConfig === 'auto') {
-            factors = findFactors(repeats);
-        }
+  const strategies: { name: string; solution: { main: Action[]; procedures?: Record<string, Action[]> } }[] = [];
 
-        const beforeLoop = currentActions.slice(0, startIndex);
-        const afterLoop = currentActions.slice(startIndex + repeats * length);
+  // Chiến lược 1: Chỉ tối ưu hóa vòng lặp
+  const loopOnlySolution = optimizeWithLoops(initialActions, availableBlocks, solutionConfig);
+  strategies.push({ name: 'loop_only', solution: loopOnlySolution });
 
-        // Quan trọng: Không gọi đệ quy createStructuredSolution ở đây nữa để tránh lặp vô hạn
-        // và vì phần thân vòng lặp đã được tối ưu hóa hàm từ trước.
-        const loopBody = sequence;
+  // Chiến lược 2: Chỉ tối ưu hóa hàm
+  const funcOnlySolution = optimizeWithFunctions(initialActions, availableBlocks, solutionConfig);
+  strategies.push({ name: 'func_only', solution: funcOnlySolution });
 
-        let loopBlock: Action;
-        if (factors && availableBlocks.has('maze_repeat')) { // Tạo vòng lặp lồng nhau
-            const [outerLoops, innerLoops] = factors;
-            const innerLoop: Action = { type: 'maze_repeat', times: innerLoops, actions: loopBody };
-            loopBlock = { type: 'maze_repeat', times: outerLoops, actions: [innerLoop] };
-        } else { // Tạo vòng lặp đơn
-            const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
-            loopBlock = { type: loopType, times: repeats, actions: loopBody };
-        }
+  // Chiến lược 3: Tối ưu hóa hàm trước, sau đó tối ưu hóa vòng lặp
+  const funcThenLoopSolution = optimizeWithLoops(funcOnlySolution.main, availableBlocks, solutionConfig);
+  strategies.push({ name: 'func_then_loop', solution: { main: funcThenLoopSolution.main, procedures: funcOnlySolution.procedures } });
 
-        currentActions = [...beforeLoop, loopBlock, ...afterLoop];
-        changedInLoop = true; // Lặp lại để tìm thêm cơ hội nén vòng lặp
-      }
+  // Tính toán chi phí cho mỗi chiến lược và chọn ra cái tốt nhất
+  let bestSolution = strategies[0].solution;
+  let minCost = calculateTotalBlocksInSolution(bestSolution);
+
+  for (let i = 1; i < strategies.length; i++) {
+    const cost = calculateTotalBlocksInSolution(strategies[i].solution);
+    if (cost < minCost) {
+      minCost = cost;
+      bestSolution = strategies[i].solution;
     }
   }
 
-  // --- BƯỚC 3: CHUYỂN ĐỔI CÁC KHỐI GỌI HÀM TẠM THỜI ---
-  // Chuyển các khối 'CALL' tạm thời thành khối 'procedures_callnoreturn' chuẩn của Blockly
-  const finalMain = currentActions.map(action => {
+  // Chuyển đổi các khối 'CALL' tạm thời thành khối 'procedures_callnoreturn' chuẩn
+  const finalMain = bestSolution.main.map(action => {
     if (action.type === 'CALL' && action.name) {
       return {
         type: 'procedures_callnoreturn',
@@ -430,7 +485,7 @@ const createStructuredSolution = (
   });
 
   // Trả về kết quả cuối cùng
-  return { main: finalMain, procedures: Object.keys(procedures).length > 0 ? procedures : undefined };
+  return { main: finalMain, procedures: bestSolution.procedures && Object.keys(bestSolution.procedures).length > 0 ? bestSolution.procedures : undefined };
 };
 
 /**
@@ -699,7 +754,7 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             // TÌM THẤY TRẠNG THÁI HOÀN THÀNH MỤC TIÊU!
             // Bây giờ, cần tìm đường đi từ đây đến ô kết thúc.
             const finalPathNode = findPathToFinish(currentNode, world, heuristic);
-
+            
             if (!finalPathNode) {
                 // Nếu không thể tìm thấy đường đến đích từ trạng thái hoàn thành mục tiêu,
                 // tiếp tục tìm kiếm các trạng thái hoàn thành mục tiêu khác.
@@ -719,11 +774,16 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             const finalOptimalBlocks = calculateTotalBlocksInSolution(newStructuredSolution); // Đếm tổng số khối (bao gồm cả khối lồng nhau)
             const finalOptimalLines = calculateOptimalLines(newStructuredSolution); // Đếm số dòng code logic (LLOC)
 
+            // THÊM MỚI: Tạo một phiên bản "basicSolution" đã được chuẩn hóa từ rawActions.
+            // Điều này đảm bảo basicSolution cũng sử dụng định dạng { type: 'maze_turn', direction: '...' }
+            const basicSolutionMain = convertRawToStructuredActions(path);
+
             return {
                 optimalBlocks: finalOptimalBlocks,
                 optimalLines: finalOptimalLines,
                 rawActions: path,
                 structuredSolution: newStructuredSolution,
+                basicSolution: { main: basicSolutionMain, procedures: {} } // Trả về basicSolution đã chuẩn hóa
             };
         }
 

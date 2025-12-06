@@ -198,7 +198,7 @@
       ]
     },
     "maxBlocks": 36,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"></mutation><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"></mutation><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"></mutation><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"></mutation><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"></mutation><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block>\n            <block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\">\n              <field name=\"NAME\">PROCEDURE_1</field>\n              <comment pinned=\"false\" h=\"80\" w=\"160\">Describe this function...</comment>\n              <statement name=\"STACK\"><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement>\n            </block>\n            <block type=\"procedures_defnoreturn\" x=\"400\" y=\"650\">\n              <field name=\"NAME\">PROCEDURE_2</field>\n              <comment pinned=\"false\" h=\"80\" w=\"160\">Describe this function...</comment>\n              <statement name=\"STACK\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"></block></next></block></next></block></statement>\n            </block>\n            <block type=\"procedures_defnoreturn\" x=\"400\" y=\"900\">\n              <field name=\"NAME\">PROCEDURE_3</field>\n              <comment pinned=\"false\" h=\"80\" w=\"160\">Describe this function...</comment>\n              <statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"></mutation><next><block type=\"maze_moveForward\"></block></next></block></next></block></statement>\n            </block></xml>"
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\"><field name=\"NAME\">PROCEDURE_1</field><statement name=\"STACK\"><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"250\"><field name=\"NAME\">PROCEDURE_2</field><statement name=\"STACK\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"/></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"400\"><field name=\"NAME\">PROCEDURE_3</field><statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_moveForward\"/></next></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
@@ -565,7 +565,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 7,
           "y": 2,
@@ -573,7 +573,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 7,
           "y": 1,
@@ -581,7 +581,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 9,
           "y": 2,
@@ -589,7 +589,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 10,
           "y": 1,
@@ -597,7 +597,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 11,
           "y": 0,
@@ -605,7 +605,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 7,
           "y": 4,
@@ -613,7 +613,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 7,
           "y": 5,
@@ -621,7 +621,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 5,
           "y": 4,
@@ -629,7 +629,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 4,
           "y": 5,
@@ -637,7 +637,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "ground.snow",
         "position": {
           "x": 3,
           "y": 6,

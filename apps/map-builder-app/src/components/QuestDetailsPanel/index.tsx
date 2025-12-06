@@ -23,90 +23,153 @@ const getDeepValue = (obj: any, path: string) => {
   return path.split('.').reduce((o, k) => (o || {})[k], obj);
 };
 
-// --- START: HÀM MỚI ĐỂ BIÊN DỊCH STRUCTURED SOLUTION SANG XML ---
 /**
- * Biên dịch một mảng các hành động từ structuredSolution thành chuỗi XML của Blockly.
- * @param actions Mảng các đối tượng hành động.
- * @returns Một chuỗi XML tương thích với Blockly.
+ * [REWRITTEN] Biên dịch một đối tượng structuredSolution (JSON) thành chuỗi XML của Blockly.
+ * Hàm này sử dụng DOM API để xây dựng cây XML một cách an toàn và chính xác,
+ * thay vì ghép chuỗi thủ công.
+ * @param structuredSolution Đối tượng chứa `main` và `procedures`.
+ * @returns Một chuỗi XML hoàn chỉnh.
  */
-const compileActionsToXml = (actions: any[]): string => {
-  if (!Array.isArray(actions) || actions.length === 0) {
-    return '';
+const jsonToXml = (structuredSolution: any): string => {
+  const doc = document.implementation.createDocument(null, 'xml', null);
+
+  // Hàm đệ quy để chuyển đổi một mảng hành động thành các khối XML và nối chúng
+  const jsonToXmlRecursive = (actions: any[], parent: Element): Element | null => {
+    let lastBlock: Element | null = null;
+
+    actions.forEach(action => {
+      const block = doc.createElement('block');
+      block.setAttribute('type', action.type);
+
+      // Xử lý các loại khối khác nhau
+      if (action.type === 'maze_turn') {
+        const field = doc.createElement('field');
+        field.setAttribute('name', 'DIR');
+        field.textContent = action.direction;
+        block.appendChild(field);
+      } else if (action.type === 'maze_repeat' || action.type === 'maze_for') {
+        const value = doc.createElement('value');
+        value.setAttribute('name', 'TIMES');
+        const shadow = doc.createElement('shadow');
+        shadow.setAttribute('type', 'math_number');
+        const field = doc.createElement('field');
+        field.setAttribute('name', 'NUM');
+        field.textContent = action.times?.toString() || '1';
+        shadow.appendChild(field);
+        value.appendChild(shadow);
+        block.appendChild(value);
+
+        if (action.actions && action.actions.length > 0) {
+          const statement = doc.createElement('statement');
+          statement.setAttribute('name', 'DO');
+          jsonToXmlRecursive(action.actions, statement);
+          block.appendChild(statement);
+        }
+      } else if (action.type === 'procedures_callnoreturn') {
+        const mutation = doc.createElement('mutation');
+        mutation.setAttribute('name', action.mutation.name);
+        block.appendChild(mutation);
+      }
+
+      if (lastBlock) {
+        const next = doc.createElement('next');
+        next.appendChild(block);
+        lastBlock.appendChild(next);
+      } else {
+        parent.appendChild(block);
+      }
+      lastBlock = block;
+    });
+
+    return lastBlock;
+  };
+
+  // 1. Tạo khối bắt đầu (maze_start)
+  const startBlock = doc.createElement('block');
+  startBlock.setAttribute('type', 'maze_start');
+  startBlock.setAttribute('deletable', 'false');
+  startBlock.setAttribute('movable', 'false');
+  
+  if (structuredSolution.main && structuredSolution.main.length > 0) {
+    const mainStatement = doc.createElement('statement');
+    mainStatement.setAttribute('name', 'DO');
+    jsonToXmlRecursive(structuredSolution.main, mainStatement);
+    startBlock.appendChild(mainStatement);
+  }
+  doc.documentElement.appendChild(startBlock);
+
+  // 2. Tạo các khối định nghĩa hàm (procedures)
+  if (structuredSolution.procedures) {
+    let yOffset = 100;
+    for (const procName in structuredSolution.procedures) {
+      const procActions = structuredSolution.procedures[procName];
+      const procBlock = doc.createElement('block');
+      procBlock.setAttribute('type', 'procedures_defnoreturn');
+      procBlock.setAttribute('x', '400');
+      procBlock.setAttribute('y', yOffset.toString());
+
+      const field = doc.createElement('field');
+      field.setAttribute('name', 'NAME');
+      field.textContent = procName;
+      procBlock.appendChild(field);
+
+      if (procActions && procActions.length > 0) {
+        const procStatement = doc.createElement('statement');
+        procStatement.setAttribute('name', 'STACK');
+        jsonToXmlRecursive(procActions, procStatement);
+        procBlock.appendChild(procStatement);
+      }
+      
+      doc.documentElement.appendChild(procBlock);
+      yOffset += 150; // Tăng khoảng cách cho hàm tiếp theo
+    }
   }
 
-  let previousBlockXml = '';
-
-  // Xử lý đệ quy mảng hành động từ dưới lên để xây dựng chuỗi <next>
-  for (let i = actions.length - 1; i >= 0; i--) {
-    const action = actions[i];
-    let currentBlockXml = '';
-
-    switch (action.type) { // Đã thay đổi từ action.name sang action.type
-      case 'maze_moveForward':
-        currentBlockXml = `<block type="maze_moveForward"></block>`;
-        break;
-      case 'maze_turn': // Đã thay đổi từ action.name sang action.type
-        // Giá trị action.direction đã là 'turnLeft' hoặc 'turnRight'
-        const turnDir = action.direction;
-        currentBlockXml = `<block type="maze_turn"><field name="DIR">${turnDir}</field></block>`;
-        break;
-      // SỬA LỖI: Thêm các trường hợp để xử lý định dạng từ "Lời Giải Cơ Bản"
-      case 'maze_turnLeft':
-        currentBlockXml = `<block type="maze_turn"><field name="DIR">turnLeft</field></block>`;
-        break;
-      case 'maze_turnRight':
-        currentBlockXml = `<block type="maze_turn"><field name="DIR">turnRight</field></block>`;
-        break;
-      case 'maze_collect': // Thêm trường hợp cho maze_collect
-        currentBlockXml = `<block type="maze_collect"></block>`;
-        break;
-      case 'maze_jump': // THÊM MỚI: Xử lý cho hành động jump
-        currentBlockXml = `<block type="maze_jump"></block>`;
-        break;
-      case 'maze_toggleSwitch': // Thêm trường hợp cho maze_toggleSwitch
-        currentBlockXml = `<block type="maze_toggle_switch"></block>`;
-        break;
-      case 'procedures_callnoreturn': // THÊM MỚI: Xử lý cho khối gọi hàm
-        // SỬA LỖI: Đây là phần logic bị thiếu, gây ra lỗi "Loại hành động không xác định: CALL".
-        // Nó tạo ra XML chính xác cho một khối gọi hàm.
-        currentBlockXml = `<block type="procedures_callnoreturn"><mutation name="${action.mutation.name}"></mutation></block>`;
-        break;
-      case 'CALL': // THÊM MỚI: Xử lý cho định dạng "CALL" cũ để tương thích ngược
-        // Lỗi "Loại hành động không xác định: CALL" xảy ra ở đây.
-        // Thêm trường hợp này để xử lý các file JSON cũ có thể vẫn dùng "CALL".
-        currentBlockXml = `<block type="procedures_callnoreturn"><mutation name="${action.name}"></mutation></block>`;
-        break;
-      case 'maze_repeat': // Giả định structuredSolution sử dụng 'maze_repeat' cho vòng lặp
-      case 'maze_for': // THÊM MỚI: Xử lý cho vòng lặp 'maze_for'
-        // Đệ quy để biên dịch các hành động con bên trong khối lặp (cả maze_repeat và maze_for)
-        const innerBlocksXml = compileActionsToXml(action.actions || []);
-        currentBlockXml = `
-          <block type="maze_repeat">
-            <value name="TIMES">
-              <shadow type="math_number">
-                <field name="NUM">${action.times || 1}</field>
-              </shadow>
-            </value>
-            <statement name="DO">
-              ${innerBlocksXml}
-            </statement>
-          </block>`;
-        break;
-      default:
-        console.warn(`Loại hành động không xác định: ${action.type}`);
-        break;
-    }
-
-    // Gắn khối trước đó vào thẻ <next> của khối hiện tại
-    if (previousBlockXml) {
-      currentBlockXml = currentBlockXml.replace('</block>', `<next>${previousBlockXml}</next></block>`);
-    }
-    previousBlockXml = currentBlockXml;
-  }
-
-  return previousBlockXml;
+  const serializer = new XMLSerializer();
+  return serializer.serializeToString(doc);
 };
-// --- END: HÀM MỚI ---
+
+/**
+ * HÀM MỚI: Chuẩn hóa các hành động trong một lời giải (basic hoặc structured).
+ * Đảm bảo các hành động như rẽ trái/phải luôn có định dạng { type: 'maze_turn', direction: '...' }.
+ * @param actions Mảng các hành động cần chuẩn hóa.
+ * @returns Mảng các hành động đã được chuẩn hóa.
+ */
+const normalizeActions = (actions: any[]): any[] => {
+  if (!Array.isArray(actions)) return [];
+  return actions.map(action => {
+    if (!action || typeof action !== 'object') return action;
+
+    // Chuẩn hóa các hành động rẽ
+    if (action.type === 'maze_turnLeft' || action.type === 'turnLeft') {
+      return { type: 'maze_turn', direction: 'turnLeft' };
+    }
+    if (action.type === 'maze_turnRight' || action.type === 'turnRight') {
+      return { type: 'maze_turn', direction: 'turnRight' };
+    }
+    // Chuẩn hóa toggleSwitch
+    if (action.type === 'maze_toggleSwitch') {
+      return { type: 'maze_toggle_switch' };
+    }
+
+    // Đệ quy cho các khối lồng nhau
+    if (action.actions && Array.isArray(action.actions)) {
+      return { ...action, actions: normalizeActions(action.actions) };
+    }
+
+    return action;
+  });
+};
+
+const normalizeSolution = (solution: any) => {
+  if (!solution) return {};
+  const newSolution = _.cloneDeep(solution);
+  if (newSolution.basicSolution && newSolution.basicSolution.main) {
+    newSolution.basicSolution.main = normalizeActions(newSolution.basicSolution.main);
+  }
+  // Có thể mở rộng để chuẩn hóa cả structuredSolution nếu cần
+  return newSolution;
+};
 
 export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: QuestDetailsPanelProps) {
   // Hàm cập nhật metadata mới, xử lý các key có dấu chấm
@@ -137,12 +200,13 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
   useEffect(() => {
     // Cập nhật state cục bộ khi metadata từ bên ngoài thay đổi (ví dụ: import file mới)
     if (metadata) {
-      // SỬA LỖI: Đảm bảo `solution` luôn là một object để tránh lỗi khi truy cập thuộc tính.
-      const solution = metadata.solution || { rawActions: [], structuredSolution: {} };
-      setLocalSolution(JSON.stringify(solution, null, 2)); // Giữ lại để xem tổng thể
-      // SỬA LỖI & CẢI TIẾN: Đảm bảo rawActions và structuredSolution luôn được cập nhật từ metadata mới nhất.
-      // Điều này đồng bộ hóa kết quả từ solver (đã chuyển đổi 'CALL' thành 'procedures_callnoreturn') vào state cục bộ.
-      setLocalBasicSolution(JSON.stringify(solution.basicSolution || {}, null, 2)); // THÊM MỚI: Cập nhật state lời giải cơ bản
+      // THAY ĐỔI: Chuẩn hóa solution trước khi đưa vào state cục bộ.
+      // Điều này đảm bảo dữ liệu đọc từ file JSON (có thể ở định dạng cũ)
+      // được chuyển đổi sang định dạng chuẩn trước khi hiển thị và sử dụng.
+      const normalizedSolution = normalizeSolution(metadata.solution);
+      const solution = normalizedSolution || { rawActions: [], structuredSolution: {}, basicSolution: {} };
+      setLocalSolution(JSON.stringify(solution, null, 2));
+      setLocalBasicSolution(JSON.stringify(solution.basicSolution || {}, null, 2));
       setLocalRawActions(JSON.stringify(solution.rawActions || [], null, 2));
       setLocalStructuredSolution(JSON.stringify(solution.structuredSolution || {}, null, 2));
     } else {
@@ -170,33 +234,13 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         return;
       }
 
-      let fullXmlContent = '';
-
-      // 1. Biên dịch các hành động chính (main actions)
-      const mainBlocksXml = compileActionsToXml(structuredSolution.main);
-      fullXmlContent += `<block type="maze_start" deletable="false" movable="false"><statement name="DO">${mainBlocksXml}</statement></block>`;
-
-      // 2. Biên dịch các định nghĩa hàm (procedures), nếu có
-      if (structuredSolution.procedures) {
-        let yOffset = 100; // Vị trí Y bắt đầu cho các khối định nghĩa hàm
-        for (const procName in structuredSolution.procedures) {
-          const procActions = structuredSolution.procedures[procName];
-          const procInnerBlocksXml = compileActionsToXml(procActions);
-          fullXmlContent += `
-            <block type="procedures_defnoreturn" x="400" y="${yOffset}">
-              <field name="NAME">${procName}</field>
-              <comment pinned="false" h="80" w="160">Describe this function...</comment>
-              <statement name="STACK">${procInnerBlocksXml}</statement>
-            </block>`;
-          yOffset += (procActions.length * 50) + 100; // Ước tính vị trí Y cho khối hàm tiếp theo
-        }
-      }
-      const finalXml = `<xml>${fullXmlContent}</xml>`;
+      // Sử dụng hàm jsonToXml đã được tái cấu trúc
+      const finalXml = jsonToXml(structuredSolution);
 
       handleComplexChange('blocklyConfig.startBlocks', finalXml); // Lưu chuỗi "sạch"
       alert('Tạo Start Blocks XML thành công!');
     } catch (error) {
-      console.error("Lỗi khi biên dịch structuredSolution sang XML:", error);
+      console.error("Lỗi khi biên dịch JSON sang XML:", error);
       alert(`Lỗi: Không thể parse ${sourceName}. Vui lòng kiểm tra lại định dạng JSON.\n\n${error}`);
     }
   };
