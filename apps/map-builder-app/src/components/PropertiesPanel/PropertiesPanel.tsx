@@ -58,11 +58,13 @@ const MultipleSelectionPanel = ({
   onClear,
   onDelete,
   onRotate,
+  onFlip,
 }: {
   count: number;
   onClear: () => void;
   onDelete: () => void;
   onRotate: () => void;
+  onFlip: (axis: 'x' | 'z') => void;
 }) => (
   <>
     <div className="panel-header">
@@ -79,6 +81,15 @@ const MultipleSelectionPanel = ({
         <button onClick={onRotate} className="action-btn">
           <span className="icon">🔄</span>
           Rotate (R)
+        </button>
+        {/* --- THÊM NÚT LẬT --- */}
+        <button onClick={() => onFlip('x')} className="action-btn">
+          <span className="icon">↔️</span>
+          Flip Horizontal
+        </button>
+        <button onClick={() => onFlip('z')} className="action-btn">
+          <span className="icon">↕️</span>
+          Flip Vertical
         </button>
         <button onClick={onDelete} className="action-btn delete-btn">
           <span className="icon">🗑️</span>
@@ -150,6 +161,7 @@ export function PropertiesPanel({
           onClear={onClearSelection}
           onDelete={onDeleteSelection}
           onRotate={onRotateSelection}
+          onFlip={onFlipSelection}
         />
       ) : selectedObject ? (
         <>
