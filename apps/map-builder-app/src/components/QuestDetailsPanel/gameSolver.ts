@@ -188,10 +188,10 @@ class GameWorld {
  */
 const convertRawToStructuredActions = (rawActions: (string | Action)[]): Action[] => {
   // SỬA LỖI: Xử lý cả chuỗi và đối tượng trong mảng đầu vào để đảm bảo tính nhất quán.
-  return rawActions.map(action => {
-    const actionType = typeof action === 'string' ? action : action.type;
+  return rawActions.map((action) => {
+    const actionObj = typeof action === 'string' ? { type: action } : action;
 
-    switch (actionType) {
+    switch (actionObj.type) {
       case 'moveForward':
         return { type: 'maze_moveForward' };
       case 'turnLeft':
@@ -203,12 +203,13 @@ const convertRawToStructuredActions = (rawActions: (string | Action)[]): Action[
       case 'collect':
         return { type: 'maze_collect' };
       case 'toggleSwitch':
-        // SỬA LỖI: Trả về đúng type 'maze_toggle_switch' để khớp với định nghĩa trong toolbox.
+        // SỬA LỖI: Chuẩn hóa 'toggleSwitch' thành 'maze_toggle_switch'
         return { type: 'maze_toggle_switch' };
       case 'jump':
         return { type: 'maze_jump' };
       default:
-        return typeof action === 'string' ? { type: action } : action; // Giữ nguyên các khối đã có cấu trúc
+        // Giữ nguyên các khối đã có cấu trúc hoặc các khối chưa được xử lý
+        return actionObj;
     }
   });
 };
