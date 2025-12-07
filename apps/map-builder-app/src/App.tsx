@@ -213,11 +213,92 @@ function App() {
     });
   }, [setPlacedObjectsWithHistory]);
 
-  // --- HÀM MỚI: Xoay các đối tượng đã chọn ---
+  // --- HÀM MỚI: Xoay/Lật nhóm đối tượng đã chọn ---
   const handleRotateSelection = useCallback(() => {
     if (selectedObjectIds.length === 0) return;
-    handleRotateObject(selectedObjectIds);
-  }, [selectedObjectIds, handleRotateObject]);
+
+    setPlacedObjectsWithHistory(prev => {
+      const selectedObjects = prev.filter(obj => selectedObjectIds.includes(obj.id));
+      if (selectedObjects.length === 0) return prev;
+
+      // 1. Tìm tâm của nhóm
+      const minPos = [Infinity, Infinity, Infinity];
+      const maxPos = [-Infinity, -Infinity, -Infinity];
+      selectedObjects.forEach(obj => {
+        minPos[0] = Math.min(minPos[0], obj.position[0]);
+        minPos[1] = Math.min(minPos[1], obj.position[1]);
+        minPos[2] = Math.min(minPos[2], obj.position[2]);
+        maxPos[0] = Math.max(maxPos[0], obj.position[0]);
+        maxPos[1] = Math.max(maxPos[1], obj.position[1]);
+        maxPos[2] = Math.max(maxPos[2], obj.position[2]);
+      });
+      const center = [
+        (minPos[0] + maxPos[0]) / 2,
+        (minPos[1] + maxPos[1]) / 2,
+        (minPos[2] + maxPos[2]) / 2,
+      ];
+
+      // 2. Xoay từng đối tượng quanh tâm
+      const rotatedObjects = selectedObjects.map(obj => {
+        const relPos = [
+          obj.position[0] - center[0],
+          obj.position[1] - center[1],
+          obj.position[2] - center[2],
+        ];
+
+        // Xoay 90 độ quanh trục Y: (x, z) -> (z, -x)
+        const newRelPos = [relPos[2], relPos[1], -relPos[0]];
+
+        const newAbsPos: [number, number, number] = [
+          Math.round(newRelPos[0] + center[0]),
+          Math.round(newRelPos[1] + center[1]),
+          Math.round(newRelPos[2] + center[2]),
+        ];
+
+        return { ...obj, position: newAbsPos };
+      });
+
+      // 3. Cập nhật lại mảng đối tượng
+      const newPlacedObjects = prev.map(obj => rotatedObjects.find(ro => ro.id === obj.id) || obj);
+      return newPlacedObjects;
+    });
+  }, [selectedObjectIds, setPlacedObjectsWithHistory]);
+
+  // --- HÀM MỚI: Lật nhóm đối tượng đã chọn ---
+  const handleFlipSelection = useCallback((axis: 'x' | 'z') => {
+    if (selectedObjectIds.length === 0) return;
+
+    setPlacedObjectsWithHistory(prev => {
+      const selectedObjects = prev.filter(obj => selectedObjectIds.includes(obj.id));
+      if (selectedObjects.length === 0) return prev;
+
+      // 1. Tìm tâm của nhóm
+      const minPos = [Infinity, Infinity];
+      const maxPos = [-Infinity, -Infinity];
+      selectedObjects.forEach(obj => {
+        minPos[0] = Math.min(minPos[0], obj.position[0]);
+        minPos[1] = Math.min(minPos[1], obj.position[2]);
+        maxPos[0] = Math.max(maxPos[0], obj.position[0]);
+        maxPos[1] = Math.max(maxPos[1], obj.position[2]);
+      });
+      const center = { x: (minPos[0] + maxPos[0]) / 2, z: (minPos[1] + maxPos[1]) / 2 };
+
+      // 2. Lật từng đối tượng qua tâm
+      const flippedObjects = selectedObjects.map(obj => {
+        let newPosition: [number, number, number] = [...obj.position];
+        if (axis === 'x') {
+          newPosition[0] = Math.round(center.x - (obj.position[0] - center.x));
+        } else { // axis === 'z'
+          newPosition[2] = Math.round(center.z - (obj.position[2] - center.z));
+        }
+        return { ...obj, position: newPosition };
+      });
+
+      // 3. Cập nhật lại mảng đối tượng
+      const newPlacedObjects = prev.map(obj => flippedObjects.find(fo => fo.id === obj.id) || obj);
+      return newPlacedObjects;
+    });
+  }, [selectedObjectIds, setPlacedObjectsWithHistory]);
 
   // Thêm phím tắt Delete/Backspace để xóa đối tượng được chọn
   useEffect(() => {
@@ -289,14 +370,14 @@ function App() {
         } else if (event.key.toLowerCase() === 'r') {
           // THÊM MỚI: Phím tắt xoay đối tượng
           event.preventDefault();
-          handleRotateObject(selectedObjectIds);
+          handleRotateSelection();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedObjectIds, selectionBounds, placedObjects, handleRotateObject]); // Thêm handleRotateObject và selectionBounds vào dependencies
+  }, [selectedObjectIds, selectionBounds, placedObjects, handleRotateSelection]); // Thêm handleRotateObject và selectionBounds vào dependencies
 
   // --- HÀM MỚI: Nhân bản đối tượng ---
   const handleDuplicateObject = (objectId: string) => {
@@ -1363,7 +1444,8 @@ function App() {
           mapTheme={mapTheme} // Prop cho theme
           onThemeChange={handleThemeChange} // Prop cho theme
           onRotateSelection={handleRotateSelection}
-          onClearSelection={() => setSelectedObjectIds([])}
+          onFlipSelection={handleFlipSelection}
+          onClearSelection={() => { setSelectedObjectIds([]); setSelectionStart(null); setSelectionEnd(null); }}
         />
         {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}
         <QuestDetailsPanel 

@@ -9,6 +9,7 @@ interface PropertiesPanelProps {
   onClearSelection: () => void;
   onDeleteSelection: () => void; // THAY ĐỔI: Xóa cả vùng chọn
   onRotateSelection: () => void; // THÊM MỚI: Xoay cả vùng chọn
+  onFlipSelection: (axis: 'x' | 'z') => void;
   onAddObject: (newObject: PlacedObject) => void;
   onCopyAsset: (id: string) => void; // Prop mới để sao chép asset
   // --- START: THÊM PROPS CHO THEME ---
@@ -74,7 +75,7 @@ const MultipleSelectionPanel = ({
     </div>
     <div className="selection-controls">
       <h3 className="props-title">Actions</h3>
-      <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+      <div className="action-buttons multiple-actions">
         <button onClick={onRotate} className="action-btn">
           <span className="icon">🔄</span>
           Rotate (R)
@@ -94,6 +95,7 @@ export function PropertiesPanel({
   onClearSelection, 
   onDeleteSelection,
   onRotateSelection,
+  onFlipSelection,
   onAddObject, 
   onCopyAsset,
   currentMapItems,

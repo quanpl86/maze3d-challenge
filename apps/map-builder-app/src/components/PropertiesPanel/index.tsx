@@ -7,6 +7,7 @@ interface PropertiesPanelProps {
   onClearSelection: () => void;
   onDeleteSelection: () => void; // THAY ĐỔI: Xóa cả vùng chọn
   onRotateSelection: () => void;
+  onFlipSelection: (axis: 'x' | 'z') => void;
   onAddObject: (newObject: PlacedObject) => void;
   onCopyAsset: (id: string) => void; // Prop mới để sao chép asset
   currentMapItems: string[];
@@ -53,11 +54,13 @@ const MultipleSelectionPanel = ({
   onClear,
   onDelete,
   onRotate,
+  onFlip,
 }: {
   count: number;
   onClear: () => void;
   onDelete: () => void;
   onRotate: () => void;
+  onFlip: (axis: 'x' | 'z') => void;
 }) => (
   <>
     <div className="panel-header">
@@ -70,10 +73,18 @@ const MultipleSelectionPanel = ({
     </div>
     <div className="selection-controls">
       <h3 className="props-title">Actions</h3>
-      <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+      <div className="action-buttons multiple-actions" >
         <button onClick={onRotate} className="action-btn">
           <span className="icon">🔄</span>
           Rotate (R)
+        </button>
+        <button onClick={() => onFlip('x')} className="action-btn">
+          <span className="icon">↔️</span>
+          Flip Horizontal
+        </button>
+        <button onClick={() => onFlip('z')} className="action-btn">
+          <span className="icon">↕️</span>
+          Flip Vertical
         </button>
         <button onClick={onDelete} className="action-btn delete-btn">
           <span className="icon">🗑️</span>
@@ -92,7 +103,8 @@ export function PropertiesPanel({
   onRotateSelection,
   onAddObject,
   onCopyAsset,
-  currentMapItems,
+  onFlipSelection,
+    currentMapItems,
   mapTheme,
   onThemeChange
 }: PropertiesPanelProps) {
@@ -144,6 +156,7 @@ export function PropertiesPanel({
           onClear={onClearSelection}
           onDelete={onDeleteSelection}
           onRotate={onRotateSelection}
+          onFlip={onFlipSelection}
         />
       ) : selectedObject ? (
         <>
