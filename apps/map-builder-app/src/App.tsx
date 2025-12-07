@@ -1095,7 +1095,13 @@ function App() {
         // THÊM MỚI: Tạo đối tượng "lời giải cơ bản" từ rawActions.
         // Đây là một cấu trúc JSON đơn giản chỉ chứa các hành động tuần tự.
         const basicSolution = {
-          main: solution.rawActions.map((action: string) => ({ type: `maze_${action}` })),
+          // SỬA LỖI: Xử lý cả 'string' và 'Action' trong mảng rawActions.
+          // Nếu là string, chuyển nó thành object. Nếu đã là object, giữ nguyên.
+          main: solution.rawActions.map((action: string | { type: string }) => {
+            return typeof action === 'string'
+              ? { type: `maze_${action}` }
+              : action;
+          }),
           procedures: {}
         };
 
