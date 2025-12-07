@@ -53,6 +53,11 @@
   background-color: #4a4a50;
 }
 
+/* Xóa bỏ style cho nút hướng dẫn cũ */
+.map-actions .tutorial-btn {
+  display: none;
+}
+
 /* --- CẬP NHẬT CHO TÍNH NĂNG LOAD MAP --- */
 .palette-section {
   margin-top: 20px; /* Tăng khoảng cách với nút Import JSON ở trên */

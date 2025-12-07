@@ -102,19 +102,17 @@ export function AssetPalette({
     <aside className="asset-palette">
       <h2>Asset Palette</h2>
 
+      {/* --- NÚT HƯỚNG DẪN ĐƯỢC DI CHUYỂN LÊN ĐÂY --- */}
+      <div className="guide-button-container">
+        <button onClick={onShowTutorial} className="guide-button">
+          Hướng dẫn
+        </button>
+      </div>
+
       <div className="map-actions">
         <h3>Map Actions</h3>
         <button onClick={handleImportClick}>Import JSON</button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept=".json"
-          style={{ display: 'none' }}
-        />
-        <button onClick={onShowTutorial} className="tutorial-btn">
-          Hướng dẫn
-        </button>
+        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" style={{ display: 'none' }} />
 
         {/* --- TÍNH NĂNG MỚI: LOAD MAP TỪ DANH SÁCH --- */}
         <div className="palette-section">
