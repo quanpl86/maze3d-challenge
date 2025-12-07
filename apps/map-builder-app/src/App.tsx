@@ -213,6 +213,12 @@ function App() {
     });
   }, [setPlacedObjectsWithHistory]);
 
+  // --- HÀM MỚI: Xoay các đối tượng đã chọn ---
+  const handleRotateSelection = useCallback(() => {
+    if (selectedObjectIds.length === 0) return;
+    handleRotateObject(selectedObjectIds);
+  }, [selectedObjectIds, handleRotateObject]);
+
   // Thêm phím tắt Delete/Backspace để xóa đối tượng được chọn
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -1276,6 +1282,21 @@ function App() {
     setIsWelcomeModalVisible(false);
   };
 
+  // --- HÀM MỚI: TẠO MAP MỚI ---
+  const handleCreateNewMap = useCallback(() => {
+    // Hỏi xác nhận trước khi xóa mọi thứ
+    if (window.confirm('Are you sure you want to create a new map? All unsaved progress will be lost.')) {
+      setHistory([[]]);
+      setHistoryIndex(0);
+      setQuestMetadata(null);
+      setSelectedObjectIds([]);
+      setCurrentMapFileName('untitled-quest.json');
+      setEditedJson(''); // Xóa cả trình soạn thảo JSON
+      setMapTheme(Themes.COMPREHENSIVE_THEMES[0]); // Reset theme về mặc định
+      setSelectionStart(null);
+      setSelectionEnd(null);
+    }
+  }, []); // Không có dependencies vì chỉ reset state
  return (
     <div className="app-container">
       {isPaletteVisible && (
@@ -1295,6 +1316,7 @@ function App() {
           getCorrectedAssetUrl={getCorrectedAssetUrl}
           onLoadMapFromUrl={handleLoadMapFromUrl} // Truyền hàm mới vào
           onShowTutorial={() => setIsWelcomeModalVisible(true)} // THÊM MỚI: Prop để mở lại modal
+          onCreateNewMap={handleCreateNewMap} // THÊM MỚI: Prop để tạo map mới
           onImportMap={handleImportMap}
         />
       )}
@@ -1332,14 +1354,15 @@ function App() {
       />
       <div ref={sidebarRef} className="right-sidebar" style={{ width: `${sidebarWidth}px` }}>
         <PropertiesPanel 
-          selectedObject={selectedObject}
+          selectedObjects={placedObjects.filter(obj => selectedObjectIds.includes(obj.id))}
           onUpdateObject={handleUpdateObject}
-          onDeleteObject={handleRemoveObject} // Truyền hàm xóa vào
+          onDeleteSelection={() => handleRemoveMultipleObjects(selectedObjectIds)}
           onAddObject={handleAddNewObject} // Thêm prop onAddObject
           onCopyAsset={handleCopyObject} // Thêm prop onCopyAsset
           currentMapItems={currentMapItems} // Prop cho theme
           mapTheme={mapTheme} // Prop cho theme
           onThemeChange={handleThemeChange} // Prop cho theme
+          onRotateSelection={handleRotateSelection}
           onClearSelection={() => setSelectedObjectIds([])}
         />
         {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}
@@ -1364,14 +1387,14 @@ function App() {
           onClick={(e) => e.stopPropagation()} // Ngăn không cho menu tự đóng khi click vào chính nó
         >
           <ul>
-            <li onClick={() => handleContextMenuAction('duplicate')}>Nhân bản (Duplicate)</li>
-            <li onClick={() => handleContextMenuAction('copy_asset')}>Sao chép Asset (Copy)</li>
+            <li onClick={() => handleContextMenuAction('duplicate')}>Duplicate</li>
+            <li onClick={() => handleContextMenuAction('copy_asset')}>Copy</li>
             <li 
               className="has-submenu"
               onMouseEnter={() => setAssetSubMenuVisible(true)}
               onMouseLeave={() => setAssetSubMenuVisible(false)}
             >
-              Đổi Asset (Change Asset) &raquo;
+              Change Asset &raquo;
               {assetSubMenuVisible && (
                 <div className="context-menu sub-menu">
                   <ul>
@@ -1397,7 +1420,7 @@ function App() {
               )}
             </li>
             <li className="separator"></li>
-            <li onClick={() => handleContextMenuAction('delete')} className="delete">Xóa (Delete)</li>
+            <li onClick={() => handleContextMenuAction('delete')} className="delete">Delete</li>
           </ul>
         </div>
       )}

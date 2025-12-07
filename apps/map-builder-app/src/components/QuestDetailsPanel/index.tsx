@@ -225,7 +225,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
     try {
       // B1: Kiểm tra xem chuỗi JSON có rỗng hay không
       if (!jsonSource || jsonSource.trim() === '') {
-        alert(`Lỗi: ${sourceName} (JSON) đang trống. Vui lòng nhập dữ liệu.`);
+        alert(`Error: ${sourceName} (JSON) is empty. Please enter data.`);
         return;
       }
 
@@ -233,7 +233,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
 
       // B2: Kiểm tra xem dữ liệu đã parse có thuộc tính 'main' là một mảng không
       if (!structuredSolution || !Array.isArray(structuredSolution.main)) {
-        alert('Lỗi: Dữ liệu trong Structured Solution phải là một đối tượng JSON có thuộc tính "main" là một mảng (Array) các hành động.');
+        alert('Error: Data in Structured Solution must be a JSON object with a "main" property that is an array of actions.');
         return;
       }
 
@@ -241,10 +241,10 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       const finalXml = jsonToXml(structuredSolution);
 
       handleComplexChange({ path: 'blocklyConfig.startBlocks', value: finalXml }); // Lưu chuỗi "sạch"
-      alert('Tạo Start Blocks XML thành công!');
+      alert('Successfully created Start Blocks XML!');
     } catch (error) {
       console.error("Lỗi khi biên dịch JSON sang XML:", error);
-      alert(`Lỗi: Không thể parse ${sourceName}. Vui lòng kiểm tra lại định dạng JSON.\n\n${error}`);
+      alert(`Error: Could not parse ${sourceName}. Please check the JSON format.\n\n${error}`);
     }
   };
   // --- END: HÀM XỬ LÝ SỰ KIỆN ---
@@ -252,7 +252,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
   if (!metadata) {
     return (
       <aside className="quest-details-panel empty-state">
-        <p>Import một file Quest để chỉnh sửa thông tin chi tiết.</p>
+        <p>Import a Quest file to edit details.</p>
       </aside>
     );
   }
@@ -301,7 +301,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       {titleKey && descriptionKey && (
         <>
           <div className="quest-prop-group">
-            <label>Tiêu đề (VI)</label>
+            <label>Title (VI)</label>
             <input
               type="text"
               defaultValue={metadata?.translations?.vi?.[titleKey] || ''}
@@ -309,7 +309,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             />
           </div>
           <div className="quest-prop-group">
-            <label>Mô tả (VI)</label>
+            <label>Description (VI)</label>
             <textarea
               defaultValue={metadata?.translations?.vi?.[descriptionKey] || ''}
               onBlur={(e) => handleComplexChange({ path: `translations.vi['${descriptionKey}']`, value: e.target.value })}
@@ -339,6 +339,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       <div className="quest-prop-group">
         <label>Toolbox Preset</label>
         <select
+          className="custom-select"
           // SỬA ĐỔI: Chuyển thành controlled component bằng `value` để đảm bảo UI luôn đồng bộ.
           value={getDeepValue(metadata, 'blocklyConfig.toolboxPresetKey') || ''}
           onChange={(e) => {
@@ -353,7 +354,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             }
           }}
         >
-          <option value="" disabled>-- Chọn một toolbox --</option>
+          <option value="" disabled>-- Select a toolbox --</option>
           {Object.keys(toolboxPresets).map(key => (
             <option key={key} value={key}>
               {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -376,7 +377,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         <div className="label-with-button">
           <label>Start Blocks (XML)</label>
           <button className="json-action-btn" onClick={() => setBlocklyModalOpen(true)}>
-            Hiển thị Blocks
+            Show Blocks
           </button>
         </div>
         <textarea
@@ -393,7 +394,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
           className="json-action-btn"
           onClick={onSolveMaze} // SỬA ĐỔI: Gọi trực tiếp hàm onSolveMaze
         >
-          Tự động giải
+          Auto-solve
         </button>
       </div>
       <div className="quest-prop-group">
@@ -420,7 +421,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
           <label>Basic Solution (JSON)</label>
           {/* THÊM MỚI: Nút để tạo start blocks từ lời giải cơ bản */}
           <button className="json-action-btn" onClick={() => handleCompileToXml(localBasicSolution, 'Basic Solution')}>
-            Tạo Start Blocks từ Lời Giải Cơ Bản
+            Create Start Blocks from Basic Solution
           </button>
         </div>
         <textarea
@@ -445,7 +446,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
           <label>Structured Solution (JSON)</label>
           {/* THAY ĐỔI: Đổi tên nút và gọi hàm dùng chung */}
           <button className="json-action-btn" onClick={() => handleCompileToXml(localStructuredSolution, 'Structured Solution')}>
-            Tạo Start Blocks từ Lời Giải Tối Ưu
+            Create Start Blocks from Optimal Solution
           </button>
         </div>
         <textarea

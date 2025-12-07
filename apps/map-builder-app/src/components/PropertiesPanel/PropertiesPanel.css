@@ -105,6 +105,7 @@
     border: 1px solid #555;
     border-radius: 4px;
     padding: 6px 8px;
+    box-sizing: border-box; /* Thêm để padding không làm thay đổi width */
   }
   
   .prop-group input:read-only {

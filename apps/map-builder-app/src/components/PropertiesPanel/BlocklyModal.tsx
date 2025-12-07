@@ -224,9 +224,9 @@ export function BlocklyModal({ initialXml, onClose, onSave }: BlocklyModalProps)
     <div className="blockly-modal-overlay">
       <div className="blockly-modal-content">
         <div className="blockly-modal-header">
-          <h2>Chỉnh sửa Start Blocks</h2>
-          <button onClick={() => onSave(currentXml)} className="modal-btn save-btn">Lưu & Đóng</button>
-          <button onClick={onClose} className="modal-btn close-btn">Đóng</button>
+          <h2>Edit Start Blocks</h2>
+          <button onClick={() => onSave(currentXml)} className="modal-btn save-btn">Save & Close</button>
+          <button onClick={onClose} className="modal-btn close-btn">Close</button>
         </div>
         <div className="blockly-container" ref={blocklyDiv}></div>
       </div>

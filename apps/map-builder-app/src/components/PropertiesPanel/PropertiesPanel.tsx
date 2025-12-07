@@ -1,20 +1,22 @@
-import { PlacedObject, MapTheme } from '../../types'; // Thêm MapTheme từ types
+import { PlacedObject, MapTheme, BuildableAsset } from '../../types'; // Thêm MapTheme từ types
 import './PropertiesPanel.css';
-import { MouseEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid'; // Giữ lại uuid
 import ThemeSelector from './ThemeSelector'; // SỬA ĐỔI: Đường dẫn import gọn hơn
 
 interface PropertiesPanelProps {
-  selectedObject: PlacedObject | null;
+  selectedObjects: PlacedObject[];
   onUpdateObject: (updatedObject: PlacedObject) => void;
   onClearSelection: () => void;
-  onDeleteObject: (id: string) => void;
+  onDeleteSelection: () => void; // THAY ĐỔI: Xóa cả vùng chọn
+  onRotateSelection: () => void; // THÊM MỚI: Xoay cả vùng chọn
   onAddObject: (newObject: PlacedObject) => void;
   onCopyAsset: (id: string) => void; // Prop mới để sao chép asset
   // --- START: THÊM PROPS CHO THEME ---
   currentMapItems: string[];
   mapTheme: MapTheme;
   onThemeChange: (newTheme: MapTheme) => void;
+  // Thêm file css đã bị thiếu
+  className?: string;
   // --- END: THÊM PROPS CHO THEME ---
 }
 
@@ -22,9 +24,20 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
   // Custom editor for 'initialState'
   if (key === 'initialState') {
     return (
-      <select value={value} onChange={(e) => onChange(key, e.target.value)}>
+      <select className="custom-select" value={value} onChange={(e) => onChange(key, e.target.value)}>
         <option value="on">On</option>
         <option value="off">Off</option>
+      </select>
+    );
+  }
+  // THÊM MỚI: Trình chỉnh sửa riêng cho thuộc tính 'direction'
+  if (key === 'direction') {
+    return (
+      <select className="custom-select" value={value} onChange={(e) => onChange(key, parseInt(e.target.value, 10))}>
+        <option value="0">0 (East, +X)</option>
+        <option value="1">1 (North, -Z)</option>
+        <option value="2">2 (West, -X)</option>
+        <option value="3">3 (South, +Z)</option>
       </select>
     );
   }
@@ -38,30 +51,56 @@ const renderPropertyInput = (key: string, value: any, onChange: (key: string, va
   return <input type="text" value={value} onChange={(e) => onChange(key, e.target.value)} />;
 };
 
+// --- COMPONENT MỚI: Giao diện khi chọn nhiều đối tượng ---
+const MultipleSelectionPanel = ({
+  count,
+  onClear,
+  onDelete,
+  onRotate,
+}: {
+  count: number;
+  onClear: () => void;
+  onDelete: () => void;
+  onRotate: () => void;
+}) => (
+  <>
+    <div className="panel-header">
+      <h2>Multiple Objects</h2>
+      <button onClick={onClear} className="clear-btn">✖</button>
+    </div>
+    <div className="prop-group info-group">
+      <label>Selected</label>
+      <span>{count} items</span>
+    </div>
+    <div className="selection-controls">
+      <h3 className="props-title">Actions</h3>
+      <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <button onClick={onRotate} className="action-btn">
+          <span className="icon">🔄</span>
+          Rotate (R)
+        </button>
+        <button onClick={onDelete} className="action-btn delete-btn">
+          <span className="icon">🗑️</span>
+          Delete All
+        </button>
+      </div>
+    </div>
+  </>
+);
+
 export function PropertiesPanel({ 
-  selectedObject, 
+  selectedObjects, 
   onUpdateObject, 
   onClearSelection, 
-  onDeleteObject, 
+  onDeleteSelection,
+  onRotateSelection,
   onAddObject, 
   onCopyAsset,
   currentMapItems,
   mapTheme,
   onThemeChange
 }: PropertiesPanelProps) {
-
-  if (!selectedObject) {
-    return (
-      <aside className="properties-panel empty-state">
-        <ThemeSelector currentMapItems={currentMapItems} selectedTheme={mapTheme} onSelectTheme={onThemeChange} />
-        <p style={{textAlign: 'center', color: '#888', marginTop: '20px'}}>Chọn một đối tượng để xem thuộc tính.</p>
-      </aside>
-    );
-  }
-
-  const handleDelete = () => {
-    onDeleteObject(selectedObject.id);
-  };
+  const selectedObject = selectedObjects.length === 1 ? selectedObjects[0] : null;
 
   const handleDuplicate = () => {
     if (!selectedObject) return;
@@ -99,49 +138,65 @@ export function PropertiesPanel({
   };
   
   return (
-    <aside className="properties-panel">
-    <div className="panel-header">
-        <h2>Properties</h2>
-        <button onClick={onClearSelection} className="clear-btn">✖</button>
-    </div>
+    <aside className="properties-panel"> {/* Giữ lại class này */}
+      <ThemeSelector currentMapItems={currentMapItems} selectedTheme={mapTheme} onSelectTheme={onThemeChange} /> 
 
-    <div className="prop-group info-group">
-        <label>Asset</label>
-        <span>{selectedObject.asset.name}</span>
-    </div>
-    <div className="prop-group info-group">
-        <label>ID</label>
-        <span className="object-id">{selectedObject.id}</span>
-    </div>
+      {/* --- LOGIC MỚI: Hiển thị panel phù hợp --- */}
+      {selectedObjects.length > 1 ? (
+        <MultipleSelectionPanel
+          count={selectedObjects.length}
+          onClear={onClearSelection}
+          onDelete={onDeleteSelection}
+          onRotate={onRotateSelection}
+        />
+      ) : selectedObject ? (
+        <>
+          <div className="panel-header">
+              <h2>Properties</h2>
+              <button onClick={onClearSelection} className="clear-btn">✖</button>
+          </div>
 
-    <h3 className="props-title">Custom Properties</h3>
-    {Object.entries(selectedObject.properties).map(([key, value]) => (
-        <div key={key} className="prop-group">
-        <label>{key}</label>
-        {renderPropertyInput(key, value, handlePropertyChange)}
-        </div>
-    ))}
+          <div className="prop-group info-group">
+              <label>Asset</label>
+              <span>{selectedObject.asset.name}</span>
+          </div>
+          <div className="prop-group info-group">
+              <label>ID</label>
+              <span className="object-id">{selectedObject.id}</span>
+          </div>
 
-    <div className="selection-controls single-object-controls">
-        <h3 className="props-title">Actions</h3>
-        <div className="action-description">
-        Click an asset in the palette to **replace** this object.
-        </div>
-        <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-        <button onClick={handleCopyAsset} className="action-btn copy-btn">
-            <span className="icon">📋</span>
-            Copy Asset
-        </button>
-        <button onClick={handleDuplicate} className="action-btn duplicate-btn">
-            <span className="icon">🎨</span>
-            Duplicate
-        </button>
-        <button onClick={handleDelete} className="action-btn delete-btn">
-            <span className="icon">🗑️</span>
-            Delete
-        </button>
-        </div>
-    </div>
+          <h3 className="props-title">Custom Properties</h3>
+          {Object.entries(selectedObject.properties).map(([key, value]) => (
+              <div key={key} className="prop-group">
+              <label>{key}</label>
+              {renderPropertyInput(key, value, handlePropertyChange)}
+              </div>
+          ))}
+
+          <div className="selection-controls single-object-controls">
+              <h3 className="props-title">Actions</h3>
+              <div className="action-description">
+              Click an asset in the palette to **replace** this object.
+              </div>
+              <div className="action-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <button onClick={handleCopyAsset} className="action-btn copy-btn">
+                  <span className="icon">📋</span>
+                  Copy Asset
+              </button>
+              <button onClick={handleDuplicate} className="action-btn duplicate-btn">
+                  <span className="icon">🎨</span>
+                  Duplicate
+              </button>
+              <button onClick={onDeleteSelection} className="action-btn delete-btn">
+                  <span className="icon">🗑️</span>
+                  Delete
+              </button>
+              </div>
+          </div>
+        </>
+      ) : (
+        <p style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>Select an object to view properties.</p>
+      )}
     </aside>
   );
 }

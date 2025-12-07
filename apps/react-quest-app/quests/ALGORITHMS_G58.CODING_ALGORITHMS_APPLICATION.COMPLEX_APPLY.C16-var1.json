@@ -1,19 +1,19 @@
 {
-  "id": "NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E",
+  "id": "NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD",
   "gameType": "maze",
   "topic": "topic-title-coding_commands",
   "level": 1,
-  "titleKey": "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Title",
-  "questTitleKey": "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Description",
-  "descriptionKey": "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Description",
+  "titleKey": "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Title",
+  "questTitleKey": "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Description",
+  "descriptionKey": "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Description",
   "translations": {
     "vi": {
-      "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Title": "Tiêu đề mới",
-      "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Description": "Mô tả mới"
+      "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Title": "Tiêu đề mới",
+      "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Description": "Mô tả mới"
     },
     "en": {
-      "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Title": "New Title",
-      "Challenge.NEW_QUEST.B6869A47-4DF3-4A9C-BF4F-7914838A8D9E.Description": "New Description"
+      "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Title": "New Title",
+      "Challenge.NEW_QUEST.3969DA22-6B37-41F1-A982-F7DF3DF5C2BD.Description": "New Description"
     }
   },
   "supportedEditors": [
@@ -21,7 +21,7 @@
     "monaco"
   ],
   "blocklyConfig": {
-    "toolboxPresetKey": "commands_l1_move",
+    "toolboxPresetKey": "loops_l3_functions_integration",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [
@@ -33,21 +33,90 @@
             {
               "kind": "block",
               "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
             }
           ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOOPS}",
+          "categorystyle": "loops_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_repeat",
+              "inputs": {
+                "TIMES": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 5
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 12,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 17,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">5</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">6</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
   },
   "solution": {
     "type": "reach_target",
-    "itemGoals": {},
-    "optimalBlocks": 7,
-    "optimalLines": 6,
+    "itemGoals": {
+      "crystal": 1,
+      "switch": 1
+    },
+    "optimalBlocks": 12,
+    "optimalLines": 11,
     "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "toggleSwitch",
       "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "collect",
+      "turnRight",
+      "turnRight",
+      "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -57,30 +126,95 @@
     "structuredSolution": {
       "main": [
         {
+          "type": "maze_repeat",
+          "times": 5,
+          "actions": [
+            {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
           "type": "maze_turn",
           "direction": "turnRight"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_repeat",
+          "times": 3,
+          "actions": [
+            {
+              "type": "maze_moveForward"
+            }
+          ]
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_collect"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turn",
+          "direction": "turnRight"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turn",
+          "direction": "turnRight"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_repeat",
+          "times": 6,
+          "actions": [
+            {
+              "type": "maze_moveForward"
+            }
+          ]
         }
       ]
     },
     "basicSolution": {
       "main": [
         {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
           "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -112,17 +246,9 @@
       {
         "modelKey": "ground.checker",
         "position": {
-          "x": 1,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
           "x": 2,
           "y": 0,
-          "z": 9
+          "z": 6
         }
       },
       {
@@ -130,7 +256,7 @@
         "position": {
           "x": 3,
           "y": 0,
-          "z": 9
+          "z": 6
         }
       },
       {
@@ -138,7 +264,7 @@
         "position": {
           "x": 4,
           "y": 0,
-          "z": 9
+          "z": 6
         }
       },
       {
@@ -146,7 +272,7 @@
         "position": {
           "x": 5,
           "y": 0,
-          "z": 9
+          "z": 6
         }
       },
       {
@@ -154,7 +280,63 @@
         "position": {
           "x": 6,
           "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
           "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.checker",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 3
         }
       }
     ],
@@ -162,19 +344,40 @@
       {
         "id": "player1",
         "start": {
-          "x": 1,
+          "x": 2,
           "y": 1,
-          "z": 9,
-          "direction": 0
+          "z": 6,
+          "direction": 1
         }
       }
     ],
-    "collectibles": [],
-    "interactibles": [],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 9
+        }
+      }
+    ],
+    "interactibles": [
+      {
+        "id": "s1",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 7,
+          "y": 1,
+          "z": 6
+        }
+      }
+    ],
     "finish": {
-      "x": 6,
+      "x": 7,
       "y": 1,
-      "z": 9
+      "z": 3
     }
   }
 }

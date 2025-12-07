@@ -18,6 +18,7 @@ interface AssetPaletteProps {
   onImportMap: (file: File) => void;
   onLoadMapFromUrl: (url: string) => void; // Thêm prop bị thiếu
   onShowTutorial: () => void; // THÊM MỚI: Prop để mở lại modal hướng dẫn
+  onCreateNewMap: () => void; // THÊM MỚI: Prop để tạo map mới
   getCorrectedAssetUrl: (url: string) => string; // THÊM MỚI: Prop để sửa lỗi đường dẫn
 }
 
@@ -43,6 +44,7 @@ export function AssetPalette({
   onImportMap,
   onLoadMapFromUrl, // Nhận prop mới
   onShowTutorial, // Nhận prop mới
+  onCreateNewMap, // Nhận prop mới
   getCorrectedAssetUrl // Nhận prop mới
 }: AssetPaletteProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -105,12 +107,13 @@ export function AssetPalette({
       {/* --- NÚT HƯỚNG DẪN ĐƯỢC DI CHUYỂN LÊN ĐÂY --- */}
       <div className="guide-button-container">
         <button onClick={onShowTutorial} className="guide-button">
-          Hướng dẫn
+          Manual
         </button>
       </div>
 
       <div className="map-actions">
         <h3>Map Actions</h3>
+        <button onClick={onCreateNewMap}>Create New Map</button>
         <button onClick={handleImportClick}>Import JSON</button>
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" style={{ display: 'none' }} />
 

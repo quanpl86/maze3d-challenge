@@ -1,13 +1,12 @@
 import { PlacedObject, MapTheme, BuildableAsset } from '../../types'; // Thêm MapTheme từ types
 import { v4 as uuidv4 } from 'uuid';
 import ThemeSelector from './ThemeSelector'; // SỬA ĐỔI: Đường dẫn import gọn hơn
-
 interface PropertiesPanelProps {
   selectedObjects: PlacedObject[]; // Nhận mảng các đối tượng
   onUpdateObject: (updatedObject: PlacedObject) => void;
   onClearSelection: () => void;
   onDeleteSelection: () => void; // THAY ĐỔI: Xóa cả vùng chọn
-  onRotateSelection: () => void; // THÊM MỚI: Xoay cả vùng chọn
+  onRotateSelection: () => void;
   onAddObject: (newObject: PlacedObject) => void;
   onCopyAsset: (id: string) => void; // Prop mới để sao chép asset
   currentMapItems: string[];
@@ -192,7 +191,7 @@ export function PropertiesPanel({
           </div>
         </>
       ) : (
-        <p style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>Chọn một đối tượng để xem thuộc tính.</p>
+        <p style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>Select an object to see its properties.</p>
       )}
     </aside>
   );
