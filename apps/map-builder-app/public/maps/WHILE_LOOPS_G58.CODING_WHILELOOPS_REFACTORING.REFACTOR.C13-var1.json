@@ -28,17 +28,6 @@
       "contents": [
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATEVENTS}",
-          "categorystyle": "events_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_start"
-            }
-          ]
-        },
-        {
-          "kind": "category",
           "name": "%{BKY_GAMES_CATMOVEMENT}",
           "categorystyle": "movement_category",
           "contents": [
@@ -107,8 +96,9 @@
         }
       ]
     },
-    "maxBlocks": 99,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"></statement></block></xml>"
+    "maxBlocks": 19,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
+    "toolboxPresetKey": "while_l2_conditional_custom"
   },
   "gameConfig": {
     "type": "maze",
@@ -193,6 +183,38 @@
           "y": 0,
           "z": 10
         }
+      },
+      {
+        "modelKey": "stone.stone03",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "stone.stone03",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "stone.stone03",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "stone.stone03",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 10
+        }
       }
     ],
     "players": [
@@ -209,7 +231,7 @@
     "collectibles": [],
     "interactibles": [],
     "finish": {
-      "x": 11,
+      "x": 13,
       "y": 1,
       "z": 10
     }
@@ -217,10 +239,110 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {},
-    "optimalBlocks": 0,
-    "optimalLines": 0,
-    "rawActions": [],
-    "structuredSolution": {}
+    "optimalBlocks": 14,
+    "optimalLines": 13,
+    "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ]
+    },
+    "basicSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        }
+      ],
+      "procedures": {}
+    }
   },
   "sounds": {
     "win": "/assets/maze/win.mp3",

@@ -366,30 +366,15 @@ const optimizeWithLoops = (
     const { sequence, repeats, length, startIndex, savings } = findLongestRepeatingSequence(optimizedInnerActions);
 
     if (sequence && savings > 0) {
-      let factors: [number, number] | null = null;
-      if ((loopStructureConfig === 'nested' || loopStructureConfig === 'auto') && availableBlocks.has('maze_repeat')) {
-          factors = findFactors(repeats);
-      }
-
       const beforeLoop = optimizedInnerActions.slice(0, startIndex);
       const afterLoop = optimizedInnerActions.slice(startIndex + repeats * length);
       
       // Tối ưu hóa phần thân của vòng lặp mới một lần nữa
       const loopBody = optimizeRecursively(sequence);
 
-      let loopBlock: Action;
-      // SỬA LỖI & CẢI TIẾN: Chỉ tạo vòng lặp lồng nhau nếu:
-      // 1. Có thừa số (ví dụ: 4 -> 2x2).
-      // 2. Phần thân của vòng lặp (loopBody) chứa nhiều hơn một hành động.
-      // Điều này ngăn việc tạo `repeat 2 { repeat 2 { move } }` và ưu tiên `repeat 4 { move }`.
-      if (factors && loopBody.length > 1) {
-            const [outerLoops, innerLoops] = factors;
-            const innerLoop: Action = { type: 'maze_repeat', times: innerLoops, actions: loopBody };
-            loopBlock = { type: 'maze_repeat', times: outerLoops, actions: [innerLoop] };
-        } else {
-            const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
-            loopBlock = { type: loopType, times: repeats, actions: loopBody };
-        }
+      // TỐI ƯU HÓA: Luôn tạo một vòng lặp duy nhất để có giải pháp tối ưu nhất về số khối lệnh.
+      const loopType = availableBlocks.has('maze_for') ? 'maze_for' : 'maze_repeat';
+      const loopBlock: Action = { type: loopType, times: repeats, actions: loopBody };
 
       // Sau khi thay thế, gọi lại đệ quy trên toàn bộ chuỗi để tìm thêm cơ hội
       return optimizeRecursively([...beforeLoop, loopBlock, ...afterLoop]);

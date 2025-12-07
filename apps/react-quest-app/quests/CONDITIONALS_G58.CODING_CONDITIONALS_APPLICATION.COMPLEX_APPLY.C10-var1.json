@@ -28,17 +28,6 @@
       "contents": [
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATEVENTS}",
-          "categorystyle": "events_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_start"
-            }
-          ]
-        },
-        {
-          "kind": "category",
           "name": "%{BKY_GAMES_CATMOVEMENT}",
           "categorystyle": "movement_category",
           "contents": [
@@ -88,15 +77,16 @@
         }
       ]
     },
-    "maxBlocks": 18,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"/></next></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"/></next></block></next></block></statement></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 19,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"/></next></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
+    "toolboxPresetKey": "conditionals_l1_movement_sensing"
   },
   "gameConfig": {
     "type": "maze",
     "renderer": "3d",
     "blocks": [
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 1,
           "y": 0,
@@ -104,7 +94,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 2,
           "y": 0,
@@ -112,15 +102,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 8,
           "y": 0,
@@ -128,7 +110,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 6,
           "y": 0,
@@ -136,7 +118,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 8,
           "y": 0,
@@ -144,7 +126,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 5,
           "y": 0,
@@ -152,7 +134,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 6,
           "y": 0,
@@ -160,7 +142,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 5,
           "y": 0,
@@ -168,7 +150,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -176,7 +158,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -184,7 +166,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 1,
           "y": 0,
@@ -192,7 +174,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 3,
           "y": 0,
@@ -200,7 +182,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 4,
           "y": 0,
@@ -208,7 +190,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 8,
           "y": 0,
@@ -216,7 +198,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 2,
           "y": 0,
@@ -224,7 +206,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 6,
           "y": 0,
@@ -232,7 +214,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -240,7 +222,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -248,7 +230,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 5,
           "y": 0,
@@ -256,7 +238,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -264,7 +246,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 1,
           "y": 0,
@@ -272,7 +254,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 3,
           "y": 0,
@@ -280,15 +262,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 3,
           "y": 0,
@@ -296,7 +270,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 1,
           "y": 0,
@@ -304,7 +278,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 2,
           "y": 0,
@@ -312,7 +286,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 4,
           "y": 0,
@@ -320,7 +294,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 2,
           "y": 0,
@@ -328,7 +302,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 2,
           "y": 0,
@@ -336,7 +310,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 4,
           "y": 0,
@@ -344,7 +318,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 4,
           "y": 0,
@@ -352,7 +326,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 6,
           "y": 0,
@@ -360,7 +334,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 5,
           "y": 0,
@@ -368,7 +342,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 6,
           "y": 0,
@@ -376,7 +350,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 8,
           "y": 0,
@@ -384,7 +358,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -392,7 +366,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 8,
           "y": 0,
@@ -400,7 +374,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 8,
           "y": 0,
@@ -408,7 +382,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 7,
           "y": 0,
@@ -416,7 +390,7 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 1,
           "y": 0,
@@ -424,11 +398,35 @@
         }
       },
       {
-        "modelKey": "stone.stone04",
+        "modelKey": "ice.ice01",
         "position": {
           "x": 1,
           "y": 0,
           "z": 5
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 8
         }
       }
     ],
@@ -446,16 +444,16 @@
     "collectibles": [],
     "interactibles": [],
     "finish": {
-      "x": 5,
+      "x": 2,
       "y": 1,
-      "z": 7
+      "z": 9
     }
   },
   "solution": {
     "type": "reach_target",
     "itemGoals": {},
-    "optimalBlocks": 13,
-    "optimalLines": 12,
+    "optimalBlocks": 14,
+    "optimalLines": 13,
     "rawActions": [
       "moveForward",
       "turnLeft",
@@ -470,8 +468,10 @@
       "moveForward",
       "turnRight",
       "moveForward",
+      "turnLeft",
       "moveForward",
-      "turnRight",
+      "moveForward",
+      "turnLeft",
       "moveForward"
     ],
     "structuredSolution": {
@@ -493,20 +493,6 @@
           ]
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
           "type": "maze_repeat",
           "times": 2,
           "actions": [
@@ -519,8 +505,25 @@
             },
             {
               "type": "maze_moveForward"
+            },
+            {
+              "type": "maze_turn",
+              "direction": "turnLeft"
             }
           ]
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
         }
       ]
     },
@@ -611,10 +614,16 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_turnLeft"
+        },
+        {
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"

@@ -23,6 +23,7 @@
     "monaco"
   ],
   "blocklyConfig": {
+    "toolbox_preset": "functions_l4_comprehensive",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [

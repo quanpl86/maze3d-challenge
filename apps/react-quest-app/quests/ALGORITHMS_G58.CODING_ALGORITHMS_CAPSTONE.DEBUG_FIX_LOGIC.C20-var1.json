@@ -23,20 +23,10 @@
     "monaco"
   ],
   "blocklyConfig": {
+    "toolbox_preset": "full_toolbox",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [
-        {
-          "kind": "category",
-          "name": "%{BKY_GAMES_CATEVENTS}",
-          "categorystyle": "events_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_start"
-            }
-          ]
-        },
         {
           "kind": "category",
           "name": "%{BKY_GAMES_CATMOVEMENT}",
@@ -197,8 +187,9 @@
         }
       ]
     },
-    "maxBlocks": 36,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_3\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\"><field name=\"NAME\">PROCEDURE_1</field><statement name=\"STACK\"><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"250\"><field name=\"NAME\">PROCEDURE_2</field><statement name=\"STACK\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"/></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"400\"><field name=\"NAME\">PROCEDURE_3</field><statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_moveForward\"/></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 48,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_jump\"><next><block type=\"maze_toggle_switch\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_jump\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\"><field name=\"NAME\">PROCEDURE_1</field><statement name=\"STACK\"><block type=\"maze_jump\"><next><block type=\"maze_jump\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"><next><block type=\"maze_jump\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"250\"><field name=\"NAME\">PROCEDURE_2</field><statement name=\"STACK\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></statement></block></xml>",
+    "toolboxPresetKey": "full_toolbox"
   },
   "gameConfig": {
     "type": "maze",
@@ -565,7 +556,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 7,
           "y": 2,
@@ -573,7 +564,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 7,
           "y": 1,
@@ -581,7 +572,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 9,
           "y": 2,
@@ -589,7 +580,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 10,
           "y": 1,
@@ -597,7 +588,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 11,
           "y": 0,
@@ -605,7 +596,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 7,
           "y": 4,
@@ -613,7 +604,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 7,
           "y": 5,
@@ -621,7 +612,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 5,
           "y": 4,
@@ -629,7 +620,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 4,
           "y": 5,
@@ -637,7 +628,7 @@
         }
       },
       {
-        "modelKey": "ground.checker",
+        "modelKey": "stone.stone07",
         "position": {
           "x": 3,
           "y": 6,
@@ -683,11 +674,101 @@
           "y": 2,
           "z": 11
         }
+      },
+      {
+        "id": "c4",
+        "type": "crystal",
+        "position": {
+          "x": 2,
+          "y": 7,
+          "z": 7
+        }
       }
     ],
-    "interactibles": [],
+    "interactibles": [
+      {
+        "id": "s1",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 6,
+          "y": 4,
+          "z": 8
+        }
+      },
+      {
+        "id": "s2",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 8,
+          "y": 4,
+          "z": 6
+        }
+      },
+      {
+        "id": "s3",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 8,
+          "y": 4,
+          "z": 8
+        }
+      },
+      {
+        "id": "s4",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 6,
+          "y": 4,
+          "z": 6
+        }
+      },
+      {
+        "id": "s5",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 4,
+          "y": 6,
+          "z": 7
+        }
+      },
+      {
+        "id": "s6",
+        "type": "switch",
+        "initialState": "on",
+        "position": {
+          "x": 7,
+          "y": 5,
+          "z": 5
+        }
+      },
+      {
+        "id": "s7",
+        "type": "switch",
+        "initialState": "on",
+        "position": {
+          "x": 7,
+          "y": 3,
+          "z": 9
+        }
+      },
+      {
+        "id": "s8",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 9,
+          "y": 3,
+          "z": 7
+        }
+      }
+    ],
     "finish": {
-      "x": 2,
+      "x": 1,
       "y": 7,
       "z": 7
     }
@@ -695,26 +776,12 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "crystal": 3
+      "crystal": 4,
+      "switch": 8
     },
-    "optimalBlocks": 31,
-    "optimalLines": 30,
+    "optimalBlocks": 43,
+    "optimalLines": 42,
     "rawActions": [
-      "turnRight",
-      "turnRight",
-      "moveForward",
-      "jump",
-      "jump",
-      "jump",
-      "moveForward",
-      "collect",
-      "turnRight",
-      "turnRight",
-      "moveForward",
-      "jump",
-      "jump",
-      "jump",
-      "moveForward",
       "turnLeft",
       "moveForward",
       "jump",
@@ -726,8 +793,14 @@
       "moveForward",
       "jump",
       "jump",
+      "turnRight",
       "moveForward",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
+      "turnRight",
+      "jump",
+      "toggleSwitch",
       "jump",
       "jump",
       "moveForward",
@@ -737,25 +810,71 @@
       "moveForward",
       "jump",
       "jump",
+      "jump",
+      "turnRight",
       "moveForward",
+      "toggleSwitch",
+      "turnLeft",
+      "moveForward",
+      "turnRight",
+      "jump",
+      "jump",
+      "moveForward",
+      "collect",
+      "turnRight",
       "turnRight",
       "moveForward",
       "jump",
       "jump",
+      "turnRight",
+      "moveForward",
+      "toggleSwitch",
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "toggleSwitch",
+      "turnRight",
+      "turnRight",
+      "moveForward",
+      "turnLeft",
       "jump",
+      "jump",
+      "toggleSwitch",
+      "jump",
+      "moveForward",
+      "collect",
       "moveForward"
     ],
     "structuredSolution": {
       "main": [
         {
           "type": "maze_turn",
-          "direction": "turnRight"
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "procedures_callnoreturn",
+          "mutation": {
+            "name": "PROCEDURE_1"
+          }
         },
         {
           "type": "procedures_callnoreturn",
           "mutation": {
             "name": "PROCEDURE_2"
           }
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_toggle_switch"
         },
         {
           "type": "procedures_callnoreturn",
@@ -767,22 +886,19 @@
           "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
           "type": "procedures_callnoreturn",
           "mutation": {
-            "name": "PROCEDURE_3"
+            "name": "PROCEDURE_2"
           }
         },
         {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
           "type": "procedures_callnoreturn",
           "mutation": {
-            "name": "PROCEDURE_3"
+            "name": "PROCEDURE_1"
           }
         },
         {
@@ -792,10 +908,43 @@
           }
         },
         {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
           "type": "maze_jump"
         },
         {
           "type": "maze_jump"
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
@@ -842,18 +991,11 @@
             "type": "maze_moveForward"
           },
           {
-            "type": "maze_jump"
-          }
-        ],
-        "PROCEDURE_3": [
-          {
-            "type": "maze_moveForward"
+            "type": "maze_toggle_switch"
           },
           {
-            "type": "procedures_callnoreturn",
-            "mutation": {
-              "name": "PROCEDURE_1"
-            }
+            "type": "maze_turn",
+            "direction": "turnLeft"
           },
           {
             "type": "maze_moveForward"
@@ -863,51 +1005,6 @@
     },
     "basicSolution": {
       "main": [
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_jump"
-        },
-        {
-          "type": "maze_moveForward"
-        },
         {
           "type": "maze_turnLeft"
         },
@@ -942,10 +1039,28 @@
           "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_toggleSwitch"
         },
         {
           "type": "maze_jump"
@@ -975,7 +1090,40 @@
           "type": "maze_jump"
         },
         {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_turnRight"
@@ -990,7 +1138,55 @@
           "type": "maze_jump"
         },
         {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
           "type": "maze_jump"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
