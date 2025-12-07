@@ -186,9 +186,9 @@ class GameWorld {
  * @param rawActions Mảng các chuỗi hành động thô.
  * @returns Một mảng các đối tượng Action.
  */
-const convertRawToStructuredActions = (rawActions: (string | Action)[]): Action[] => {
+const convertRawToStructuredActions = (rawActions: (string | Action)[] | Action[]): Action[] => {
   // SỬA LỖI: Xử lý cả chuỗi và đối tượng trong mảng đầu vào để đảm bảo tính nhất quán.
-  return rawActions.map((action) => {
+  return (rawActions as (string | Action)[]).map((action) => {
     const actionObj = typeof action === 'string' ? { type: action } : action;
 
     switch (actionObj.type) {
