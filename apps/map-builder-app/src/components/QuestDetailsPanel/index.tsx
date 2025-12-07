@@ -4,15 +4,11 @@ import './QuestDetailsPanel.css';
 import { BlocklyModal } from '../PropertiesPanel/BlocklyModal'; // Import modal mới
 import '../PropertiesPanel/BlocklyModal.css'; // Import CSS cho modal
 
+import { toolboxPresets } from '../../config/toolboxPresets'; // THÊM MỚI: Import danh sách toolbox
 interface QuestDetailsPanelProps {
   metadata: Record<string, any> | null;
   onMetadataChange: (path: string, value: any) => void;
-  // SỬA LỖI: Thay đổi chữ ký của onSolveMaze để nó có thể nhận các tham số cần thiết cho solver.
-  onSolveMaze: (params: {
-    gameConfig: any;
-    solutionConfig: any;
-    blocklyConfig: any;
-  }) => void;
+  onSolveMaze: () => void; // SỬA ĐỔI: Hàm giải không cần tham số nữa
 }
 
 // Helper để lấy giá trị lồng sâu trong object
@@ -39,7 +35,15 @@ const jsonToXml = (structuredSolution: any): string => {
 
     actions.forEach(action => {
       const block = doc.createElement('block');
-      block.setAttribute('type', action.type);
+      // SỬA LỖI: Xử lý khối gọi hàm tạm thời 'CALL' và chuyển nó thành 'procedures_callnoreturn'
+      if (action.type === 'CALL' && action.name) {
+        block.setAttribute('type', 'procedures_callnoreturn');
+        const mutation = doc.createElement('mutation');
+        mutation.setAttribute('name', action.name);
+        block.appendChild(mutation);
+      } else {
+        block.setAttribute('type', action.type);
+      }
 
       // Xử lý các loại khối khác nhau
       if (action.type === 'maze_turn') {
@@ -172,22 +176,21 @@ const normalizeSolution = (solution: any) => {
 };
 
 export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: QuestDetailsPanelProps) {
-  // Hàm cập nhật metadata mới, xử lý các key có dấu chấm
-  const handleComplexChange = (path: string, value: any) => {
+  // SỬA LỖI: Tái cấu trúc hàm để có thể xử lý nhiều thay đổi cùng lúc,
+  // tránh việc gọi nhiều lần gây ghi đè state.
+  const handleComplexChange = (...updates: { path: string; value: any }[]) => {
     if (!metadata) return;
 
     // Tạo một bản sao sâu của metadata để tránh thay đổi trực tiếp state
     const newMetadata = _.cloneDeep(metadata);
 
-    // Sử dụng lodash.set để cập nhật giá trị một cách an toàn
-    // Nó sẽ tạo các object lồng nhau nếu cần, nhưng sẽ xử lý đúng key cuối cùng
-    _.set(newMetadata, path, value);
-
-    // Thay vì gửi toàn bộ object, chúng ta sẽ lặp qua và gửi từng key-value
-    // để ghi đè lên state của component cha, tránh lỗi tạo ra key rỗng "".
-    Object.keys(newMetadata).forEach(key => {
-      onMetadataChange(key, newMetadata[key]);
+    // Áp dụng tất cả các cập nhật vào bản sao
+    updates.forEach(({ path, value }) => {
+      _.set(newMetadata, path, value);
     });
+
+    // Gọi onMetadataChange một lần duy nhất với toàn bộ object đã được cập nhật
+    onMetadataChange('__OVERWRITE__', newMetadata);
   };
 
   // State cục bộ cho các editor để cập nhật UI ngay lập tức khi gõ
@@ -237,7 +240,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
       // Sử dụng hàm jsonToXml đã được tái cấu trúc
       const finalXml = jsonToXml(structuredSolution);
 
-      handleComplexChange('blocklyConfig.startBlocks', finalXml); // Lưu chuỗi "sạch"
+      handleComplexChange({ path: 'blocklyConfig.startBlocks', value: finalXml }); // Lưu chuỗi "sạch"
       alert('Tạo Start Blocks XML thành công!');
     } catch (error) {
       console.error("Lỗi khi biên dịch JSON sang XML:", error);
@@ -268,7 +271,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
           onSave={(newXml) => {
             // Cập nhật ngay lập tức vào state cha để thay đổi được lưu.
             // Không cần state cục bộ `localStartBlocks` nữa.
-            handleComplexChange('blocklyConfig.startBlocks', newXml); // Lưu chuỗi "sạch" vào metadata
+            handleComplexChange({ path: 'blocklyConfig.startBlocks', value: newXml }); // Lưu chuỗi "sạch" vào metadata
             setBlocklyModalOpen(false);
           }}
         />
@@ -280,7 +283,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         <input
           type="text"
           defaultValue={metadata.id || ''}
-          onBlur={(e) => handleComplexChange('id', e.target.value)}
+          onBlur={(e) => handleComplexChange({ path: 'id', value: e.target.value })}
         />
       </div>
 
@@ -289,7 +292,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         <input
           type="number"
           defaultValue={metadata.level || 0}
-          onBlur={(e) => handleComplexChange('level', parseInt(e.target.value, 10))}
+          onBlur={(e) => handleComplexChange({ path: 'level', value: parseInt(e.target.value, 10) })}
         />
       </div>
 
@@ -302,14 +305,14 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             <input
               type="text"
               defaultValue={metadata?.translations?.vi?.[titleKey] || ''}
-              onBlur={(e) => handleComplexChange(`translations.vi['${titleKey}']`, e.target.value)}
+              onBlur={(e) => handleComplexChange({ path: `translations.vi['${titleKey}']`, value: e.target.value })}
             />
           </div>
           <div className="quest-prop-group">
             <label>Mô tả (VI)</label>
             <textarea
               defaultValue={metadata?.translations?.vi?.[descriptionKey] || ''}
-              onBlur={(e) => handleComplexChange(`translations.vi['${descriptionKey}']`, e.target.value)}
+              onBlur={(e) => handleComplexChange({ path: `translations.vi['${descriptionKey}']`, value: e.target.value })}
             />
           </div>
 
@@ -318,20 +321,47 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             <input
               type="text"
               defaultValue={metadata?.translations?.en?.[titleKey] || ''}
-              onBlur={(e) => handleComplexChange(`translations.en['${titleKey}']`, e.target.value)}
+              onBlur={(e) => handleComplexChange({ path: `translations.en['${titleKey}']`, value: e.target.value })}
             />
           </div>
           <div className="quest-prop-group">
             <label>Description (EN)</label>
             <textarea
               defaultValue={metadata?.translations?.en?.[descriptionKey] || ''}
-              onBlur={(e) => handleComplexChange(`translations.en['${descriptionKey}']`, e.target.value)}
+              onBlur={(e) => handleComplexChange({ path: `translations.en['${descriptionKey}']`, value: e.target.value })}
             />
           </div>
         </>
       )}
 
       <h3 className="props-title">Blockly Config</h3>
+      {/* --- THÊM MỚI: Dropdown chọn Toolbox --- */}
+      <div className="quest-prop-group">
+        <label>Toolbox Preset</label>
+        <select
+          // SỬA ĐỔI: Chuyển thành controlled component bằng `value` để đảm bảo UI luôn đồng bộ.
+          value={getDeepValue(metadata, 'blocklyConfig.toolboxPresetKey') || ''}
+          onChange={(e) => {
+            const presetKey = e.target.value;
+            const selectedToolbox = toolboxPresets[presetKey];
+            if (selectedToolbox) {
+              // SỬA LỖI: Gọi handleComplexChange một lần với cả hai cập nhật
+              handleComplexChange(
+                { path: 'blocklyConfig.toolboxPresetKey', value: presetKey },
+                { path: 'blocklyConfig.toolbox', value: selectedToolbox }
+              );
+            }
+          }}
+        >
+          <option value="" disabled>-- Chọn một toolbox --</option>
+          {Object.keys(toolboxPresets).map(key => (
+            <option key={key} value={key}>
+              {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="quest-prop-group">
         <label>Max Blocks</label>
         <input
@@ -339,7 +369,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
           // SỬA LỖI: Sử dụng `value` thay vì `defaultValue` để biến nó thành một "controlled component".
           // Điều này đảm bảo input luôn hiển thị giá trị mới nhất từ prop `metadata`.
           value={getDeepValue(metadata, 'blocklyConfig.maxBlocks') || ''}
-          onChange={(e) => handleComplexChange('blocklyConfig.maxBlocks', parseInt(e.target.value, 10) || 0)}
+          onChange={(e) => handleComplexChange({ path: 'blocklyConfig.maxBlocks', value: parseInt(e.target.value, 10) || 0 })}
         />
       </div>
       <div className="quest-prop-group">
@@ -352,23 +382,17 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
         <textarea
           // SỬA LỖI: Hiển thị giá trị trực tiếp từ metadata và cho phép chỉnh sửa
           value={getDeepValue(metadata, 'blocklyConfig.startBlocks') || ''}
-          onChange={(e) => handleComplexChange('blocklyConfig.startBlocks', e.target.value)}
+          onChange={(e) => handleComplexChange({ path: 'blocklyConfig.startBlocks', value: e.target.value })}
           rows={26} // Tăng chiều cao của textarea từ 4 lên 8 dòng
         />
       </div>
 
       <div className="label-with-button">
         <h3 className="props-title" style={{ marginBottom: 0 }}>Solution</h3>
-        {/* SỬA LỖI: Truyền các config cần thiết vào hàm onSolveMaze khi click.
-            Điều này đảm bảo rằng solver nhận được dữ liệu chính xác để hoạt động. */}
         <button
           className="json-action-btn"
-          onClick={() => onSolveMaze({
-            gameConfig: metadata.gameConfig,
-            // SỬA LỖI: Đảm bảo solutionConfig luôn là một object, kể cả khi metadata.solution là null/undefined.
-            solutionConfig: metadata.solution || { rawActions: [], structuredSolution: {} },
-            blocklyConfig: metadata.blocklyConfig
-          })}>
+          onClick={onSolveMaze} // SỬA ĐỔI: Gọi trực tiếp hàm onSolveMaze
+        >
           Tự động giải
         </button>
       </div>
@@ -382,7 +406,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             if (localRawActions.trim()) { // Chỉ parse nếu chuỗi không rỗng
               try {
                 const parsed = JSON.parse(localRawActions);
-                handleComplexChange('solution.rawActions', parsed);
+                handleComplexChange({ path: 'solution.rawActions', value: parsed });
               } catch (error) {
                 console.warn("Invalid JSON in rawActions field", error);
               }
@@ -407,7 +431,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             if (localBasicSolution.trim()) {
               try {
                 const parsed = JSON.parse(localBasicSolution);
-                handleComplexChange('solution.basicSolution', parsed);
+                handleComplexChange({ path: 'solution.basicSolution', value: parsed });
               } catch (error) {
                 console.warn("Invalid JSON in basicSolution field", error);
               }
@@ -432,7 +456,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             if (localStructuredSolution.trim()) { // Chỉ parse nếu chuỗi không rỗng
               try {
                 const parsed = JSON.parse(localStructuredSolution);
-                handleComplexChange('solution.structuredSolution', parsed);
+                handleComplexChange({ path: 'solution.structuredSolution', value: parsed });
               } catch (error) {
                 console.warn("Invalid JSON in structuredSolution field", error);
               }
@@ -453,7 +477,7 @@ export function QuestDetailsPanel({ metadata, onMetadataChange, onSolveMaze }: Q
             if (localSolution.trim()) { // Chỉ parse nếu chuỗi không rỗng
               try {
                 const parsed = JSON.parse(localSolution);
-                handleComplexChange('solution', parsed);
+                handleComplexChange({ path: 'solution', value: parsed });
               } catch (error) {
                 console.warn("Invalid JSON in solution field", error);
               } // Nếu JSON không hợp lệ, không cập nhật state cha nhưng giữ nguyên text đã nhập

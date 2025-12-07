@@ -1,12 +1,9 @@
 import { PlacedObject, MapTheme, BuildableAsset } from '../../types'; // Thêm MapTheme từ types
-import './PropertiesPanel.css';
-import { MouseEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import ThemeSelector from './ThemeSelector'; // SỬA ĐỔI: Đường dẫn import gọn hơn
 
 interface PropertiesPanelProps {
   selectedObjects: PlacedObject[]; // Nhận mảng các đối tượng
-  _dummyPropForTypeRefresh?: boolean; // Thêm tạm thời để buộc TypeScript refresh
   onUpdateObject: (updatedObject: PlacedObject) => void;
   onClearSelection: () => void;
   onDeleteSelection: () => void; // THAY ĐỔI: Xóa cả vùng chọn
@@ -16,6 +13,8 @@ interface PropertiesPanelProps {
   currentMapItems: string[];
   mapTheme: MapTheme;
   onThemeChange: (newTheme: MapTheme) => void;
+  // Thêm file css đã bị thiếu
+  className?: string;
 }
 
 const renderPropertyInput = (key: string, value: any, onChange: (key: string, value: any) => void) => {
@@ -136,8 +135,8 @@ export function PropertiesPanel({
   };
 
   return (
-    <aside className="properties-panel">
-      <ThemeSelector currentMapItems={currentMapItems} selectedTheme={mapTheme} onSelectTheme={onThemeChange} />
+    <aside className="properties-panel"> {/* Giữ lại class này */}
+      <ThemeSelector currentMapItems={currentMapItems} selectedTheme={mapTheme} onSelectTheme={onThemeChange} /> 
 
       {/* --- LOGIC MỚI: Hiển thị panel phù hợp --- */}
       {selectedObjects.length > 1 ? (
@@ -147,7 +146,7 @@ export function PropertiesPanel({
           onDelete={onDeleteSelection}
           onRotate={onRotateSelection}
         />
-      ) : selectedObject ? ( // Hiển thị thuộc tính chỉ khi có một đối tượng được chọn
+      ) : selectedObject ? (
         <>
           <div className="panel-header">
               <h2>Properties</h2>

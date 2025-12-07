@@ -344,6 +344,12 @@ const optimizeWithLoops = (
   availableBlocks: Set<string>,
   solutionConfig: Solution
 ): { main: Action[]; procedures?: Record<string, Action[]> } => {
+  // SỬA LỖI: Nếu không có khối lệnh vòng lặp nào trong toolbox,
+  // không thực hiện tối ưu hóa bằng vòng lặp và trả về hành động gốc.
+  if (!availableBlocks.has('maze_repeat') && !availableBlocks.has('maze_for')) {
+    return { main: actions, procedures: {} };
+  }
+
   const loopStructureConfig = solutionConfig.loop_structure || 'auto';
 
   // Hàm đệ quy nội bộ để xử lý tối ưu hóa
@@ -372,9 +378,11 @@ const optimizeWithLoops = (
       const loopBody = optimizeRecursively(sequence);
 
       let loopBlock: Action;
-      // SỬA LỖI: Chỉ tạo vòng lặp lồng nhau nếu có thừa số VÀ khối bên trong không phải là một vòng lặp duy nhất
-      const isSingleInnerLoop = loopBody.length === 1 && (loopBody[0].type === 'maze_repeat' || loopBody[0].type === 'maze_for');
-      if (factors && !isSingleInnerLoop) {
+      // SỬA LỖI & CẢI TIẾN: Chỉ tạo vòng lặp lồng nhau nếu:
+      // 1. Có thừa số (ví dụ: 4 -> 2x2).
+      // 2. Phần thân của vòng lặp (loopBody) chứa nhiều hơn một hành động.
+      // Điều này ngăn việc tạo `repeat 2 { repeat 2 { move } }` và ưu tiên `repeat 4 { move }`.
+      if (factors && loopBody.length > 1) {
             const [outerLoops, innerLoops] = factors;
             const innerLoop: Action = { type: 'maze_repeat', times: innerLoops, actions: loopBody };
             loopBlock = { type: 'maze_repeat', times: outerLoops, actions: [innerLoop] };
@@ -403,6 +411,12 @@ const optimizeWithFunctions = (
   availableBlocks: Set<string>,
   solutionConfig: Solution
 ): { main: Action[]; procedures?: Record<string, Action[]> } => {
+  // SỬA LỖI: Nếu toolbox không cho phép tạo hàm (PROCEDURE),
+  // không thực hiện tối ưu hóa bằng hàm và trả về hành động gốc.
+  if (!availableBlocks.has('PROCEDURE')) {
+    return { main: initialActions, procedures: {} };
+  }
+
   let currentActions = [...initialActions];
   const procedures: Record<string, Action[]> = {};
   let procedureCount = 0;
@@ -417,8 +431,9 @@ const optimizeWithFunctions = (
         procedureCount++;
         const procName = `PROCEDURE_${procedureCount}`;
         
-        // Tối ưu hóa đệ quy phần thân của hàm
-        procedures[procName] = createStructuredSolution(sequence, availableBlocks, solutionConfig).main;
+        // SỬA LỖI: Chỉ tối ưu hóa phần thân của hàm bằng vòng lặp.
+        // Không gọi lại createStructuredSolution để tránh đệ quy vô hạn và logic phức tạp.
+        procedures[procName] = optimizeWithLoops(sequence, availableBlocks, solutionConfig).main;
         
         const callBlock: Action = { type: 'CALL', name: procName };
         const newActions: Action[] = [];
@@ -448,17 +463,20 @@ const createStructuredSolution = (
 
   const strategies: { name: string; solution: { main: Action[]; procedures?: Record<string, Action[]> } }[] = [];
 
-  // Chiến lược 1: Chỉ tối ưu hóa vòng lặp
+  // Chiến lược 1: Chỉ tối ưu hóa bằng vòng lặp (nếu được phép)
   const loopOnlySolution = optimizeWithLoops(initialActions, availableBlocks, solutionConfig);
   strategies.push({ name: 'loop_only', solution: loopOnlySolution });
 
-  // Chiến lược 2: Chỉ tối ưu hóa hàm
+  // Chiến lược 2: Chỉ tối ưu hóa bằng hàm (nếu được phép)
   const funcOnlySolution = optimizeWithFunctions(initialActions, availableBlocks, solutionConfig);
   strategies.push({ name: 'func_only', solution: funcOnlySolution });
 
-  // Chiến lược 3: Tối ưu hóa hàm trước, sau đó tối ưu hóa vòng lặp
-  const funcThenLoopSolution = optimizeWithLoops(funcOnlySolution.main, availableBlocks, solutionConfig);
-  strategies.push({ name: 'func_then_loop', solution: { main: funcThenLoopSolution.main, procedures: funcOnlySolution.procedures } });
+  // Chiến lược 3: Tối ưu hóa hàm trước, sau đó tối ưu hóa vòng lặp trên KẾT QUẢ
+  // SỬA LỖI: Sau khi tạo hàm, chương trình chính (main) có thể có các mẫu lặp mới.
+  // Cần tối ưu hóa vòng lặp trên `funcOnlySolution.main` để tìm ra chúng.
+  const mainAfterFuncs = funcOnlySolution.main;
+  const loopsAfterFuncs = optimizeWithLoops(mainAfterFuncs, availableBlocks, solutionConfig);
+  strategies.push({ name: 'func_then_loop', solution: { main: loopsAfterFuncs.main, procedures: funcOnlySolution.procedures } });
 
   // Tính toán chi phí cho mỗi chiến lược và chọn ra cái tốt nhất
   let bestSolution = strategies[0].solution;
@@ -598,18 +616,16 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
     const availableBlocks = new Set<string>();
     // SỬA LỖI: Củng cố logic để xử lý các cấu trúc blocklyConfig khác nhau.
     // `augmented_config` có thể lồng `toolbox` trong một cấp nữa.
-    const toolbox = (blocklyConfig as any)?.toolbox || blocklyConfig;
-    const toolboxContents = toolbox?.contents;
-
-    if (toolboxContents) {
-      const queue = [...toolboxContents];
+    // SỬA LỖI: Sử dụng thuộc tính `availableBlocks` đã được tính toán sẵn từ App.tsx
+    if (blocklyConfig?.availableBlocks && Array.isArray(blocklyConfig.availableBlocks)) {
+      blocklyConfig.availableBlocks.forEach(block => availableBlocks.add(block));
+    } else { // Fallback nếu `availableBlocks` không được truyền vào
+      const queue = [...((blocklyConfig as any)?.toolbox?.contents || blocklyConfig?.contents || [])];
       while (queue.length > 0) {
         const item = queue.shift();
         if (!item) continue;
         if (item.type) availableBlocks.add(item.type);
         if (item.custom === 'PROCEDURE') availableBlocks.add('PROCEDURE');
-        // SỬA LỖI: Luôn duyệt vào 'contents' nếu nó tồn tại, không phụ thuộc vào các điều kiện khác.
-        // Điều này đảm bảo các category lồng nhau được xử lý chính xác.
         if (Array.isArray(item.contents)) queue.push(...item.contents); 
       }
     }

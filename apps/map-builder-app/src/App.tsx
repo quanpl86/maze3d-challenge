@@ -6,10 +6,12 @@ import { ViewControls } from './components/ViewControls';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { QuestDetailsPanel } from './components/QuestDetailsPanel'; // THÊM MỚI
 import { Themes } from './components/PropertiesPanel/theme'; // THÊM MỚI: Import theme
+import { toolboxPresets } from './config/toolboxPresets'; // THÊM MỚI: Import toolbox presets
 import { solveMaze } from './components/QuestDetailsPanel/gameSolver'; // THÊM MỚI: Import solver
 import { JsonOutputPanel } from './components/JsonOutputPanel';
 import { buildableAssetGroups } from './config/gameAssets';
 import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds, type MapTheme } from './types';
+import _ from 'lodash'; // THÊM MỚI: Import lodash để so sánh object
 import './App.css';
 
 const defaultAsset = buildableAssetGroups[0]?.items[0];
@@ -389,21 +391,14 @@ function App() {
     const startObject = placedObjects.find(o => o.asset.key === 'player_start');
     // CẢI TIẾN: Đọc hướng của người chơi từ `properties` của đối tượng,
     // thay vì gán cứng giá trị là 1. Mặc định vẫn là 1 nếu không được chỉ định.
-    const players = startObject
-      ? [{
-          id: "player1",
-          // SỬA LỖI: Đảm bảo giá trị direction luôn là số khi xuất ra JSON.
-          // Dùng parseFloat để xử lý cả trường hợp giá trị là chuỗi hoặc số.
-          // Mặc định là 1 nếu không tồn tại hoặc không hợp lệ.
-          start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: parseFloat(startObject.properties?.direction) || 0 }
-        }]
-      : [];
+    const players = startObject ? [{ id: "player1", start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: parseFloat(startObject.properties?.direction) || 0 } }] : [];
 
     const gameConfig = { type: "maze", renderer: "3d", blocks, players, collectibles, interactibles, finish };
 
     // Nếu có siêu dữ liệu, kết hợp nó với gameConfig mới
     if (questMetadata) {
-      return JSON.stringify({ ...questMetadata, gameConfig }, null, 2);
+      const cleanMetadata = _.omit(questMetadata, ['__OVERWRITE__']);
+      return JSON.stringify({ ...cleanMetadata, gameConfig }, null, 2);
     }
     
     // Nếu không, chỉ trả về gameConfig
@@ -854,7 +849,7 @@ function App() {
         const newPlacedObjects: PlacedObject[] = [];
 
         for (const block of blocks) {
-          const asset = assetMap.get(block.modelKey);
+          const asset = assetMap.get(block.modelKey); 
           if (asset && block.position) newPlacedObjects.push({ id: uuidv4(), asset, position: [block.position.x, block.position.y, block.position.z], rotation: [0, 0, 0], properties: {} });
         }
         
@@ -916,6 +911,16 @@ function App() {
         configToLoad = json.gameConfig; 
         setCurrentMapFileName(correctedUrl.split('/').pop() || 'untitled-quest.json'); // Cập nhật tên file từ URL đã sửa
         setQuestMetadata(json); // SỬA LỖI: Giữ lại toàn bộ json
+        // THÊM MỚI: Đồng bộ hóa toolbox preset sau khi set metadata
+        if (json.blocklyConfig) {
+          syncToolboxConfig(json.blocklyConfig);
+        } else {
+          // Nếu file JSON cũ không có blocklyConfig, tạo một cái mặc định
+          json.blocklyConfig = {
+            toolboxPresetKey: 'commands_l1_move',
+            toolbox: toolboxPresets['commands_l1_move']
+          };
+        }
       } else if (json.blocks || json.players) {
         configToLoad = json;
         setQuestMetadata({ gameConfig: json }); // SỬA LỖI: Bọc trong metadata chuẩn
@@ -961,34 +966,146 @@ function App() {
     setQuestMetadata(prev => {
       if (!prev) return null;
 
-      // Tạo một bản sao sâu của object để tránh thay đổi trực tiếp state
-      const newMeta = JSON.parse(JSON.stringify(prev));
-      const keys = path.split('.');
-      let current = newMeta;
-
-      for (let i = 0; i < keys.length - 1; i++) {
-        const key = keys[i];
-        if (current[key] === undefined) {
-          current[key] = {}; // Tạo object nếu chưa tồn tại
-        }
-        current = current[key];
+      // SỬA LỖI: Xử lý trường hợp ghi đè đặc biệt từ QuestDetailsPanel
+      if (path === '__OVERWRITE__') {
+        // `value` ở đây là toàn bộ đối tượng metadata mới
+        return value;
       }
 
-      current[keys[keys.length - 1]] = value;
+      // Tạo một bản sao sâu của object để tránh thay đổi trực tiếp state
+      const newMeta = _.cloneDeep(prev);
+      // Sử dụng lodash.set để cập nhật an toàn các đường dẫn lồng nhau
+      _.set(newMeta, path, value);
       return newMeta;
     });
+  };
+
+  // --- HÀM TIỆN ÍCH MỚI: Tìm key của toolbox preset dựa trên object toolbox ---
+  const findToolboxPresetKey = (toolboxObject: any): string | null => {
+    if (!toolboxObject) return null;
+    for (const key in toolboxPresets) {
+      // Sử dụng lodash.isEqual để so sánh sâu hai object
+      if (_.isEqual(toolboxPresets[key], toolboxObject)) {
+        return key;
+      }
+    }
+    return null;
+  };
+
+  // --- HÀM TIỆN ÍCH MỚI: Đồng bộ hóa toolbox và preset key ---
+  const syncToolboxConfig = (config: Record<string, any>) => {
+    const presetKey = findToolboxPresetKey(config.toolbox);
+    // Nếu tìm thấy key, gán nó vào để dropdown hiển thị đúng.
+    // Nếu không, giữ nguyên key hiện có hoặc để trống.
+    if (presetKey) config.toolboxPresetKey = presetKey;
+    if (!config) return;
+
+    // Ưu tiên 1: Lấy key tường minh từ JSON (hỗ trợ cả `toolbox_preset` và `toolboxPresetKey`)
+    const explicitKey = config.toolbox_preset || config.toolboxPresetKey;
+    if (explicitKey && toolboxPresets[explicitKey]) {
+      config.toolboxPresetKey = explicitKey; // Chuẩn hóa về một key duy nhất trong state
+      config.toolbox = _.cloneDeep(toolboxPresets[explicitKey]); // Đảm bảo object toolbox khớp với key
+      if (config.toolbox_preset) delete config.toolbox_preset; // Xóa key cũ để tránh dư thừa
+      return;
+    }
+
+    // Ưu tiên 2: Nếu không có key tường minh, thử suy luận từ object `toolbox`
+    const inferredKey = findToolboxPresetKey(config.toolbox);
+    if (inferredKey) {
+      config.toolboxPresetKey = inferredKey;
+      return;
+    }
+
+    // Fallback: Nếu không thể xác định, đặt giá trị mặc định
+    config.toolboxPresetKey = 'commands_l1_move';
+    config.toolbox = _.cloneDeep(toolboxPresets['commands_l1_move']);
+  };
+
+  // --- HÀM TIỆN ÍCH MỚI: Trích xuất các khối lệnh có sẵn từ toolbox ---
+  const getAvailableBlocksFromToolbox = (toolbox: any): string[] => {
+    const allowedBlocks: Set<string> = new Set();
+    if (!toolbox || !toolbox.contents) {
+      return [];
+    }
+
+    // Hàm đệ quy để duyệt qua cấu trúc của toolbox
+    const traverse = (contents: any[]) => {
+      for (const item of contents) {
+        if (item.kind === 'block' && item.type) {
+          allowedBlocks.add(item.type);
+        }
+        // SỬA LỖI: Thêm kiểm tra cho các khối lệnh đặc biệt như hàm (PROCEDURE)
+        if (item.kind === 'category' && item.custom === 'PROCEDURE') {
+          allowedBlocks.add('PROCEDURE');
+        }
+        // Nếu là một category, duyệt tiếp vào contents của nó
+        if (item.kind === 'category' && item.contents) {
+          traverse(item.contents);
+        }
+      }
+    };
+
+    traverse(toolbox.contents);
+    return Array.from(allowedBlocks);
   };
 
   // --- HÀM MỚI: RENDER LẠI MAP TỪ JSON ĐÃ CHỈNH SỬA ---
   const handleRenderEditedJson = (silent = false, preParsedJson: any = null) => {
     try {
-      // Nếu JSON đã được phân tích cú pháp từ trước, sử dụng nó. Nếu không, phân tích cú pháp từ state.
-      const json = preParsedJson ? preParsedJson : JSON.parse(editedJson);
+      let json = preParsedJson ? preParsedJson : JSON.parse(editedJson);
 
+      // --- TÍNH NĂNG MỚI: TẠO METADATA MẶC ĐỊNH NẾU CHƯA CÓ ---
+      // Nếu không có metadata (trường hợp tạo map mới từ đầu), hãy tạo một bộ dữ liệu mặc định.
+      if (!questMetadata && !preParsedJson) {
+        const defaultId = `NEW_QUEST.${uuidv4().toUpperCase()}`;
+        const defaultTitleKey = `Challenge.${defaultId}.Title`;
+        const defaultDescKey = `Challenge.${defaultId}.Description`;
+        const defaultToolboxKey = 'commands_l1_move'; // Chọn một toolbox mặc định
+
+        const defaultMetadata = {
+          id: defaultId,
+          gameType: "maze",
+          topic: "topic-title-coding_commands", // Topic mặc định
+          level: 1,
+          titleKey: defaultTitleKey,
+          questTitleKey: defaultDescKey,
+          descriptionKey: defaultDescKey,
+          translations: {
+            vi: { [defaultTitleKey]: "Tiêu đề mới", [defaultDescKey]: "Mô tả mới" },
+            en: { [defaultTitleKey]: "New Title", [defaultDescKey]: "New Description" },
+          },
+          supportedEditors: ["blockly", "monaco"],
+          blocklyConfig: {
+            toolboxPresetKey: defaultToolboxKey, // Lưu key để hiển thị trên dropdown
+            toolbox: toolboxPresets[defaultToolboxKey],
+            maxBlocks: 10,
+            startBlocks: '<xml><block type="maze_start" deletable="false" movable="false"></block></xml>'
+          },
+          // SỬA LỖI: Thêm solution object mặc định với type để pass validation
+          solution: {
+            type: 'reach_target',
+            itemGoals: {}
+          },
+          // THÊM MỚI: Thêm trường sounds mặc định để đảm bảo tính toàn vẹn
+          sounds: {
+            "win": "/assets/maze/win.mp3",
+            "fail": "/assets/maze/fail_pegman.mp3"
+          },
+        };
+        setQuestMetadata(defaultMetadata);
+        // Cập nhật json để các bước sau sử dụng metadata mới này
+        json = { ...defaultMetadata, ...json };
+      }
+
+      // Nếu JSON đã được phân tích cú pháp từ trước, sử dụng nó. Nếu không, phân tích cú pháp từ state.
       let configToLoad;
       if (json.gameConfig && typeof json.gameConfig === 'object') {
         configToLoad = json.gameConfig;
         setQuestMetadata(json); // SỬA LỖI: Giữ lại toàn bộ json
+        // THÊM MỚI: Đồng bộ hóa toolbox preset sau khi set metadata
+        if (json.blocklyConfig) {
+          syncToolboxConfig(json.blocklyConfig);
+        }
       } else if (json.blocks || json.players) {
         configToLoad = json;
         setQuestMetadata({ gameConfig: json }); // SỬA LỖI: Bọc trong metadata chuẩn
@@ -1049,19 +1166,32 @@ function App() {
   };
 
   // --- HÀM MỚI: TÍCH HỢP BỘ GIẢI MÊ CUNG ---
-  const handleSolveMaze = ({ gameConfig, solutionConfig, blocklyConfig }: { gameConfig: any, solutionConfig: any, blocklyConfig: any }) => {
-    // SỬA LỖI: Luôn lấy gameConfig, solutionConfig, và blocklyConfig từ trạng thái JSON mới nhất
-    // để đảm bảo tính toàn vẹn dữ liệu, thay vì dựa vào các tham số có thể đã cũ.
+  const handleSolveMaze = () => {
+    // SỬA LỖI: Tái cấu trúc để không cần nhấn "Render from JSON" trước khi giải.
+    // Hàm này sẽ tự động tạo gameConfig mới nhất từ `placedObjects` hiện tại.
     try {
-      const currentFullJson = JSON.parse(outputJsonString);
-      let currentGC = currentFullJson.gameConfig;
-      let currentSC = currentFullJson.solution || {};
-      let currentBC = currentFullJson.blocklyConfig || {};
-
-      if (!currentGC) {
-        alert("Error: 'gameConfig' not found in JSON. Cannot solve.");
+      // 1. Tạo gameConfig mới nhất từ trạng thái `placedObjects` trên màn hình.
+      const blocks = placedObjects.filter(o => o.asset.type === 'block').map(o => ({ modelKey: o.asset.key, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
+      const collectibles = placedObjects.filter(o => o.asset.type === 'collectible').map((o, i) => ({ id: `c${i + 1}`, type: o.asset.key, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
+      const interactibles = placedObjects.filter(o => o.asset.type === 'interactible').map(o => ({ id: o.id, type: o.asset.key, ...o.properties, position: { x: o.position[0], y: o.position[1], z: o.position[2] } }));
+      const finishObject = placedObjects.find(o => o.asset.key === 'finish');
+      const startObject = placedObjects.find(o => o.asset.key === 'player_start');
+      const players = startObject ? [{ id: "player1", start: { x: startObject.position[0], y: startObject.position[1], z: startObject.position[2], direction: parseFloat(startObject.properties?.direction) || 0 } }] : [];
+      
+      if (!finishObject) {
+        alert("Lỗi: Không tìm thấy đối tượng 'Finish' trên bản đồ. Vui lòng đặt một điểm kết thúc để có thể tự động giải.");
         return;
       }
+      const finish = { x: finishObject.position[0], y: finishObject.position[1], z: finishObject.position[2] };
+      const currentGC = { type: "maze", renderer: "3d", blocks, players, collectibles, interactibles, finish };
+
+      // 2. Lấy các config khác từ state
+      let currentSC = questMetadata?.solution || {};
+      const currentBC = _.cloneDeep(questMetadata?.blocklyConfig || {});
+
+      // --- CẢI TIẾN CHO SOLVER ---
+      // Trích xuất các khối lệnh được phép từ toolbox và thêm vào config cho solver.
+      currentBC.availableBlocks = getAvailableBlocksFromToolbox(currentBC.toolbox);
 
       // --- START: CẬP NHẬT ITEMGOALS TỰ ĐỘNG ---
       // Đếm số lượng crystal và switch có trên bản đồ hiện tại.
@@ -1081,10 +1211,7 @@ function App() {
       currentSC.itemGoals = newItemGoals;
       // --- END: CẬP NHẬT ITEMGOALS TỰ ĐỘNG ---
 
-      // 1. Đồng bộ hóa trạng thái ứng dụng (placedObjects) với JSON mới nhất một cách "âm thầm".
-      // Điều này đảm bảo bộ giải chạy trên trạng thái map mới nhất mà người dùng thấy.
-      handleRenderEditedJson(true, currentFullJson);
-      // 2. Chạy bộ giải với các config đã được truyền vào.
+      // 3. Chạy bộ giải với gameConfig vừa được tạo.
       const solution = solveMaze(currentGC, currentSC, currentBC);
 
       if (solution && solution.rawActions) {
@@ -1107,6 +1234,8 @@ function App() {
 
         setQuestMetadata(prev => ({
           ...prev,
+          // Cập nhật gameConfig trong metadata để JSON output được đồng bộ
+          gameConfig: currentGC,
           // Cập nhật blocklyConfig với maxBlocks mới
           blocklyConfig: {
             ...(prev?.blocklyConfig || {}),
@@ -1115,6 +1244,7 @@ function App() {
           // Hợp nhất solution config cũ với kết quả mới từ solver
           solution: {
             ...currentSC,
+            type: 'reach_target', // SỬA LỖI: Đảm bảo trường type luôn tồn tại
             ...solution,
             basicSolution: basicSolution // Lưu lời giải cơ bản vào metadata
           },
@@ -1197,7 +1327,7 @@ function App() {
         <QuestDetailsPanel 
           metadata={questMetadata}
           onMetadataChange={handleMetadataChange}
-          onSolveMaze={handleSolveMaze} // Truyền hàm giải vào
+          onSolveMaze={handleSolveMaze} // SỬA ĐỔI: Truyền hàm giải không cần tham số
         />
         <JsonOutputPanel 
           questId={questMetadata?.id || 'untitled-quest'}

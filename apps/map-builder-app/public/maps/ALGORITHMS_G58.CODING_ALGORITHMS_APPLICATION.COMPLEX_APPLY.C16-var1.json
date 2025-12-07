@@ -23,6 +23,7 @@
     "monaco"
   ],
   "blocklyConfig": {
+    "toolbox_preset": "algorithms_full_solver",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [

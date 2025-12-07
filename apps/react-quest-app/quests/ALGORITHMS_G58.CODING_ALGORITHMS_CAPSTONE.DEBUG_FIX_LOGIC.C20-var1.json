@@ -565,7 +565,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 7,
           "y": 2,
@@ -573,7 +573,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 7,
           "y": 1,
@@ -581,7 +581,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 9,
           "y": 2,
@@ -589,7 +589,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 10,
           "y": 1,
@@ -597,7 +597,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 11,
           "y": 0,
@@ -605,7 +605,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 7,
           "y": 4,
@@ -613,7 +613,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 7,
           "y": 5,
@@ -621,7 +621,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 5,
           "y": 4,
@@ -629,7 +629,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 4,
           "y": 5,
@@ -637,7 +637,7 @@
         }
       },
       {
-        "modelKey": "ground.snow",
+        "modelKey": "ground.checker",
         "position": {
           "x": 3,
           "y": 6,
