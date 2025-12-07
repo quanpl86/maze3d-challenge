@@ -1,3 +1,27 @@
+/* --- NÚT HƯỚNG DẪN --- */
+.guide-button-container {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #444;
+}
+
+.guide-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.guide-button:hover {
+  background-color: #f57c00;
+}
+
 .map-actions {
   margin-bottom: 20px;
   padding-bottom: 20px;

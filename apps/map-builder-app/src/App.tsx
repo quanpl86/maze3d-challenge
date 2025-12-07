@@ -10,6 +10,7 @@ import { toolboxPresets } from './config/toolboxPresets'; // THÊM MỚI: Import
 import { solveMaze } from './components/QuestDetailsPanel/gameSolver'; // THÊM MỚI: Import solver
 import { JsonOutputPanel } from './components/JsonOutputPanel';
 import { buildableAssetGroups } from './config/gameAssets';
+import { WelcomeModal } from './components/WelcomeModal'; // THÊM MỚI: Import WelcomeModal
 import { type BuildableAsset, type PlacedObject, type BuilderMode, type BoxDimensions, type FillOptions, type SelectionBounds, type MapTheme } from './types';
 import _ from 'lodash'; // THÊM MỚI: Import lodash để so sánh object
 import './App.css';
@@ -40,6 +41,7 @@ function App() {
   const [questMetadata, setQuestMetadata] = useState<Record<string, any> | null>(null);
   // SỬA LỖI: State cho theme hiện tại, được khởi tạo với theme mặc định.
   const [mapTheme, setMapTheme] = useState<MapTheme>(Themes.COMPREHENSIVE_THEMES[0]);
+  const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(false); // THÊM MỚI: State cho modal hướng dẫn
 
   const [currentMapFileName, setCurrentMapFileName] = useState<string>('untitled-quest.json');
 
@@ -64,6 +66,14 @@ function App() {
   const sidebarRef = useRef<HTMLDivElement>(null); // Ref cho right-sidebar
 
   // --- START: LOGIC CUỘN SIDEBAR LÊN KHI CHỌN ĐỐI TƯỢNG ---
+  useEffect(() => {
+    // Kiểm tra localStorage để xem có nên hiển thị modal không
+    const shouldShowWelcome = localStorage.getItem('showWelcomeModal') !== 'false';
+    if (shouldShowWelcome) {
+      setIsWelcomeModalVisible(true);
+    }
+  }, []); // Chạy một lần duy nhất khi component mount
+
   useEffect(() => {
     const lastSelectedId = selectedObjectIds[selectedObjectIds.length - 1];
     // Nếu một đối tượng được chọn (và sidebar đã được render)
@@ -1258,6 +1268,14 @@ function App() {
     }
   };
 
+  // --- HÀM MỚI: Xử lý đóng modal hướng dẫn ---
+  const handleCloseWelcomeModal = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      localStorage.setItem('showWelcomeModal', 'false');
+    }
+    setIsWelcomeModalVisible(false);
+  };
+
  return (
     <div className="app-container">
       {isPaletteVisible && (
@@ -1276,6 +1294,7 @@ function App() {
           // SỬA LỖI: Truyền hàm tiện ích mới vào AssetPalette
           getCorrectedAssetUrl={getCorrectedAssetUrl}
           onLoadMapFromUrl={handleLoadMapFromUrl} // Truyền hàm mới vào
+          onShowTutorial={() => setIsWelcomeModalVisible(true)} // THÊM MỚI: Prop để mở lại modal
           onImportMap={handleImportMap}
         />
       )}
@@ -1381,6 +1400,10 @@ function App() {
             <li onClick={() => handleContextMenuAction('delete')} className="delete">Xóa (Delete)</li>
           </ul>
         </div>
+      )}
+      {/* --- THÊM MỚI: Render modal hướng dẫn --- */}
+      {isWelcomeModalVisible && (
+        <WelcomeModal onClose={handleCloseWelcomeModal} />
       )}
     </div>
   );

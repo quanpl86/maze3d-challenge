@@ -17,6 +17,7 @@ interface AssetPaletteProps {
   onSelectionBoundsChange: (bounds: SelectionBounds) => void;
   onImportMap: (file: File) => void;
   onLoadMapFromUrl: (url: string) => void; // Thêm prop bị thiếu
+  onShowTutorial: () => void; // THÊM MỚI: Prop để mở lại modal hướng dẫn
   getCorrectedAssetUrl: (url: string) => string; // THÊM MỚI: Prop để sửa lỗi đường dẫn
 }
 
@@ -41,6 +42,7 @@ export function AssetPalette({
   onSelectionBoundsChange,
   onImportMap,
   onLoadMapFromUrl, // Nhận prop mới
+  onShowTutorial, // Nhận prop mới
   getCorrectedAssetUrl // Nhận prop mới
 }: AssetPaletteProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,6 +112,9 @@ export function AssetPalette({
           accept=".json"
           style={{ display: 'none' }}
         />
+        <button onClick={onShowTutorial} className="tutorial-btn">
+          Hướng dẫn
+        </button>
 
         {/* --- TÍNH NĂNG MỚI: LOAD MAP TỪ DANH SÁCH --- */}
         <div className="palette-section">
