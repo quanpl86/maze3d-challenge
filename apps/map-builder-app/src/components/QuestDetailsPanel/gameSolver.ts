@@ -562,6 +562,206 @@ const optimizeWithFunctions = (
   return { main: currentActions, procedures };
 };
 
+/**
+ * HÀM MỚI: Tối ưu hóa bằng cách sử dụng biến và vòng lặp for.
+ * Hàm này tìm kiếm các mẫu cấp số cộng, ví dụ: đi 2, rẽ, đi 3, rẽ, đi 4, rẽ...
+ * và chuyển đổi chúng thành một vòng lặp for với một biến đếm.
+ */
+const optimizeWithVariablesAndLoops = (
+  actions: Action[],
+  availableBlocks: Set<string>
+): { main: Action[]; procedures?: Record<string, any> } | null => {
+  // 1. Kiểm tra xem các khối cần thiết có sẵn không
+  const hasVarBlocks = availableBlocks.has('variables_set') && availableBlocks.has('math_change');
+  const hasLoopVarBlock = availableBlocks.has('maze_repeat_variable'); // Khối lặp với biến
+  const hasForLoop = availableBlocks.has('maze_repeat'); // Vòng lặp for cơ bản
+
+  if (!hasVarBlocks || !hasLoopVarBlock || !hasForLoop) {
+    return null; // Không thể áp dụng chiến lược này
+  }
+
+  // 2. Nén chuỗi hành động: ['f', 'f', 'r'] -> [{type: 'f', count: 2}, {type: 'r', count: 1}]
+  // SỬA LỖI GỐC: Lưu trữ toàn bộ đối tượng action thay vì chỉ `type` để không làm mất `direction`.
+  const groupedActions: { action: Action; count: number }[] = [];
+  if (actions.length === 0) return null;
+
+  let currentActionKey = JSON.stringify(actions[0]);
+  let currentCount = 0;
+  for (const action of actions) {
+    const actionKey = JSON.stringify(action);
+    if (actionKey === currentActionKey) {
+      currentCount++;
+    } else {
+      groupedActions.push({ action: JSON.parse(currentActionKey), count: currentCount });
+      currentActionKey = actionKey;
+      currentCount = 1;
+    }
+  }
+  groupedActions.push({ action: JSON.parse(currentActionKey), count: currentCount });
+
+  // 3. Tìm kiếm mẫu cấp số cộng
+  // Chúng ta tìm một "đoạn mã" (chunk) lặp lại, trong đó một hành động có số lần lặp tăng dần.
+  for (let chunkSize = 1; chunkSize <= Math.floor(groupedActions.length / 2); chunkSize++) {
+    for (let i = 0; i <= groupedActions.length - chunkSize * 2; i++) {
+      const chunk1 = groupedActions.slice(i, i + chunkSize);
+      const chunk2 = groupedActions.slice(i + chunkSize, i + chunkSize * 2);
+
+      // So sánh cấu trúc của 2 đoạn (không tính số lượng)
+      // SỬA LỖI: Chỉ so sánh `action.type` và `action.direction` để bỏ qua các khác biệt về số lần lặp.
+      // Điều này cho phép nhận diện các mẫu phức tạp hơn.
+      const structure1 = chunk1.map(a => JSON.stringify(a.action));
+      const structure2 = chunk2.map(a => JSON.stringify(a.action));
+      if (JSON.stringify(structure1) !== JSON.stringify(structure2)) continue;
+
+      // Tìm vị trí của hành động có số lần lặp thay đổi
+      // SỬA LỖI & NÂNG CẤP: Tìm tất cả các chỉ số có sự thay đổi, không chỉ một.
+      const diffIndices: number[] = [];
+      for (let k = 0; k < chunkSize; k++) {
+        if (chunk1[k].count !== chunk2[k].count) {
+          diffIndices.push(k);
+        }
+      }
+
+      // Nếu tìm thấy ít nhất một hành động có số lần lặp thay đổi
+      if (diffIndices.length > 0) {
+        // Tính toán công sai cho tất cả các chuỗi thay đổi
+        const differences = diffIndices.map(k => ({
+          initialValue: chunk1[k].count,
+          commonDifference: chunk2[k].count - chunk1[k].count
+        }));
+
+        // NÂNG CẤP: Kiểm tra cả quy luật cấp số nhân (geometric)
+        const isGeometric = diffIndices.every(k => chunk1[k].count !== 0 && chunk2[k].count % chunk1[k].count === 0);
+        const ratios = isGeometric ? diffIndices.map(k => ({
+          initialValue: chunk1[k].count,
+          commonRatio: chunk2[k].count / chunk1[k].count
+        })) : [];
+
+        // Xác định xem quy luật này kéo dài bao lâu
+        let repeats = 2;
+        while (i + (repeats + 1) * chunkSize <= groupedActions.length) {
+          const nextChunk = groupedActions.slice(i + repeats * chunkSize, i + (repeats + 1) * chunkSize);
+
+          // SỬA LỖI: Kiểm tra xem tất cả các hành động thay đổi có tuân theo quy luật không.
+          let patternHolds = true;
+          for (let k = 0; k < chunkSize; k++) {
+            const diffIndex = diffIndices.indexOf(k);
+            if (diffIndex !== -1) { // Nếu đây là một hành động thay đổi
+              let expectedValue;
+              if (isGeometric && ratios[diffIndex].commonRatio > 0) {
+                // Quy luật cấp số nhân
+                expectedValue = ratios[diffIndex].initialValue * Math.pow(ratios[diffIndex].commonRatio, repeats);
+              } else {
+                // Quy luật cấp số cộng
+                expectedValue = differences[diffIndex].initialValue + repeats * differences[diffIndex].commonDifference;
+              }
+
+              if (nextChunk[k].count !== expectedValue) {
+                patternHolds = false;
+                break;
+              }
+            }
+          }
+          if (JSON.stringify(nextChunk.map(a => JSON.stringify(a.action))) === JSON.stringify(structure1) && patternHolds) {
+            repeats++;
+          } else {
+            break;
+          }
+        }
+
+        // Nếu quy luật đủ dài để tối ưu hóa
+        // SỬA LỖI: Tính toán lại tổng số hành động gốc và tổng số khối gốc
+        // để có thể so sánh chi phí một cách chính xác.
+        let totalOriginalActions = 0;
+        let totalOriginalGroupedBlocks = 0;
+        for (let r = 0; r < repeats; r++) {
+          const currentChunk = groupedActions.slice(i + r * chunkSize, i + (r + 1) * chunkSize);
+          totalOriginalGroupedBlocks += currentChunk.length;
+          for (const group of currentChunk) {
+            totalOriginalActions += group.count;
+          }
+        }
+        const newBlocksCost = (diffIndices.length * 2) + 1 + chunkSize; // set, change cho mỗi biến + 1 vòng lặp for + body
+        if (repeats > 1 && totalOriginalGroupedBlocks > newBlocksCost) {
+          console.log(`Solver: Phát hiện quy luật đa biến số! Lặp ${repeats} lần.`);
+
+          // SỬA LỖI: Khai báo mảng `finalSolution` trước khi sử dụng.
+          const finalSolution: Action[] = [];
+
+          const varName = 'i';
+
+          // SỬA LỖI: Tính toán lại tổng số hành động gốc trong mẫu đã phát hiện
+          // để có thể cắt mảng `actions` một cách chính xác.
+
+          // Tạo phần thân của vòng lặp for
+          const loopBody: Action[] = [];
+          diffIndices.forEach((k, index) => {
+            const varName = `i_${index}`;
+            finalSolution.push({
+              type: 'variables_set',
+              variable: varName,
+              value: { type: 'math_number', value: differences[index].initialValue }
+            });
+          });
+
+          chunk1.forEach((group, k) => {
+            const diffIndex = diffIndices.indexOf(k);
+            if (diffIndex !== -1) { // Hành động này dùng biến
+              const varName = `i_${diffIndex}`;
+              loopBody.push({ type: 'maze_repeat', times: { type: 'variables_get', variable: varName }, actions: [group.action] });
+            } else { // Hành động này không đổi
+              for (let c = 0; c < group.count; c++) loopBody.push(group.action);
+            }
+          });
+
+          // Thêm các khối thay đổi giá trị cho tất cả các biến vào cuối thân vòng lặp
+          diffIndices.forEach((k, index) => {
+            const varName = `i_${index}`;
+            if (isGeometric && ratios[index].commonRatio > 1) {
+              // NÂNG CẤP: Tạo khối `set i = i * ratio` cho cấp số nhân
+              loopBody.push({
+                type: 'variables_set',
+                variable: varName,
+                value: {
+                  type: 'math_arithmetic',
+                  op: 'MULTIPLY',
+                  A: { type: 'variables_get', variable: varName },
+                  B: { type: 'math_number', value: ratios[index].commonRatio }
+                }
+              });
+            } else {
+              // Giữ nguyên khối `change i by diff` cho cấp số cộng
+              loopBody.push({
+                type: 'math_change',
+                variable: varName,
+                value: { type: 'math_number', value: differences[index].commonDifference }
+              });
+            }
+          });
+
+          // SỬA LỖI: Khai báo `beforePattern` và `afterPattern`.
+          // Tính toán chỉ số bắt đầu của mẫu trong mảng `actions` gốc.
+          let startActionIndex = 0;
+          for (let j = 0; j < i; j++) {
+            startActionIndex += groupedActions[j].count;
+          }
+          const beforePattern = actions.slice(0, startActionIndex);
+          const afterPattern = actions.slice(startActionIndex + totalOriginalActions);
+          
+          // Thêm khối lặp chính vào sau các khối gán biến
+          finalSolution.push({
+            type: 'maze_repeat',
+            times: repeats,
+            actions: loopBody
+          });
+          return { main: [...beforePattern, ...finalSolution, ...afterPattern], procedures: {} };
+        }
+      }
+    }
+  }
+  return null; // Không tìm thấy quy luật phù hợp
+};
+
 const createStructuredSolution = (
   initialActions: Action[],
   availableBlocks: Set<string>, // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
@@ -574,6 +774,17 @@ const createStructuredSolution = (
   // --- SỬA LỖI: Không nên áp dụng while loop trước cho mọi trường hợp ---
   // Giữ lại chuỗi hành động ban đầu để các chiến lược khác có thể xử lý.
   const originalActions = [...initialActions];
+
+  // BƯỚC 0 (MỚI): Thử chiến lược với biến số trước tiên, vì nó có khả năng tối ưu hóa cao nhất
+  const varSolution = optimizeWithVariablesAndLoops(originalActions, availableBlocks);
+  if (varSolution) {
+    // SỬA LỖI: Sau khi áp dụng tối ưu hóa biến, tiếp tục tối ưu hóa các phần còn lại
+    // (ví dụ: các đoạn moveForward lặp lại) bằng vòng lặp đơn giản.
+    const furtherOptimizedMain = optimizeWithLoops(varSolution.main, availableBlocks, solutionConfig).main;
+    varSolution.main = furtherOptimizedMain;
+
+    strategies.push({ name: 'variable_loop', solution: varSolution });
+  }
 
   // BƯỚC 1: Áp dụng các chiến lược tối ưu hóa khác nhau
   // Chiến lược 0 (MỚI): Thử tối ưu hóa bằng `while` có điều kiện.
@@ -717,6 +928,7 @@ const calculateOptimalLines = (structuredSolution: { main: Action[], procedures?
         lloc++; // Đếm dòng 'for (...) {'
         lloc += _countLinesRecursively(block.actions || block.body, declaredVars);
       } else if (blockType === 'controls_if') {
+        // THÊM MỚI: Xử lý đếm dòng cho khối if/else
         lloc++; // Đếm dòng 'if (...) {'
         if (block.if_actions) {
             lloc += _countLinesRecursively(block.if_actions, declaredVars);
@@ -724,12 +936,12 @@ const calculateOptimalLines = (structuredSolution: { main: Action[], procedures?
         if (block.else_if_actions) {
             block.else_if_actions.forEach((elseIfBlock: any) => {
                 lloc++; // Đếm dòng 'else if (...) {'
-                lloc += _countLinesRecursively(elseIfBlock.actions, declaredVars);
+                lloc += _countLinesRecursively(elseIfBlock.actions || [], declaredVars);
             });
         }
         if (block.else_actions) {
             lloc++; // Đếm dòng 'else {'
-            lloc += _countLinesRecursively(block.else_actions, declaredVars);
+            lloc += _countLinesRecursively(block.else_actions || [], declaredVars);
         }
       } else if (blockType) { // Các khối khác (move, turn, call, collect...)
         lloc++;
@@ -1374,10 +1586,10 @@ function calculateTurnActions(currentState: GameState, nextPos: Position, lastAc
         // diff = 1 (theo chiều kim đồng hồ) phải là turnRight.
         // diff = 3 (ngược chiều kim đồng hồ) phải là turnLeft.
         const diff = (targetDir - currentState.direction + 4) % 4;
-        if (diff === 1) {
+        if (diff === 1) { // Quay phải
             actions.push('turnRight');
             cost += (lastAction === 'turnRight' ? 0.1 - REPETITION_DISCOUNT : 0.1);
-        } else if (diff === 3) {
+        } else if (diff === 3) { // Quay trái
             actions.push('turnLeft');
             cost += (lastAction === 'turnLeft' ? 0.1 - REPETITION_DISCOUNT : 0.1);
         } else if (diff === 2) {

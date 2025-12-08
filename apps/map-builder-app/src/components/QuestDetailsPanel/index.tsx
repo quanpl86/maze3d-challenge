@@ -74,15 +74,25 @@ const jsonToXml = (structuredSolution: any): string => {
           block.appendChild(field);
         }
       } else if (action.type === 'maze_repeat' || action.type === 'maze_for') {
+        // SỬA LỖI & NÂNG CẤP: Xử lý cả hai trường hợp cho 'TIMES':
+        // 1. Một giá trị số (tạo shadow block).
+        // 2. Một khối lồng nhau như 'variables_get' (đệ quy để tạo block).
         const value = doc.createElement('value');
         value.setAttribute('name', 'TIMES');
-        const shadow = doc.createElement('shadow');
-        shadow.setAttribute('type', 'math_number');
-        const field = doc.createElement('field');
-        field.setAttribute('name', 'NUM');
-        field.textContent = action.times?.toString() || '1';
-        shadow.appendChild(field);
-        value.appendChild(shadow);
+
+        if (typeof action.times === 'object' && action.times !== null && action.times.type) {
+          // Trường hợp 2: 'times' là một khối lồng nhau (ví dụ: variables_get)
+          jsonToXmlRecursive([action.times], value);
+        } else {
+          // Trường hợp 1: 'times' là một giá trị số (hành vi mặc định)
+          const shadow = doc.createElement('shadow');
+          shadow.setAttribute('type', 'math_number');
+          const field = doc.createElement('field');
+          field.setAttribute('name', 'NUM');
+          field.textContent = action.times?.toString() || '1';
+          shadow.appendChild(field);
+          value.appendChild(shadow);
+        }
         block.appendChild(value);
 
         if (action.actions && action.actions.length > 0) {
@@ -178,6 +188,67 @@ const jsonToXml = (structuredSolution: any): string => {
           elseStatement.setAttribute('name', 'ELSE');
           jsonToXmlRecursive(action.else_actions, elseStatement);
           block.appendChild(elseStatement);
+        }
+      } else if (action.type === 'variables_set') {
+        // THÊM MỚI: Xử lý khối gán giá trị cho biến
+        const field = doc.createElement('field');
+        field.setAttribute('name', 'VAR');
+        field.textContent = action.variable || 'variable'; // Tên biến
+        block.appendChild(field);
+
+        if (action.value) {
+          const value = doc.createElement('value');
+          value.setAttribute('name', 'VALUE');
+          // NÂNG CẤP: Xử lý cả giá trị là khối đơn (math_number) và khối phức hợp (math_arithmetic).
+          // Bằng cách gọi đệ quy, ta có thể xử lý các cấu trúc lồng nhau bất kỳ.
+          jsonToXmlRecursive([action.value], value);
+          block.appendChild(value);
+        }
+      } else if (action.type === 'math_arithmetic') {
+        // THÊM MỚI: Xử lý khối toán học, cần thiết cho tối ưu hóa cấp số nhân.
+        const opField = doc.createElement('field');
+        opField.setAttribute('name', 'OP');
+        opField.textContent = action.op || 'ADD';
+        block.appendChild(opField);
+
+        const valueA = doc.createElement('value');
+        valueA.setAttribute('name', 'A');
+        jsonToXmlRecursive([action.A], valueA);
+        block.appendChild(valueA);
+
+        const valueB = doc.createElement('value');
+        valueB.setAttribute('name', 'B');
+        jsonToXmlRecursive([action.B], valueB);
+        block.appendChild(valueB);
+      } else if (action.type === 'variables_get') {
+        // THÊM MỚI: Xử lý khối lấy giá trị của biến (dùng trong các khối khác)
+        const field = doc.createElement('field');
+        field.setAttribute('name', 'VAR');
+        field.textContent = action.variable || 'variable'; // Tên biến
+        block.appendChild(field);
+
+      } else if (action.type === 'math_change') {
+        // THÊM MỚI: Xử lý khối thay đổi giá trị của biến (tăng/giảm)
+        const field = doc.createElement('field');
+        field.setAttribute('name', 'VAR');
+        field.textContent = action.variable || 'variable'; // Tên biến
+        block.appendChild(field);
+
+        // SỬA LỖI: Bộ giải đang tạo thuộc tính 'value' thay vì 'delta'.
+        // Cập nhật logic để đọc từ 'value' và tạo cấu trúc XML chính xác.
+        if (action.value) {
+          const value = doc.createElement('value');
+          value.setAttribute('name', 'DELTA');
+          // Giả định giá trị là một khối math_number lồng nhau.
+          const valueBlock = doc.createElement('block');
+          valueBlock.setAttribute('type', action.value.type || 'math_number');
+          const valueField = doc.createElement('field');
+          valueField.setAttribute('name', 'NUM');
+          // Lấy giá trị từ action.value.value
+          valueField.textContent = action.value.value?.toString() || '1';
+          valueBlock.appendChild(valueField);
+          value.appendChild(valueBlock);
+          block.appendChild(value);
         }
       }
 

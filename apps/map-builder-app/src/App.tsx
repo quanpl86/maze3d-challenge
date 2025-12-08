@@ -1135,6 +1135,13 @@ function App() {
         if (item.kind === 'category' && item.custom === 'PROCEDURE') {
           allowedBlocks.add('PROCEDURE');
         }
+        // THÊM MỚI: Nếu category là VARIABLE, thêm các khối biến liên quan
+        if (item.kind === 'category' && item.custom === 'VARIABLE') {
+          allowedBlocks.add('variables_set');
+          allowedBlocks.add('variables_get');
+          allowedBlocks.add('maze_repeat_variable'); // Tên tùy chỉnh cho khối lặp với biến
+          allowedBlocks.add('math_change'); // Khối thay đổi biến tiêu chuẩn của Blockly
+        }
         // Nếu là một category, duyệt tiếp vào contents của nó
         if (item.kind === 'category' && item.contents) {
           traverse(item.contents);
