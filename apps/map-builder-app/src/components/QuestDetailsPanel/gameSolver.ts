@@ -405,6 +405,14 @@ const optimizeWithWhileLoops = (
     return actions;
   }
 
+  // --- SỬA LỖI LOGIC ---
+  // Chỉ áp dụng tối ưu hóa `while` cho các trường hợp cực kỳ đơn giản:
+  // toàn bộ đường đi chỉ bao gồm các hành động 'moveForward'.
+  const containsOtherActions = actions.some(action => action.type !== 'maze_moveForward');
+  if (containsOtherActions) {
+    return actions; // Nếu có hành động khác, không tối ưu hóa bằng while, để các chiến lược khác xử lý.
+  }
+
   let optimizedActions: Action[] = [];
   let i = 0;
   while (i < actions.length) {
@@ -450,6 +458,56 @@ const optimizeWithWhileLoops = (
     }
   }
   return optimizedActions;
+};
+
+/**
+ * HÀM MỚI: Tối ưu hóa bằng vòng lặp có điều kiện và các hành động bên trong.
+ * Đây là chiến lược dành cho các bản đồ đường thẳng có itemGoals xen kẽ.
+ * Ví dụ: move, move, collect, move, move -> while(true) { move; if(item) collect; }
+ */
+const optimizeWithConditionalWhile = (
+  actions: Action[],
+  availableBlocks: Set<string>,
+  solutionConfig: Solution
+): { main: Action[]; procedures?: Record<string, Action[]> } | null => {
+  const hasWhile = availableBlocks.has('maze_forever') || availableBlocks.has('controls_whileUntil');
+  const hasIf = availableBlocks.has('controls_if');
+
+  if (!hasWhile || !hasIf) {
+    return null; // Không đủ khối lệnh để áp dụng chiến lược này.
+  }
+
+  // Kiểm tra xem đường đi có phù hợp không: chỉ chứa moveForward và các hành động itemGoal.
+  const allowedActionTypes = new Set(['maze_moveForward', 'maze_collect', 'maze_toggle_switch']);
+  const containsOnlyAllowedActions = actions.every(action => allowedActionTypes.has(action.type));
+  const containsMove = actions.some(action => action.type === 'maze_moveForward');
+
+  if (!containsOnlyAllowedActions || !containsMove) {
+    return null; // Không phải là mẫu đường thẳng có ngắt quãng.
+  }
+
+  // Tạo các khối `if` cho các hành động phụ có thể xảy ra.
+  const conditionalActions: Action[] = [];
+  const itemGoals = solutionConfig.itemGoals || {};
+
+  for (const goalType in itemGoals) {
+    if (goalType === 'switch' && actions.some(a => a.type === 'maze_toggle_switch')) {
+      conditionalActions.push({
+        type: 'controls_if',
+        condition: { type: 'maze_is_switch_state', state: 'off' },
+        if_actions: [{ type: 'maze_toggle_switch' }]
+      });
+    } else if (goalType !== 'switch' && actions.some(a => a.type === 'maze_collect')) {
+      conditionalActions.push({
+        type: 'controls_if',
+        condition: { type: 'maze_is_item_present', item_type: goalType },
+        if_actions: [{ type: 'maze_collect' }]
+      });
+    }
+  }
+
+  const loopBlock: Action = { type: 'maze_forever', actions: [{ type: 'maze_moveForward' }, ...conditionalActions] };
+  return { main: [loopBlock], procedures: {} };
 };
 
 /**
@@ -513,28 +571,37 @@ const createStructuredSolution = (
 
   const strategies: { name: string; solution: { main: Action[]; procedures?: Record<string, Action[]> } }[] = [];
 
-  let currentActions = [...initialActions];
+  // --- SỬA LỖI: Không nên áp dụng while loop trước cho mọi trường hợp ---
+  // Giữ lại chuỗi hành động ban đầu để các chiến lược khác có thể xử lý.
+  const originalActions = [...initialActions];
 
-  // BƯỚC 1: Ưu tiên tối ưu hóa bằng các cấu trúc điều khiển phức tạp trước (While, If, etc.)
-  // Hiện tại, chúng ta thêm logic cho 'while'. Các cấu trúc khác có thể được thêm vào đây.
-  // SỬA LỖI: Đồng bộ điều kiện kiểm tra với hàm optimizeWithWhileLoops
-  if (availableBlocks.has('maze_repeat_until') || availableBlocks.has('controls_whileUntil') || availableBlocks.has('maze_forever')) {
-      currentActions = optimizeWithWhileLoops(currentActions, availableBlocks, world);
+  // BƯỚC 1: Áp dụng các chiến lược tối ưu hóa khác nhau
+  // Chiến lược 0 (MỚI): Thử tối ưu hóa bằng `while` có điều kiện.
+  const conditionalWhileSolution = optimizeWithConditionalWhile(originalActions, availableBlocks, solutionConfig);
+  if (conditionalWhileSolution) {
+    strategies.push({ name: 'conditional_while', solution: conditionalWhileSolution });
   }
 
-  // BƯỚC 2: Áp dụng các chiến lược tối ưu hóa còn lại trên chuỗi hành động đã được xử lý một phần
+  // Tối ưu hóa bằng while đơn giản (chỉ đi thẳng)
+  const simpleWhileActions = optimizeWithWhileLoops(originalActions, availableBlocks, world);
+
   // Chiến lược 1: Chỉ tối ưu hóa bằng vòng lặp 'for' (nếu được phép)
-  const loopOnlySolution = optimizeWithLoops(currentActions, availableBlocks, solutionConfig);
+  const loopOnlySolution = optimizeWithLoops(simpleWhileActions, availableBlocks, solutionConfig);
   strategies.push({ name: 'loop_only', solution: loopOnlySolution });
 
   // Chiến lược 2: Chỉ tối ưu hóa bằng hàm (nếu được phép)
-  const funcOnlySolution = optimizeWithFunctions(currentActions, availableBlocks, solutionConfig);
+  const funcOnlySolution = optimizeWithFunctions(originalActions, availableBlocks, solutionConfig);
   strategies.push({ name: 'func_only', solution: funcOnlySolution });
 
   // Chiến lược 3: Tối ưu hóa hàm trước, sau đó tối ưu hóa vòng lặp trên KẾT QUẢ
   const mainAfterFuncs = funcOnlySolution.main;
   const loopsAfterFuncs = optimizeWithLoops(mainAfterFuncs, availableBlocks, solutionConfig);
   strategies.push({ name: 'func_then_loop', solution: { main: loopsAfterFuncs.main, procedures: funcOnlySolution.procedures } });
+
+  // Nếu không có chiến lược nào hoạt động, trả về giải pháp gốc
+  if (strategies.length === 0) {
+    return { main: originalActions, procedures: {} };
+  }
 
   // Tính toán chi phí cho mỗi chiến lược và chọn ra cái tốt nhất
   let bestSolution = strategies[0].solution;

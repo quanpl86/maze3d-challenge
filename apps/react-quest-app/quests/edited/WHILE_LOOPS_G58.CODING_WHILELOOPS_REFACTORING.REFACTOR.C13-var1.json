@@ -186,8 +186,8 @@
         }
       ]
     },
-    "maxBlocks": 11,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></next></block></next></block></statement></block></xml>",
+    "maxBlocks": 14,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_item_present\"><field name=\"TYPE\">crystal</field></block></value><statement name=\"DO0\"><block type=\"maze_collect\"/></statement><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_switch_state\"><field name=\"STATE\">off</field></block></value><statement name=\"DO0\"><block type=\"maze_toggle_switch\"/></statement></block></next></block></next></block></statement></block></statement></block></xml>",
     "toolboxPresetKey": "full_toolbox"
   },
   "gameConfig": {
@@ -318,14 +318,43 @@
         }
       }
     ],
-    "collectibles": [],
+    "collectibles": [
+      {
+        "id": "c1",
+        "type": "crystal",
+        "position": {
+          "x": 11,
+          "y": 1,
+          "z": 10
+        }
+      },
+      {
+        "id": "c2",
+        "type": "crystal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 10
+        }
+      }
+    ],
     "interactibles": [
       {
         "id": "s1",
         "type": "switch",
         "initialState": "off",
         "position": {
-          "x": 3,
+          "x": 6,
+          "y": 1,
+          "z": 10
+        }
+      },
+      {
+        "id": "s2",
+        "type": "switch",
+        "initialState": "on",
+        "position": {
+          "x": 9,
           "y": 1,
           "z": 10
         }
@@ -340,11 +369,16 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "switch": 1
+      "crystal": 2,
+      "switch": 2
     },
-    "optimalBlocks": 6,
-    "optimalLines": 5,
+    "optimalBlocks": 9,
+    "optimalLines": 6,
     "rawActions": [
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "collect",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -354,9 +388,7 @@
       "moveForward",
       "moveForward",
       "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
+      "collect",
       "moveForward",
       "moveForward"
     ],
@@ -367,17 +399,30 @@
           "actions": [
             {
               "type": "maze_moveForward"
-            }
-          ]
-        },
-        {
-          "type": "maze_toggle_switch"
-        },
-        {
-          "type": "maze_forever",
-          "actions": [
+            },
             {
-              "type": "maze_moveForward"
+              "type": "controls_if",
+              "condition": {
+                "type": "maze_is_item_present",
+                "item_type": "crystal"
+              },
+              "if_actions": [
+                {
+                  "type": "maze_collect"
+                }
+              ]
+            },
+            {
+              "type": "controls_if",
+              "condition": {
+                "type": "maze_is_switch_state",
+                "state": "off"
+              },
+              "if_actions": [
+                {
+                  "type": "maze_toggle_switch"
+                }
+              ]
             }
           ]
         }
@@ -385,6 +430,18 @@
     },
     "basicSolution": {
       "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
         {
           "type": "maze_moveForward"
         },
@@ -413,13 +470,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
