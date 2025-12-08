@@ -164,7 +164,11 @@ export class MazeEngine implements IMazeEngine {
       interpreter.setProperty(globalObject, 'placeBlock', createWrapper(() => {}, true));
       interpreter.setProperty(globalObject, 'removeBlock', createWrapper(() => {}, true));
       interpreter.setProperty(globalObject, 'toggleSwitch', createWrapper(this.toggleSwitch.bind(this), true));
-      interpreter.setProperty(globalObject, 'isSwitchState', createWrapper(this.isSwitchState.bind(this), false));
+      // SỬA LỖI: Các hàm điều kiện cần trả về một đối tượng boolean của interpreter, không phải giá trị boolean gốc.
+      const createConditionalWrapper = (func: (...args: any[]) => boolean) => {
+        return interpreter.createNativeFunction(func.bind(this));
+      };
+      interpreter.setProperty(globalObject, 'isSwitchState', createConditionalWrapper(this.isSwitchState));
     };
 
     this.interpreter = new Interpreter(userCode, initApi);
@@ -444,7 +448,7 @@ export class MazeEngine implements IMazeEngine {
     return false;
   }
 
-  public isSwitchState(state: 'on' | 'off'): boolean {
+  isSwitchState(state: 'on' | 'off'): boolean {
     const player = this.getActivePlayer();
     const cell = this.currentState.worldGrid[`${player.x},${player.y},${player.z}`];
     

@@ -398,10 +398,7 @@ const optimizeWithWhileLoops = (
   availableBlocks: Set<string>,
   world: GameWorld // Cần world để kiểm tra điều kiện
 ): Action[] => {
-  // SỬA LỖI: Kiểm tra cả 'maze_repeat_until' (dùng trong engine) và 'controls_whileUntil' (dùng trong toolbox)
-  // THÊM MỚI: Kiểm tra cả khối `maze_forever`
-  const hasWhileBlock = availableBlocks.has('maze_repeat_until') || availableBlocks.has('controls_whileUntil') || availableBlocks.has('maze_forever');
-  if (!hasWhileBlock) {
+  if (!availableBlocks.has('maze_repeat_until')) {
     return actions;
   }
 
@@ -429,20 +426,12 @@ const optimizeWithWhileLoops = (
     // Đây là một logic đơn giản, có thể mở rộng để xử lý các điều kiện khác (e.g., until wall)
     if (sequenceLength > 2) {
        // Giả định rằng chuỗi moveForward này dẫn đến đích.
-       // ƯU TIÊN: Nếu có khối `maze_forever`, hãy sử dụng nó vì nó tối ưu hơn (tiết kiệm 1 khối).
-       if (availableBlocks.has('maze_forever')) {
-         optimizedActions.push({
-           type: 'maze_forever',
-           actions: [{ type: 'maze_moveForward' }]
-         });
-       } else {
-         // Fallback: Nếu không, sử dụng khối `controls_whileUntil` như cũ.
-         optimizedActions.push({
-           type: 'maze_repeat_until',
-           condition: 'at_finish',
-           actions: [{ type: 'maze_moveForward' }]
-         });
-       }
+       // Một logic phức tạp hơn có thể cần mô phỏng đường đi để xác nhận.
+       const whileBlock: Action = {
+         type: 'maze_repeat_until',
+         actions: [{ type: 'maze_moveForward' }]
+       };
+       optimizedActions.push(whileBlock);
        i = sequenceEnd; // Bỏ qua tất cả các hành động đã được thay thế
     } else {
       optimizedActions.push(action);
@@ -517,8 +506,7 @@ const createStructuredSolution = (
 
   // BƯỚC 1: Ưu tiên tối ưu hóa bằng các cấu trúc điều khiển phức tạp trước (While, If, etc.)
   // Hiện tại, chúng ta thêm logic cho 'while'. Các cấu trúc khác có thể được thêm vào đây.
-  // SỬA LỖI: Đồng bộ điều kiện kiểm tra với hàm optimizeWithWhileLoops
-  if (availableBlocks.has('maze_repeat_until') || availableBlocks.has('controls_whileUntil') || availableBlocks.has('maze_forever')) {
+  if (availableBlocks.has('maze_repeat_until')) {
       currentActions = optimizeWithWhileLoops(currentActions, availableBlocks, world);
   }
 
@@ -575,29 +563,10 @@ const countBlocksInStructure = (actions: Action[]): number => {
   let count = 0;
   for (const action of actions) {
     count++; // Mỗi action ở cấp hiện tại được tính là 1 khối.
-
-    // SỬA LỖI: Đệ quy vào TẤT CẢ các loại khối có cấu trúc
-    if (Array.isArray(action.actions)) {
+    // NÂNG CẤP: Đếm cả khối lồng nhau trong 'maze_repeat' và 'maze_for'
+    if ((action.type === 'maze_repeat' || action.type === 'maze_for') && Array.isArray(action.actions)) {
+      // Nếu là khối lặp, đệ quy để đếm các khối bên trong nó.
       count += countBlocksInStructure(action.actions);
-    }
-
-    // Xử lý khối if/else if/else
-    if (action.type === 'controls_if') {
-      // Đếm khối điều kiện
-      if (action.condition) {
-        count++;
-      }
-      if (Array.isArray(action.if_actions)) {
-        count += countBlocksInStructure(action.if_actions);
-      }
-      (action.else_if_actions || []).forEach((elseIf: any) => {
-        count++; // Đếm khối else if
-        if (elseIf.condition) count++; // Đếm khối điều kiện của else if
-        if (Array.isArray(elseIf.actions)) count += countBlocksInStructure(elseIf.actions);
-      });
-      if (Array.isArray(action.else_actions)) {
-        count += countBlocksInStructure(action.else_actions);
-      }
     }
   }
   return count;
@@ -646,24 +615,9 @@ const calculateOptimalLines = (structuredSolution: { main: Action[], procedures?
           declaredVars.add(varName);
         }
         lloc++; // Đếm dòng 'x = ...;'
-      } else if (blockType === 'maze_repeat' || blockType === 'maze_for' || blockType === 'maze_forever' || blockType === 'maze_repeat_until') {
+      } else if (blockType === 'maze_repeat' || blockType === 'maze_for' || blockType === 'maze_repeat_variable' || blockType === 'maze_repeat_expression') {
         lloc++; // Đếm dòng 'for (...) {'
         lloc += _countLinesRecursively(block.actions || block.body, declaredVars);
-      } else if (blockType === 'controls_if') {
-        lloc++; // Đếm dòng 'if (...) {'
-        if (block.if_actions) {
-            lloc += _countLinesRecursively(block.if_actions, declaredVars);
-        }
-        if (block.else_if_actions) {
-            block.else_if_actions.forEach((elseIfBlock: any) => {
-                lloc++; // Đếm dòng 'else if (...) {'
-                lloc += _countLinesRecursively(elseIfBlock.actions, declaredVars);
-            });
-        }
-        if (block.else_actions) {
-            lloc++; // Đếm dòng 'else {'
-            lloc += _countLinesRecursively(block.else_actions, declaredVars);
-        }
       } else if (blockType) { // Các khối khác (move, turn, call, collect...)
         lloc++;
       }
@@ -723,14 +677,12 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
     }
     console.log("Solver: Các khối lệnh có sẵn từ toolbox:", Array.from(availableBlocks));
 
-    // --- THÊM MỚI: Chế độ tạo thuật toán tự hành ---
-    const hasLogicBlocks = availableBlocks.has('controls_if') && availableBlocks.has('maze_is_path');
-    const hasLoopBlock = availableBlocks.has('maze_forever') || availableBlocks.has('controls_whileUntil');
-    const isAlgorithmicMode = hasLogicBlocks && hasLoopBlock;
-
     const world = new GameWorld(gameConfig, solutionConfig);
     const startPos = gameConfig.players[0].start;
+    // Lấy hướng ban đầu từ gameConfig.
+    // Nếu không được cung cấp, mặc định là 2 (hướng +Z/Tới theo quy ước đã sửa).
     const startDir = gameConfig.players[0].start.direction !== undefined ? gameConfig.players[0].start.direction : 2; // Sửa mặc định thành 2 (+Z)
+
     const startState = new GameState(startPos, startDir, world); // world đã có solutionConfig
     const startNode = new PathNode(startState);
 
@@ -878,36 +830,22 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
 
             console.log("Solver: Tìm thấy lời giải tối ưu!", path);
 
-            // Đếm số lần rẽ trong đường đi thô để xác định độ phức tạp
-            const turnCount = path.filter(action => action.includes('turn')).length;
-            const isComplexPath = turnCount > 2; // Có thể điều chỉnh ngưỡng này
-
-            let finalStructuredSolution;
-            // --- LOGIC MỚI: GHI ĐÈ LỜI GIẢI CÓ CẤU TRÚC ---
-            // Chỉ kích hoạt chế độ thuật toán nếu đường đi thực sự phức tạp
-            if (isAlgorithmicMode && isComplexPath) {
-                console.log(`Solver: Chế độ thuật toán đang hoạt động (số lần rẽ: ${turnCount}). Ghi đè structuredSolution bằng thuật toán bám tường.`);
-                finalStructuredSolution = createWallFollowerSolution(solutionConfig);
-            } else {
-                // Nếu không phải chế độ thuật toán, tối ưu hóa rawActions như bình thường.
-                finalStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks, solutionConfig, world);
-            }
+            // THAY ĐỔI: Truyền `world` vào hàm tối ưu hóa để xử lý các khối lệnh phức tạp
+            const newStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks, solutionConfig, world);
 
             // Tính toán số khối và số dòng tối ưu
-            // Luôn tính toán dựa trên lời giải có cấu trúc cuối cùng (finalStructuredSolution)
-            const finalOptimalBlocks = calculateTotalBlocksInSolution(finalStructuredSolution);
-            const finalOptimalLines = calculateOptimalLines(finalStructuredSolution);
+            const finalOptimalBlocks = calculateTotalBlocksInSolution(newStructuredSolution); // Đếm tổng số khối (bao gồm cả khối lồng nhau)
+            const finalOptimalLines = calculateOptimalLines(newStructuredSolution); // Đếm số dòng code logic (LLOC)
 
             // THÊM MỚI: Tạo một phiên bản "basicSolution" đã được chuẩn hóa từ rawActions.
             // Điều này đảm bảo basicSolution cũng sử dụng định dạng { type: 'maze_turn', direction: '...' }
             const basicSolutionMain = convertRawToStructuredActions(path);
 
-            // Trả về kết quả cuối cùng
             return {
                 optimalBlocks: finalOptimalBlocks,
                 optimalLines: finalOptimalLines,
                 rawActions: path,
-                structuredSolution: finalStructuredSolution,
+                structuredSolution: newStructuredSolution,
                 basicSolution: { main: basicSolutionMain, procedures: {} } // Trả về basicSolution đã chuẩn hóa
             };
         }
@@ -1117,170 +1055,6 @@ function findNeighbors(state: GameState, world: GameWorld): { pos: Position, act
     }
     return neighbors;
 }
-
-/**
- * HÀM MỚI: Kiểm tra xem có đường đi hợp lệ theo một hướng tương đối (trước, trái, phải) so với hướng hiện tại của người chơi không.
- * @param state Trạng thái hiện tại của người chơi.
- * @param relativeDir Hướng tương đối ('ahead', 'left', 'right').
- * @param world Thế giới game.
- * @returns `true` nếu có đường, ngược lại `false`.
- */
-const hasPathRelative = (state: GameState, relativeDir: 'ahead' | 'left' | 'right', world: GameWorld): boolean => {
-    const currentDir = state.direction;
-    let targetDir: number;
-
-    if (relativeDir === 'ahead') {
-        targetDir = currentDir;
-    } else if (relativeDir === 'left') {
-        targetDir = (currentDir - 1 + 4) % 4;
-    } else { // right
-        targetDir = (currentDir + 1) % 4;
-    }
-
-    const dirVector = directions[targetDir];
-    const nextPos = {
-        x: state.position.x + dirVector.x,
-        y: state.position.y,
-        z: state.position.z + dirVector.z
-    };
-
-    // Kiểm tra xem ô phía trước có trống và có nền đất đi được bên dưới không.
-    const isBlocked = world.worldMap.has(`${nextPos.x},${nextPos.y},${nextPos.z}`);
-    const groundBelow = { ...nextPos, y: nextPos.y - 1 };
-    const hasGround = world.isWalkable(groundBelow);
-
-    return !isBlocked && hasGround;
-};
-
-/**
- * HÀM MỚI: Mô phỏng thuật toán bám tường để tạo ra một chuỗi rawActions.
- * @param world Thế giới game.
- * @param startState Trạng thái bắt đầu.
- * @returns Một mảng các hành động thô.
- */
-const simulateWallFollower = (world: GameWorld, startState: GameState): string[] => {
-    const rawActions: string[] = [];
-    let currentState = startState.clone();
-    const maxSteps = 1000; // Giới hạn để tránh lặp vô tận
-
-    for (let i = 0; i < maxSteps; i++) {
-        // Kiểm tra đã đến đích chưa
-        if (currentState.position.x === world.finishPos.x && currentState.position.z === world.finishPos.z) {
-            break;
-        }
-
-        if (hasPathRelative(currentState, 'right', world)) {
-            // Quay phải
-            currentState.direction = (currentState.direction + 1) % 4;
-            rawActions.push('turnRight');
-            // Đi tới
-            const dirVector = directions[currentState.direction];
-            currentState.position.x += dirVector.x;
-            currentState.position.z += dirVector.z;
-            rawActions.push('moveForward');
-        } else if (hasPathRelative(currentState, 'ahead', world)) {
-            // Đi tới
-            const dirVector = directions[currentState.direction];
-            currentState.position.x += dirVector.x;
-            currentState.position.z += dirVector.z;
-            rawActions.push('moveForward');
-        } else {
-            // Quay trái
-            currentState.direction = (currentState.direction - 1 + 4) % 4;
-            rawActions.push('turnLeft');
-        }
-
-        // Logic xử lý mục tiêu phụ (ví dụ: bật công tắc) có thể được thêm vào đây nếu cần
-        const posKey = `${currentState.position.x},${currentState.position.y},${currentState.position.z}`;
-        if (world.switchesByPos.has(posKey) && currentState.switchStates.get(world.switchesByPos.get(posKey)!.id) !== 'on') {
-            currentState.switchStates.set(world.switchesByPos.get(posKey)!.id, 'on');
-            rawActions.push('toggleSwitch');
-        }
-        // THÊM MỚI: Logic xử lý thu thập vật phẩm
-        const collectible = world.collectiblesByPos.get(posKey);
-        if (collectible && !currentState.collectedItems.has(collectible.id)) {
-            currentState.collectedItems.add(collectible.id);
-            rawActions.push('collect');
-        }
-    }
-    return rawActions;
-};
-
-/**
- * HÀM MỚI: Tạo ra một lời giải có cấu trúc dựa trên thuật toán bám tường (Right-hand wall follower).
- * Đây là một thuật toán tự hành, không phụ thuộc vào một đường đi cố định.
- * @returns Một đối tượng structuredSolution chứa thuật toán.
- */
-const createWallFollowerSolution = (solutionConfig: Solution): { main: Action[]; procedures?: Record<string, Action[]> } => {
-    // Logic của thuật toán:
-    // loop forever {
-    //   if (path to the right) {
-    //     turn right;
-    //     move forward;
-    //   } else if (path ahead) {
-    //     move forward;
-    //   } else {
-    //     turn left;
-    //   }
-    //   // Sau khi di chuyển, kiểm tra các hành động phụ
-    //   if (item present) {
-    //     collect;
-    //   }
-    //   if (switch is off) {
-    //     toggle switch;
-    //   }
-    // }
-
-    const itemGoalActions: Action[] = [];
-    const itemGoals = solutionConfig.itemGoals || {};
-
-    // THÊM MỚI: Tự động tạo các khối 'if' cho từng loại vật phẩm trong itemGoals
-    for (const goalType in itemGoals) {
-        // Bỏ qua 'switch' vì nó được xử lý riêng
-        if (goalType !== 'switch') {
-            itemGoalActions.push({
-                type: 'controls_if',
-                condition: { type: 'maze_is_item_present', item_type: goalType }, // Sử dụng đúng loại vật phẩm từ itemGoals
-                if_actions: [{ type: 'maze_collect' }]
-            });
-        }
-    }
-
-    // Chỉ thêm logic cho công tắc nếu nó có trong itemGoals
-    if (itemGoals.switch) {
-        itemGoalActions.push({
-            type: 'controls_if',
-            condition: { type: 'maze_is_switch_state', state: 'off' }, // Kiểm tra công tắc đang tắt
-            if_actions: [{ type: 'maze_toggle_switch' }]
-        });
-    }
-    const solution: { main: Action[]; procedures?: Record<string, Action[]> } = {
-        main: [
-            {
-                type: 'maze_forever', // Hoặc 'controls_whileUntil' với điều kiện 'maze_at_finish'
-                actions: [
-                    {
-                        // Khối logic di chuyển
-                        type: 'controls_if',
-                        condition: { type: 'maze_is_path', direction: 'path to the right' },
-                        if_actions: [
-                            { type: 'maze_turn', direction: 'turnRight' },
-                            { type: 'maze_moveForward' }
-                        ],
-                        else_if_actions: [{
-                            condition: { type: 'maze_is_path', direction: 'path ahead' },
-                            actions: [{ type: 'maze_moveForward' }]
-                        }],
-                        else_actions: [{ type: 'maze_turn', direction: 'turnLeft' }]
-                    },
-                    // Nối các khối logic cho itemGoals đã được tạo tự động
-                    ...itemGoalActions
-                ]
-            }
-        ]
-    };
-    return solution;
-};
 
 /**
  * HÀM MỚI: Tính toán các hành động xoay, hướng mới và chi phí để đi từ trạng thái hiện tại đến vị trí tiếp theo.

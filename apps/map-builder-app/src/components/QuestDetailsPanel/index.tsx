@@ -51,6 +51,28 @@ const jsonToXml = (structuredSolution: any): string => {
         field.setAttribute('name', 'DIR');
         field.textContent = action.direction;
         block.appendChild(field);
+      } else if (action.type === 'maze_is_path') {
+        // SỬA LỖI: Thêm logic để xử lý hướng cho khối 'maze_is_path'.
+        const field = doc.createElement('field');
+        field.setAttribute('name', 'DIR');
+        field.textContent = action.direction; // Lấy hướng từ JSON
+        block.appendChild(field);
+      } else if (action.type === 'maze_is_item_present') {
+        // THÊM MỚI: Xử lý loại vật phẩm cho khối 'maze_is_item_present'.
+        if (action.item_type) {
+          const field = doc.createElement('field');
+          field.setAttribute('name', 'TYPE');
+          field.textContent = action.item_type;
+          block.appendChild(field);
+        }
+      } else if (action.type === 'maze_is_switch_state') {
+        // THÊM MỚI: Xử lý trạng thái cho khối 'maze_is_switch_state'.
+        if (action.state) {
+          const field = doc.createElement('field');
+          field.setAttribute('name', 'STATE');
+          field.textContent = action.state;
+          block.appendChild(field);
+        }
       } else if (action.type === 'maze_repeat' || action.type === 'maze_for') {
         const value = doc.createElement('value');
         value.setAttribute('name', 'TIMES');
@@ -69,10 +91,94 @@ const jsonToXml = (structuredSolution: any): string => {
           jsonToXmlRecursive(action.actions, statement);
           block.appendChild(statement);
         }
+      } else if (action.type === 'maze_forever') {
+        // THÊM MỚI: Xử lý khối 'maze_forever'
+        // Khối này không cần điều kiện, chỉ cần một statement 'DO'
+        const statement = doc.createElement('statement');
+        statement.setAttribute('name', 'DO');
+        jsonToXmlRecursive(action.actions || [], statement);
+        block.appendChild(statement);
+      }else if (action.type === 'maze_repeat_until') {
+        // THÊM MỚI: Xử lý khối 'maze_repeat_until' để tạo ra XML cho 'controls_whileUntil'
+        block.setAttribute('type', 'controls_whileUntil');
+
+        const modeField = doc.createElement('field');
+        modeField.setAttribute('name', 'MODE');
+        modeField.textContent = 'UNTIL'; // Luôn là UNTIL cho 'repeat_until'
+        block.appendChild(modeField);
+
+        const value = doc.createElement('value');
+        value.setAttribute('name', 'BOOL');
+        const conditionBlock = doc.createElement('block');
+        // SỬA LỖI: Đảm bảo rằng tên điều kiện từ solver (ví dụ: 'at_finish') được chuyển đổi chính xác
+        // thành tên loại khối lệnh trong Blockly (ví dụ: 'maze_at_finish').
+        // Logic `maze_${action.condition}` sẽ tự động tạo ra 'maze_at_finish' một cách chính xác.
+        conditionBlock.setAttribute('type', `maze_${action.condition}`);
+        value.appendChild(conditionBlock);
+        block.appendChild(value);
+
+        const statement = doc.createElement('statement');
+        statement.setAttribute('name', 'DO');
+        jsonToXmlRecursive(action.actions || [], statement);
+        block.appendChild(statement);
       } else if (action.type === 'procedures_callnoreturn') {
         const mutation = doc.createElement('mutation');
         mutation.setAttribute('name', action.mutation.name);
         block.appendChild(mutation);
+      } else if (action.type === 'controls_if') {
+        // THÊM MỚI: Xử lý khối 'controls_if' phức tạp
+        const elseIfCount = action.else_if_actions?.length || 0;
+        const elseCount = (action.else_actions && action.else_actions.length > 0) ? 1 : 0;
+
+        if (elseIfCount > 0 || elseCount > 0) {
+          const mutation = doc.createElement('mutation');
+          if (elseIfCount > 0) {
+            mutation.setAttribute('elseif', elseIfCount.toString());
+          }
+          if (elseCount > 0) {
+            mutation.setAttribute('else', '1');
+          }
+          block.appendChild(mutation);
+        }
+
+        // Xử lý nhánh IF chính (IF0)
+        if (action.condition) {
+          const value0 = doc.createElement('value');
+          value0.setAttribute('name', 'IF0');
+          // Giả định điều kiện là một khối duy nhất
+          jsonToXmlRecursive([action.condition], value0);
+          block.appendChild(value0);
+        }
+        if (action.if_actions) {
+          const statement0 = doc.createElement('statement');
+          statement0.setAttribute('name', 'DO0');
+          jsonToXmlRecursive(action.if_actions, statement0);
+          block.appendChild(statement0);
+        }
+
+        // Xử lý các nhánh ELSEIF (IF1, IF2, ...)
+        (action.else_if_actions || []).forEach((elseIfAction: any, index: number) => {
+          if (elseIfAction.condition) {
+            const valueN = doc.createElement('value');
+            valueN.setAttribute('name', `IF${index + 1}`);
+            jsonToXmlRecursive([elseIfAction.condition], valueN);
+            block.appendChild(valueN);
+          }
+          if (elseIfAction.actions) {
+            const statementN = doc.createElement('statement');
+            statementN.setAttribute('name', `DO${index + 1}`);
+            jsonToXmlRecursive(elseIfAction.actions, statementN);
+            block.appendChild(statementN);
+          }
+        });
+
+        // Xử lý nhánh ELSE
+        if (action.else_actions) {
+          const elseStatement = doc.createElement('statement');
+          elseStatement.setAttribute('name', 'ELSE');
+          jsonToXmlRecursive(action.else_actions, elseStatement);
+          block.appendChild(elseStatement);
+        }
       }
 
       if (lastBlock) {

@@ -323,17 +323,8 @@ function AppContent() {
 }
 
 function App() {
-  // Tính toán nhóm đầu tiên để chuyển hướng mặc định
-  const firstGroupId = useMemo(() => {
-    const firstPath = Object.keys(questModules)[0];
-    if (!firstPath) return null;
-    const pathSegments = firstPath.split('/');
-    return pathSegments.length > 2 ? pathSegments[2] : 'ungrouped';
-  }, []);
-
-  if (!firstGroupId) {
-    return <div>No quests found. Please add quests to the 'quests' directory.</div>;
-  }
+  // Đặt 'demo' làm nhóm mặc định để tải khi vào trang.
+  const defaultGroupId = 'demo';
 
   return (
     <Routes>
@@ -341,8 +332,8 @@ function App() {
       <Route path="/quest/:groupId/:questId" element={<AppContent />} />
       {/* Route cho một nhóm: /quest/group1, sẽ tự động chuyển đến quest đầu tiên */}
       <Route path="/quest/:groupId" element={<AppContent />} />
-      {/* Route mặc định, chuyển hướng đến nhóm đầu tiên tìm thấy: /quest/group1 */}
-      <Route path="*" element={<Navigate to={`/quest/${firstGroupId}`} replace />} />
+      {/* Route mặc định, chuyển hướng đến nhóm 'demo' */}
+      <Route path="*" element={<Navigate to={`/quest/${defaultGroupId}`} replace />} />
     </Routes>
   );
 }

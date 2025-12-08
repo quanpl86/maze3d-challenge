@@ -37,6 +37,10 @@
             },
             {
               "kind": "block",
+              "type": "maze_jump"
+            },
+            {
+              "kind": "block",
               "type": "maze_turn"
             }
           ]
@@ -53,6 +57,20 @@
             {
               "kind": "block",
               "type": "controls_whileUntil"
+            },
+            {
+              "kind": "block",
+              "type": "maze_repeat",
+              "inputs": {
+                "TIMES": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 5
+                    }
+                  }
+                }
+              }
             }
           ]
         },
@@ -67,11 +85,31 @@
             },
             {
               "kind": "block",
+              "type": "logic_compare"
+            },
+            {
+              "kind": "block",
+              "type": "logic_operation"
+            },
+            {
+              "kind": "block",
+              "type": "logic_negate"
+            },
+            {
+              "kind": "block",
+              "type": "logic_boolean"
+            },
+            {
+              "kind": "block",
               "type": "maze_is_path"
             },
             {
               "kind": "block",
               "type": "maze_is_item_present"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_switch_state"
             },
             {
               "kind": "block",
@@ -93,12 +131,64 @@
               "type": "maze_toggle_switch"
             }
           ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMATH}",
+          "categorystyle": "math_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_item_count"
+            },
+            {
+              "kind": "block",
+              "type": "math_number"
+            },
+            {
+              "kind": "block",
+              "type": "math_arithmetic",
+              "inputs": {
+                "A": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 1
+                    }
+                  }
+                },
+                "B": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 1
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATVARIABLES}",
+          "custom": "VARIABLE",
+          "categorystyle": "variable_category"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 8,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></statement></block></xml>",
-    "toolboxPresetKey": "while_l2_conditional_custom"
+    "maxBlocks": 11,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></next></block></next></block></statement></block></xml>",
+    "toolboxPresetKey": "full_toolbox"
   },
   "gameConfig": {
     "type": "maze",
@@ -229,7 +319,18 @@
       }
     ],
     "collectibles": [],
-    "interactibles": [],
+    "interactibles": [
+      {
+        "id": "s1",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 10
+        }
+      }
+    ],
     "finish": {
       "x": 13,
       "y": 1,
@@ -238,13 +339,16 @@
   },
   "solution": {
     "type": "reach_target",
-    "itemGoals": {},
-    "optimalBlocks": 3,
-    "optimalLines": 2,
+    "itemGoals": {
+      "switch": 1
+    },
+    "optimalBlocks": 6,
+    "optimalLines": 5,
     "rawActions": [
       "moveForward",
       "moveForward",
       "moveForward",
+      "toggleSwitch",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -265,6 +369,17 @@
               "type": "maze_moveForward"
             }
           ]
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
+          "type": "maze_forever",
+          "actions": [
+            {
+              "type": "maze_moveForward"
+            }
+          ]
         }
       ]
     },
@@ -278,6 +393,9 @@
         },
         {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
         },
         {
           "type": "maze_moveForward"

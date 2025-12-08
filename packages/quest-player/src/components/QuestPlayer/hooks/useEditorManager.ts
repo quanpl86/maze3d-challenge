@@ -10,7 +10,8 @@ export type EditorType = 'blockly' | 'monaco';
 
 export const useEditorManager = (
   questData: Quest | null,
-  workspaceRef: RefObject<Blockly.WorkspaceSvg>
+  workspaceRef: RefObject<Blockly.WorkspaceSvg>,
+  generateSafeCode: (workspace: Blockly.WorkspaceSvg | null) => string // Thêm prop mới
 ) => {
   const { t } = useTranslation();
   const [currentEditor, setCurrentEditor] = useState<EditorType>('blockly');
@@ -35,8 +36,8 @@ export const useEditorManager = (
       }
     }
 
-    if (editor === 'monaco' && workspaceRef.current) {
-      const code = javascriptGenerator.workspaceToCode(workspaceRef.current);
+    if (editor === 'monaco') {
+      const code = generateSafeCode(workspaceRef.current); // Sử dụng hàm an toàn
       setAceCode(code);
     }
     setCurrentEditor(editor);

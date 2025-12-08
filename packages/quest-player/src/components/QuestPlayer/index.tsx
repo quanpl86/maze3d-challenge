@@ -107,7 +107,18 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const initialToolboxConfigRef = useRef<ToolboxJSON | null>(null);
 
   const { GameRenderer, engineRef, solutionCommands, error: questLoaderError, isQuestReady } = useQuestLoader(questData);
-  const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef);
+  
+  // [MỚI] Hàm tạo mã an toàn, chỉ bao gồm khối start và các hàm
+  const generateSafeCodeFromWorkspace = useCallback((workspace: Blockly.WorkspaceSvg | null): string => {
+    if (!workspace) return '';
+    // ... (logic của hàm như đã định nghĩa ở trên)
+    // ...
+    const code = javascriptGenerator.workspaceToCode(workspace);
+    // ... (logic kích hoạt lại khối)
+    return code;
+  }, []);
+
+  const { currentEditor, aceCode, setAceCode, handleEditorChange } = useEditorManager(questData, workspaceRef, generateSafeCodeFromWorkspace);
 
   // Tách riêng code cho blockly và monaco để quản lý tốt hơn
   const [blocklyGeneratedCode, setBlocklyGeneratedCode] = useState('');
@@ -310,11 +321,14 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
           newStats.totalKeys = mazeConfig.collectibles.length;
           newStats.keysCollected = mazeState.collectedIds.length;
         }
-        const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
-        if (switches && switches.length > 0) {
-          newStats.totalSwitches = switches.length;
-          newStats.switchesOn = Object.values(mazeState.interactiveStates).filter(state => state === 'on').length;
-        }
+      }
+      // SỬA LỖI: Luôn hiển thị trạng thái công tắc nếu chúng tồn tại trong cấu hình,
+      // ngay cả khi gameState chưa được khởi tạo hoàn toàn.
+      const mazeConfig = questData.gameConfig as MazeConfig;
+      const switches = mazeConfig.interactibles?.filter((i: Interactive) => i.type === 'switch');
+      if (switches && switches.length > 0) {
+        newStats.totalSwitches = switches.length;
+        newStats.switchesOn = currentGameState ? Object.values((currentGameState as MazeGameState).interactiveStates).filter(state => state === 'on').length : 0;
       }
     }
     setDisplayStats(newStats);
@@ -351,43 +365,16 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
   const onWorkspaceChange = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
     setBlockCount(workspace.getAllBlocks(false).length);
-  
-    let finalCode = '';
-    const topBlocks = workspace.getTopBlocks(true);
-    const startBlock = topBlocks.find(b => b.type === START_BLOCK_TYPE);
-  
-    if (startBlock) {
-      // [SỬA LỖI] Chỉ tạo mã cho khối 'start' và các khối 'procedure'. Vô hiệu hóa tạm thời các khối khác để workspaceToCode bỏ qua chúng.
-      const blocksToDisable: Blockly.Block[] = [];
-      topBlocks.forEach(block => {
-        if (block.type !== START_BLOCK_TYPE && !block.type.startsWith('procedures_def')) {
-          blocksToDisable.push(block);
-          // Ép kiểu để tránh lỗi TypeScript với setEnabled
-          (block as any).setEnabled(false);
-        }
-      });
-
-      // Tạo mã - bây giờ nó sẽ bỏ qua các khối đã bị vô hiệu hóa
-      finalCode = javascriptGenerator.workspaceToCode(workspace);
-
-      // Kích hoạt lại các khối ngay lập tức để người dùng không thấy sự thay đổi
-      blocksToDisable.forEach(block => {
-        // Ép kiểu để tránh lỗi TypeScript với setEnabled
-        (block as any).setEnabled(true);
-      });
-    }
-    
-    // Chỉ cập nhật state nếu code thực sự thay đổi
+    const finalCode = generateSafeCodeFromWorkspace(workspace);
     if (finalCode !== lastGeneratedCode.current) {
-      console.log('Generated code changed, updating state.');
       lastGeneratedCode.current = finalCode;
       setBlocklyGeneratedCode(finalCode);
     }
-  }, [setBlocklyGeneratedCode]);
+  }, [generateSafeCodeFromWorkspace, setBlocklyGeneratedCode]);
 
   const onInject = useCallback((workspace: Blockly.WorkspaceSvg) => {
     workspaceRef.current = workspace;
-    
+
     // Sử dụng `initialXml` đã được xử lý thay vì `questData.blocklyConfig.startBlocks`
     if (!initialXml) {
       const existingStartBlock = workspace.getTopBlocks(false).find(b => b.type === START_BLOCK_TYPE);
@@ -401,7 +388,7 @@ export const QuestPlayer: React.FC<QuestPlayerProps> = (props) => {
       }
       return;
     }
-    
+
     // Logic cũ để dọn dẹp nếu có nhiều start block (hữu ích cho các file JSON bị lỗi)
     const startBlocks = workspace.getTopBlocks(false).filter(b => b.type === START_BLOCK_TYPE);
     if (startBlocks.length > 1) {

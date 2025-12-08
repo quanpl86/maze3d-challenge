@@ -1,0 +1,323 @@
+{
+  "id": "LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6-var1",
+  "gameType": "maze",
+  "topic": "topic-title-coding_loops_debugging",
+  "level": 6,
+  "titleKey": "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Title",
+  "questTitleKey": "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Description",
+  "descriptionKey": "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Description",
+  "translations": {
+    "vi": {
+      "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Title": "Sửa lỗi: Thiếu một bậc",
+      "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Description": "Nhân vật cần leo lên một cầu thang có 6 bậc, nhưng chương trình chỉ lặp lại 5 lần. Hãy tìm và sửa lại số lần lặp cho đúng.",
+      "topic-title-coding_loops_debugging": "Gỡ lỗi Vòng lặp"
+    },
+    "en": {
+      "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Title": "Fix the Bug: One Step Short",
+      "Challenge.LOOPS_G58.CODING_LOOPS_DEBUGGING.DEBUG_FIX_LOGIC.C6.Description": "The character needs to climb an 6-step staircase, but the program only repeats 5 times. Find and fix the loop count to be correct.",
+      "topic-title-coding_loops_debugging": "Gỡ lỗi Vòng lặp"
+    }
+  },
+  "supportedEditors": [
+    "blockly",
+    "monaco"
+  ],
+  "blocklyConfig": {
+    "toolbox_preset": "loops_l1_basic_movement",
+    "toolbox": {
+      "kind": "categoryToolbox",
+      "contents": [
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMOVEMENT}",
+          "categorystyle": "movement_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_moveForward"
+            },
+            {
+              "kind": "block",
+              "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOOPS}",
+          "categorystyle": "loops_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_repeat",
+              "inputs": {
+                "TIMES": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 5
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "maxBlocks": 9,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">6</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_jump\"/></next></block></statement></block></statement></block></xml>",
+    "toolboxPresetKey": "loops_l1_basic_movement"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 7,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 8,
+          "y": 3,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 12,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 13,
+          "y": 6,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 10,
+          "y": 4,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 11,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 6,
+          "y": 2,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 9,
+          "y": 4,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone06",
+        "position": {
+          "x": 5,
+          "y": 2,
+          "z": 7
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 1,
+          "y": 1,
+          "z": 7,
+          "direction": 1
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": 13,
+      "y": 7,
+      "z": 7
+    }
+  },
+  "solution": {
+    "type": "reach_target",
+    "itemGoals": {},
+    "optimalBlocks": 4,
+    "optimalLines": 3,
+    "rawActions": [
+      "moveForward",
+      "jump",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "jump",
+      "moveForward",
+      "jump"
+    ],
+    "structuredSolution": {
+      "main": [
+        {
+          "type": "maze_repeat",
+          "times": 6,
+          "actions": [
+            {
+              "type": "maze_moveForward"
+            },
+            {
+              "type": "maze_jump"
+            }
+          ]
+        }
+      ]
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_repeat",
+          "times": 3,
+          "body": [
+            {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "maze_repeat",
+          "times": 2,
+          "body": [
+            {
+              "type": "maze_repeat",
+              "times": 2,
+              "body": [
+                {
+                  "type": "maze_repeat",
+                  "times": 3,
+                  "body": [
+                    {
+                      "type": "maze_jump"
+                    },
+                    {
+                      "type": "maze_moveForward"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "procedures": {}
+    },
+    "basicSolution": {
+      "main": [
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_jump"
+        }
+      ],
+      "procedures": {}
+    }
+  },
+  "sounds": {
+    "win": "/assets/maze/win.mp3",
+    "fail": "/assets/maze/fail_pegman.mp3"
+  }
+}
