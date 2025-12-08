@@ -1,11 +1,5 @@
 # netlify.toml
 
-[build]
-  # Thư mục chứa ứng dụng của bạn sau khi build. Đối với Vite, thường là 'dist'.
-  # Vì đây là monorepo, đường dẫn sẽ là apps/react-quest-app/dist
-  # command = "turbo run build --filter @repo/map-builder-app"
-  publish = "apps/map-builder-app/dist" # <- SỬA THÀNH ĐƯỜNG DẪN ĐÚNG
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
