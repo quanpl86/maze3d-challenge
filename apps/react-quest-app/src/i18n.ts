@@ -7,12 +7,11 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // Import tài nguyên dịch đã được export từ package quest-player
 import { questPlayerResources } from '@repo/quest-player/i18n';
 
-const resources = {
+// --- START: PATCH for react-quest-app ---
+// Thêm các bản dịch cho category với key viết hoa để khớp với yêu cầu của Blockly
+const appResources = {
   en: {
     translation: {
-      ...questPlayerResources.en.translation,
-      // --- START: PATCH for react-quest-app ---
-      // Thêm các bản dịch cho category với key viết hoa để khớp với yêu cầu của Blockly
       "Games.catActions": "Actions",
       "Games.catEvents": "Events",
       "Games.catMovement": "Movement",
@@ -21,14 +20,10 @@ const resources = {
       "Games.catMath": "Math",
       "Games.catVariables": "Variables",
       "Games.catProcedures": "Functions",
-      // --- END: PATCH ---
     },
   },
   vi: {
     translation: {
-      ...questPlayerResources.vi.translation,
-      // --- START: PATCH for react-quest-app ---
-      // Thêm các bản dịch cho category với key viết hoa để khớp với yêu cầu của Blockly
       "Games.catActions": "Hành động",
       "Games.catEvents": "Sự kiện",
       "Games.catMovement": "Di chuyển",
@@ -37,8 +32,17 @@ const resources = {
       "Games.catMath": "Công thức toán",
       "Games.catVariables": "Biến",
       "Games.catProcedures": "Hàm",
-      // --- END: PATCH ---
     },
+  },
+};
+// --- END: PATCH ---
+
+const resources = {
+  en: {
+    translation: { ...questPlayerResources.en.translation, ...appResources.en.translation },
+  },
+  vi: {
+    translation: { ...questPlayerResources.vi.translation, ...appResources.vi.translation },
   },
 };
 
