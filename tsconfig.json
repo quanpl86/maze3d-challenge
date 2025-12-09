@@ -1,13 +1,13 @@
 {
+  "extends": "tsconfig/base.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-
-    // --- START: THÊM CẤU HÌNH PATH ALIAS ---
     "baseUrl": ".",
     "paths": {
-      "@config/*": ["apps/map-builder-app/src/config/*"]
+      "@config/*": ["apps/map-builder-app/src/config/*"],
+      "@maps/*": ["apps/map-builder-app/src/maps/*"],
+      "@repo/quest-player": ["packages/quest-player/src"]
     }
-    // --- END: THÊM CẤU HÌNH PATH ALIAS ---
-  }
+  },
+  "include": [],
+  "references": []
 }
