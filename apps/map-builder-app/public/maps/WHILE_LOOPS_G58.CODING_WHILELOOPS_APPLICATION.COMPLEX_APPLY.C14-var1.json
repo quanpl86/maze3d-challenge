@@ -52,10 +52,6 @@
           "contents": [
             {
               "kind": "block",
-              "type": "maze_forever"
-            },
-            {
-              "kind": "block",
               "type": "controls_whileUntil"
             },
             {
@@ -92,6 +88,10 @@
             {
               "kind": "block",
               "type": "maze_is_item_present"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_switch_state"
             },
             {
               "kind": "block",
@@ -133,7 +133,11 @@
         }
       ]
     },
+<<<<<<< HEAD
     "maxBlocks": 18,
+=======
+    "maxBlocks": 20,
+>>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
     "startBlocks": "",
     "toolboxPresetKey": "while_l3_full_logic"
   },
@@ -1165,7 +1169,11 @@
     "itemGoals": {
       "switch": 3
     },
+<<<<<<< HEAD
     "optimalBlocks": 13,
+=======
+    "optimalBlocks": 15,
+>>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
     "optimalLines": 10,
     "rawActions": [
       "turnRight",
@@ -1469,7 +1477,8 @@
     "basicSolution": {
       "main": [
         {
-          "type": "maze_turnRight"
+          "type": "maze_turn",
+          "direction": "turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -1484,6 +1493,170 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+<<<<<<< HEAD
           "type": "maze_turnLeft"
         },
         {
@@ -1493,112 +1666,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
           "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -1634,51 +1702,6 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_toggleSwitch"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
           "type": "maze_turnRight"
         },
         {
@@ -1689,6 +1712,10 @@
         },
         {
           "type": "maze_turnLeft"
+=======
+          "type": "maze_turn",
+          "direction": "turnLeft"
+>>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
         },
         {
           "type": "maze_moveForward"
@@ -1697,7 +1724,8 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turn",
+          "direction": "turnLeft"
         },
         {
           "type": "maze_moveForward"
@@ -1706,7 +1734,21 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggle_switch"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -1715,7 +1757,54 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
         },
         {
           "type": "maze_moveForward"

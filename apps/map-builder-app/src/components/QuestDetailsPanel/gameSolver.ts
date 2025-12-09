@@ -43,6 +43,8 @@ interface Solution {
   rawActions: (string | Action)[]; // SỬA LỖI: Cho phép cả chuỗi và đối tượng Action
   structuredSolution: { main: Action[], procedures?: Record<string, any> };
   basicSolution?: { main: Action[]; procedures?: Record<string, any> }; // SỬA LỖI: Cho phép basicSolution có procedures
+  referenceOptimalBlocks?: number;
+  referenceOptimalLines?: number;
   // Giữ lại các trường khác có thể tồn tại
   [key: string]: any;
 }
@@ -668,19 +670,13 @@ const optimizeWithVariablesAndLoops = (
         if (repeats > 1 && totalOriginalGroupedBlocks > newBlocksCost) {
           console.log(`Solver: Phát hiện quy luật đa biến số! Lặp ${repeats} lần.`);
 
-          // SỬA LỖI: Khai báo mảng `finalSolution` trước khi sử dụng.
-          const finalSolution: Action[] = [];
-
-          const varName = 'i';
-
-          // SỬA LỖI: Tính toán lại tổng số hành động gốc trong mẫu đã phát hiện
-          // để có thể cắt mảng `actions` một cách chính xác.
+          const variableSetupBlocks: Action[] = [];
 
           // Tạo phần thân của vòng lặp for
           const loopBody: Action[] = [];
           diffIndices.forEach((k, index) => {
             const varName = `i_${index}`;
-            finalSolution.push({
+            variableSetupBlocks.push({
               type: 'variables_set',
               variable: varName,
               value: { type: 'math_number', value: differences[index].initialValue }
@@ -712,16 +708,17 @@ const optimizeWithVariablesAndLoops = (
           for (let j = 0; j < i; j++) {
             startActionIndex += groupedActions[j].count;
           }
-          const beforePattern = actions.slice(0, startActionIndex);
+          const beforePatternActions = actions.slice(0, startActionIndex);
           const afterPattern = actions.slice(startActionIndex + totalOriginalActions);
           
-          // Thêm khối lặp chính vào sau các khối gán biến
-          finalSolution.push({
+          // Tạo khối lặp chính
+          const loopBlock: Action = {
             type: 'maze_repeat',
             times: repeats,
             actions: loopBody
-          });
-          return { main: [...beforePattern, ...finalSolution, ...afterPattern], procedures: {} };
+          };
+
+          return { main: [...beforePatternActions, ...variableSetupBlocks, loopBlock, ...afterPattern], procedures: {} };
         }
       }
     }
@@ -729,12 +726,166 @@ const optimizeWithVariablesAndLoops = (
   return null; // Không tìm thấy quy luật phù hợp
 };
 
+/**
+ * HÀM MỚI: Tối ưu hóa bằng cách tạo ra các hàm có tham số (parameterized functions).
+ * Tìm kiếm các mẫu hành động có cùng cấu trúc nhưng khác nhau về số lần lặp của một hành động con.
+ * Ví dụ: [đi 3, rẽ], [đi 5, rẽ] -> function(n) { lặp n lần { đi }; rẽ; }
+ */
+const optimizeWithParameterizedFunctions = (
+  actions: Action[],
+  availableBlocks: Set<string>
+): { main: Action[]; procedures?: Record<string, any> } | null => {
+  // 1. Kiểm tra xem các khối cần thiết có sẵn không
+  if (!availableBlocks.has('PROCEDURE')) {
+    return null;
+  }
+
+  // 2. Nén chuỗi hành động: ['f', 'f', 'r'] -> [{type: 'f', count: 2}, {type: 'r', count: 1}]
+  const groupedActions: { action: Action; count: number }[] = [];
+  if (actions.length === 0) return null;
+
+  let currentActionKey = JSON.stringify(actions[0]);
+  let currentCount = 0;
+  for (const action of actions) {
+    const actionKey = JSON.stringify(action);
+    if (actionKey === currentActionKey) {
+      currentCount++;
+    } else {
+      groupedActions.push({ action: JSON.parse(currentActionKey), count: currentCount });
+      currentActionKey = actionKey;
+      currentCount = 1;
+    }
+  }
+  groupedActions.push({ action: JSON.parse(currentActionKey), count: currentCount });
+
+  // 3. Tìm kiếm các mẫu có thể tham số hóa
+  // Ý tưởng: Tìm các chuỗi con có cùng cấu trúc (loại hành động) nhưng khác nhau về số lượng (count)
+  const sequenceOccurrences = new Map<string, { structure: { action: Action }[], occurrences: { index: number, counts: number[] }[] }>();
+
+  for (let length = 2; length <= Math.floor(groupedActions.length / 2); length++) {
+    for (let i = 0; i <= groupedActions.length - length; i++) {
+      const sequence = groupedActions.slice(i, i + length);
+      const structureKey = JSON.stringify(sequence.map(g => g.action)); // Chìa khóa là cấu trúc, bỏ qua count
+
+      if (!sequenceOccurrences.has(structureKey)) {
+        sequenceOccurrences.set(structureKey, {
+          structure: sequence.map(g => ({ action: g.action })),
+          occurrences: []
+        });
+      }
+      const diffIndices = sequence.map((_, k) => k).filter(k => sequence[k].action.type === 'maze_moveForward'); // Chỉ tham số hóa 'moveForward'
+      if (diffIndices.length === 1) { // Hiện tại chỉ xử lý 1 tham số cho đơn giản
+        const counts = sequence.map(g => g.count);
+        sequenceOccurrences.get(structureKey)!.occurrences.push({ index: i, counts });
+      }
+    }
+  }
+
+  // 4. Chọn mẫu tốt nhất và tạo hàm
+  let bestSavings = 0;
+  let bestResult: { main: Action[]; procedures?: Record<string, any> } | null = null;
+
+  sequenceOccurrences.forEach(({ structure, occurrences }) => {
+    if (occurrences.length < 2) return; // Cần ít nhất 2 lần xuất hiện để tạo hàm
+
+    const paramIndex = structure.findIndex(s => s.action.type === 'maze_moveForward');
+    if (paramIndex === -1) return;
+
+    const sequenceLength = structure.length;
+    const originalBlocks = occurrences.length * sequenceLength;
+    const newBlocks = (occurrences.length * 2) + sequenceLength; // call_proc + math_number cho mỗi lần gọi, và thân hàm
+    const savings = originalBlocks - newBlocks;
+
+    if (savings > bestSavings) {
+      bestSavings = savings;
+      const procName = `do_pattern_${Object.keys(bestResult?.procedures || {}).length + 1}`;
+      const paramName = 'steps';
+
+      // Tạo thân hàm
+      const procedureBody: Action[] = [];
+      structure.forEach((group, i) => {
+        if (i === paramIndex) {
+          procedureBody.push({ type: 'maze_repeat', times: { type: 'variables_get', variable: paramName }, actions: [group.action] });
+        } else {
+          // Giả định các hành động khác có count = 1
+          procedureBody.push(group.action);
+        }
+      });
+
+      // Tạo chương trình chính với các lời gọi hàm
+      const newMain: { action: Action; count: number }[] = [...groupedActions];
+      for (let i = occurrences.length - 1; i >= 0; i--) { // Đi ngược để không làm thay đổi chỉ số
+        const occ = occurrences[i];
+        const callBlock: Action = {
+          type: 'procedures_callnoreturn', // Sẽ được chuyển đổi sau
+          mutation: { name: procName, arguments: [{ name: paramName, value: occ.counts[paramIndex] }] }
+        };
+        newMain.splice(occ.index, sequenceLength, { action: callBlock, count: 1 });
+      }
+
+      // "Giải nén" lại chương trình chính
+      const finalMain = newMain.flatMap(g => Array(g.count).fill(g.action));
+      bestResult = { main: finalMain, procedures: { [procName]: procedureBody } };
+    }
+  });
+
+  return bestResult;
+};
+
+/**
+ * HÀM NÂNG CẤP: Phân tích `toolboxPresetKey` để xác định tất cả các topic lập trình được phép.
+ * Ví dụ: "loops_l3_functions_integration" -> ['loops', 'functions'].
+ * @param presetKey Key của toolbox, ví dụ: "loops_l3_functions_integration".
+ * @returns Một mảng các tên topic được phép.
+ */
+const parseAllowedTopics = (presetKey?: string): string[] => {
+  if (!presetKey) return ['commands'];
+
+  const parts = presetKey.split('_');
+  const mainTopic = parts[0];
+  const allowed = new Set<string>([mainTopic]);
+
+  if (presetKey.includes('functions')) allowed.add('functions');
+  return Array.from(allowed);
+};
+
 const createStructuredSolution = (
   initialActions: Action[],
   availableBlocks: Set<string>, // THAY ĐỔI: Chỉ cần truyền vào các khối lệnh có sẵn
   solutionConfig: Solution, // THÊM: solutionConfig để đọc các gợi ý tối ưu hóa
-  world: GameWorld // THÊM: world để kiểm tra điều kiện cho các vòng lặp phức tạp
-): { main: Action[]; procedures?: Record<string, Action[]> } => {
+  world: GameWorld, // THÊM: world để kiểm tra điều kiện cho các vòng lặp phức tạp
+  blocklyConfig?: QuestBlocklyConfig // THÊM MỚI: Thêm blocklyConfig để xác định topic
+): {
+  pedagogicalSolution: { main: Action[]; procedures?: Record<string, Action[]> };
+  technicallyOptimalSolution: { main: Action[]; procedures?: Record<string, Action[]> };
+} => {
+
+  // BƯỚC 0 (NÂNG CẤP): Xác định các chiến lược được phép dựa trên các topic có trong preset key.
+  const topics = parseAllowedTopics(blocklyConfig?.toolboxPresetKey);
+  const allowedStrategies = new Set<string>();
+
+  // Kích hoạt chiến lược dựa trên các topic được phép
+  if (topics.includes('functions')) {
+    allowedStrategies.add('func_only');
+  }
+  if (topics.includes('loops')) {
+    allowedStrategies.add('loop_only');
+  }
+  if (topics.includes('functions') && topics.includes('loops')) {
+    allowedStrategies.add('func_then_loop');
+  }
+  if (topics.includes('variables')) {
+    allowedStrategies.add('variable_loop');
+  }
+  if (topics.includes('conditionals') || topics.includes('while')) {
+    allowedStrategies.add('conditional_while');
+  }
+  if (topics.includes('parameters')) {
+    allowedStrategies.add('parameterized_function');
+  }
+  // Các topic 'mixed', 'full', 'algorithms' sẽ kích hoạt các chiến lược tương ứng dựa trên tên của chúng
+
+  console.log(`Solver: Preset key là '${blocklyConfig?.toolboxPresetKey}'. Các chiến lược được phép:`, Array.from(allowedStrategies));
 
   const strategies: { name: string; solution: { main: Action[]; procedures?: Record<string, Action[]> } }[] = [];
 
@@ -742,63 +893,140 @@ const createStructuredSolution = (
   // Giữ lại chuỗi hành động ban đầu để các chiến lược khác có thể xử lý.
   const originalActions = [...initialActions];
 
-  // BƯỚC 0 (MỚI): Thử chiến lược với biến số trước tiên, vì nó có khả năng tối ưu hóa cao nhất
-  const varSolution = optimizeWithVariablesAndLoops(originalActions, availableBlocks);
-  if (varSolution) {
-    // SỬA LỖI: Sau khi áp dụng tối ưu hóa biến, tiếp tục tối ưu hóa các phần còn lại
-    // (ví dụ: các đoạn moveForward lặp lại) bằng vòng lặp đơn giản.
-    const furtherOptimizedMain = optimizeWithLoops(varSolution.main, availableBlocks, solutionConfig).main;
-    varSolution.main = furtherOptimizedMain;
+  // BƯỚC 0 (MỚI): Ưu tiên chiến lược hàm có tham số vì nó thể hiện khái niệm tổng quát hóa cao nhất.
+  if (allowedStrategies.has('parameterized_function')) {
+    const paramFuncSolution = optimizeWithParameterizedFunctions(originalActions, availableBlocks);
+    if (paramFuncSolution) {
+      strategies.push({ name: 'parameterized_function', solution: paramFuncSolution });
+    }
+  }
 
-    strategies.push({ name: 'variable_loop', solution: varSolution });
+  // BƯỚC 0 (MỚI): Thử chiến lược với biến số trước tiên, vì nó có khả năng tối ưu hóa cao nhất
+  if (allowedStrategies.has('variable_loop')) {
+    const varSolution = optimizeWithVariablesAndLoops(originalActions, availableBlocks);
+    if (varSolution) {
+      const furtherOptimizedMain = optimizeWithLoops(varSolution.main, availableBlocks, solutionConfig).main;
+      varSolution.main = furtherOptimizedMain;
+      strategies.push({ name: 'variable_loop', solution: varSolution });
+    }
   }
 
   // BƯỚC 1: Áp dụng các chiến lược tối ưu hóa khác nhau
   // Chiến lược 0 (MỚI): Thử tối ưu hóa bằng `while` có điều kiện.
-  const conditionalWhileSolution = optimizeWithConditionalWhile(originalActions, availableBlocks, solutionConfig);
-  if (conditionalWhileSolution) {
-    strategies.push({ name: 'conditional_while', solution: conditionalWhileSolution });
+  if (allowedStrategies.has('conditional_while')) {
+    const conditionalWhileSolution = optimizeWithConditionalWhile(originalActions, availableBlocks, solutionConfig);
+    if (conditionalWhileSolution) {
+      strategies.push({ name: 'conditional_while', solution: conditionalWhileSolution });
+    }
   }
 
   // Tối ưu hóa bằng while đơn giản (chỉ đi thẳng)
   const simpleWhileActions = optimizeWithWhileLoops(originalActions, availableBlocks, world);
 
   // Chiến lược 1: Chỉ tối ưu hóa bằng vòng lặp 'for' (nếu được phép)
-  const loopOnlySolution = optimizeWithLoops(simpleWhileActions, availableBlocks, solutionConfig);
-  strategies.push({ name: 'loop_only', solution: loopOnlySolution });
+  if (allowedStrategies.has('loop_only')) {
+    const loopOnlySolution = optimizeWithLoops(simpleWhileActions, availableBlocks, solutionConfig);
+    strategies.push({ name: 'loop_only', solution: loopOnlySolution });
+  }
 
   // Chiến lược 2: Chỉ tối ưu hóa bằng hàm (nếu được phép)
-  const funcOnlySolution = optimizeWithFunctions(originalActions, availableBlocks, solutionConfig);
-  strategies.push({ name: 'func_only', solution: funcOnlySolution });
+  if (allowedStrategies.has('func_only')) {
+    const funcOnlySolution = optimizeWithFunctions(originalActions, availableBlocks, solutionConfig);
+    strategies.push({ name: 'func_only', solution: funcOnlySolution });
+  }
 
   // Chiến lược 3: Tối ưu hóa hàm trước, sau đó tối ưu hóa vòng lặp trên KẾT QUẢ
-  const mainAfterFuncs = funcOnlySolution.main;
-  const loopsAfterFuncs = optimizeWithLoops(mainAfterFuncs, availableBlocks, solutionConfig);
-  strategies.push({ name: 'func_then_loop', solution: { main: loopsAfterFuncs.main, procedures: funcOnlySolution.procedures } });
+  if (allowedStrategies.has('func_then_loop')) {
+    const funcOnlySolutionForLooping = optimizeWithFunctions(originalActions, availableBlocks, solutionConfig);
+    const mainAfterFuncs = funcOnlySolutionForLooping.main;
+    const loopsAfterFuncs = optimizeWithLoops(mainAfterFuncs, availableBlocks, solutionConfig);
+    strategies.push({ name: 'func_then_loop', solution: { main: loopsAfterFuncs.main, procedures: funcOnlySolutionForLooping.procedures } });
+  }
 
   // Nếu không có chiến lược nào hoạt động, trả về giải pháp gốc
   if (strategies.length === 0) {
-    return { main: originalActions, procedures: {} };
+    const emptySolution = { main: originalActions, procedures: {} };
+    return { 
+      pedagogicalSolution: emptySolution, 
+      technicallyOptimalSolution: emptySolution };
   }
 
-  // Tính toán chi phí cho mỗi chiến lược và chọn ra cái tốt nhất
+  // THÊM MỚI: Định nghĩa độ ưu tiên cho các chiến lược.
+  // Các chiến lược nâng cao hơn (liên quan đến các topic sau) sẽ có điểm cao hơn.
+  // SỬA LỖI: Cập nhật lại độ ưu tiên để phản ánh đúng tiến trình học.
+  const strategyPriority: Record<string, number> = {
+    'func_only': 2.0, // Topic 2: FUNCTIONS
+    'loop_only': 3.0, // Topic 3: FOR LOOPS
+    'func_then_loop': 3.5, // Kết hợp (ưu tiên hơn các thành phần đơn lẻ)
+    'variable_loop': 4.0, // Topic 4: VARIABLES
+    'conditional_while': 7.0, // Topic 5 & 7: CONDITIONAL & WHILE
+    'wall_follower': 8.0, // Topic 8: ALGORITHMS
+    'parameterized_function': 9.0, // Topic 9: PARAMETERS
+  };
+
+  // --- TÍNH TOÁN LỜI GIẢI ---
+  // 1. Lời giải sư phạm (ưu tiên topic, có ngưỡng chấp nhận)
   let bestSolution = strategies[0].solution;
+  let bestStrategyName = strategies[0].name;
   let minCost = calculateTotalBlocksInSolution(bestSolution);
 
+  // 2. Lời giải tối ưu kỹ thuật (chi phí thấp nhất tuyệt đối)
+  let technicallyOptimalSolution = strategies[0].solution;
+  let technicallyOptimalCost = minCost;
+
+  console.log(`--- Bắt đầu so sánh các chiến lược tối ưu ---`);
+  console.log(`Chiến lược ban đầu: '${strategies[0].name}', Chi phí: ${minCost} khối`);
+
   for (let i = 1; i < strategies.length; i++) {
-    const cost = calculateTotalBlocksInSolution(strategies[i].solution);
-    if (cost < minCost) {
-      minCost = cost;
-      bestSolution = strategies[i].solution;
+    const currentStrategyName = strategies[i].name;
+    const currentSolution = strategies[i].solution;
+    const currentCost = calculateTotalBlocksInSolution(currentSolution);
+    console.log(`So sánh với chiến lược: '${currentStrategyName}', Chi phí: ${currentCost} khối`);
+
+    // Cập nhật lời giải tối ưu kỹ thuật
+    if (currentCost < technicallyOptimalCost) {
+      technicallyOptimalCost = currentCost;
+      technicallyOptimalSolution = currentSolution;
+    }
+
+    // So sánh chi phí và độ ưu tiên
+    const currentPriority = strategyPriority[currentStrategyName] || 0;
+    const bestPriority = strategyPriority[bestStrategyName] || 0;
+
+    // NÂNG CẤP: Thêm ngưỡng chấp nhận để ưu tiên các chiến lược có tính sư phạm cao hơn
+    // ngay cả khi chúng tốn nhiều hơn một vài khối lệnh.
+    const COST_TOLERANCE = 2; // Cho phép chiến lược ưu tiên cao hơn được đắt hơn tối đa 2 khối.
+
+    if (currentCost < minCost) {
+      console.log(` -> Lựa chọn mới: '${strategies[i].name}' (chi phí thấp hơn)`);
+      minCost = currentCost;
+      bestSolution = currentSolution;
+      bestStrategyName = strategies[i].name;
+    } else if (currentCost === minCost && currentPriority > bestPriority) {
+      console.log(` -> Lựa chọn mới: '${currentStrategyName}' (cùng chi phí nhưng ưu tiên cao hơn)`);
+      bestSolution = currentSolution;
+      bestStrategyName = strategies[i].name;
+      bestStrategyName = currentStrategyName;
+    } else if (currentCost <= minCost + COST_TOLERANCE && currentPriority > bestPriority) {
+      console.log(` -> Lựa chọn mới: '${currentStrategyName}' (chi phí chấp nhận được và ưu tiên cao hơn)`);
+      minCost = currentCost; // Cập nhật minCost thành chi phí mới (cao hơn một chút)
+      bestSolution = currentSolution;
+      bestStrategyName = currentStrategyName;
     }
   }
 
+  console.log(`--- Kết quả: Chiến lược sư phạm được chọn là '${bestStrategyName}' với chi phí ${minCost} khối. ---`);
+  console.log(`--- Ghi chú: Chiến lược tối ưu kỹ thuật có chi phí ${technicallyOptimalCost} khối. ---`);
+
+  // --- XỬ LÝ KẾT QUẢ ---
   // Chuyển đổi các khối 'CALL' tạm thời thành khối 'procedures_callnoreturn' chuẩn
   const finalMain = bestSolution.main.map(action => {
     if (action.type === 'CALL' && action.name) {
       return {
         type: 'procedures_callnoreturn',
         mutation: {
+          // NÂNG CẤP: Xử lý các hàm có tham số
+          ...(action.mutation || {}),
           name: action.name // Tên hàm sẽ được hiển thị trên khối
         }
       };
@@ -806,8 +1034,24 @@ const createStructuredSolution = (
     return action;
   });
 
+  const finalTechnicallyOptimalMain = technicallyOptimalSolution.main.map(action => {
+    if (action.type === 'CALL' && action.name) {
+      return {
+        type: 'procedures_callnoreturn',
+        mutation: { ...(action.mutation || {}), name: action.name }
+      };
+    }
+    return action;
+  });
+
   // Trả về kết quả cuối cùng
-  return { main: finalMain, procedures: bestSolution.procedures && Object.keys(bestSolution.procedures).length > 0 ? bestSolution.procedures : undefined };
+  const finalPedagogicalSolution = { main: finalMain, procedures: bestSolution.procedures && Object.keys(bestSolution.procedures).length > 0 ? bestSolution.procedures : undefined };
+  const finalTechnicallyOptimalSolution = { main: finalTechnicallyOptimalMain, procedures: technicallyOptimalSolution.procedures && Object.keys(technicallyOptimalSolution.procedures).length > 0 ? technicallyOptimalSolution.procedures : undefined };
+
+  return {
+    pedagogicalSolution: finalPedagogicalSolution,
+    technicallyOptimalSolution: finalTechnicallyOptimalSolution
+  };
 };
 
 /**
@@ -1127,23 +1371,37 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
             // Đếm số lần rẽ trong đường đi thô để xác định độ phức tạp
             const turnCount = path.filter(action => action.includes('turn')).length;
             const isComplexPath = turnCount > 2; // Có thể điều chỉnh ngưỡng này
-
-            let finalStructuredSolution;
+            // KIỂM TRA MỚI: Kiểm tra xem đường đi có yêu cầu nhảy không.
+            const requiresJumping = path.some(action => action === 'jump');
+ 
+            let pedagogicalSolution: { main: Action[]; procedures?: Record<string, Action[]> };
+            let technicallyOptimalSolution: { main: Action[]; procedures?: Record<string, Action[]> };
+ 
             // --- LOGIC MỚI: GHI ĐÈ LỜI GIẢI CÓ CẤU TRÚC ---
-            // Chỉ kích hoạt chế độ thuật toán nếu đường đi thực sự phức tạp
-            if (isAlgorithmicMode && isComplexPath) {
+            // Chỉ kích hoạt chế độ thuật toán nếu đường đi phức tạp VÀ KHÔNG yêu cầu nhảy.
+            // Thuật toán bám tường hiện tại không xử lý được việc nhảy.
+            if (isAlgorithmicMode && isComplexPath && !requiresJumping) {
                 console.log(`Solver: Chế độ thuật toán đang hoạt động (số lần rẽ: ${turnCount}). Ghi đè structuredSolution bằng thuật toán bám tường.`);
-                finalStructuredSolution = createWallFollowerSolution(solutionConfig);
+                const wallFollowerSolution = createWallFollowerSolution(solutionConfig);
+                pedagogicalSolution = wallFollowerSolution;
+                technicallyOptimalSolution = wallFollowerSolution; // Trong trường hợp này, chúng giống nhau
             } else {
                 // Nếu không phải chế độ thuật toán, tối ưu hóa rawActions như bình thường.
-                finalStructuredSolution = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks, solutionConfig, world);
+                const solutions = createStructuredSolution(convertRawToStructuredActions(path), availableBlocks, solutionConfig, world, blocklyConfig); // Truyền blocklyConfig
+                pedagogicalSolution = solutions.pedagogicalSolution;
+                technicallyOptimalSolution = solutions.technicallyOptimalSolution;
             }
-
+ 
             // Tính toán số khối và số dòng tối ưu
-            // Luôn tính toán dựa trên lời giải có cấu trúc cuối cùng (finalStructuredSolution)
-            const finalOptimalBlocks = calculateTotalBlocksInSolution(finalStructuredSolution);
-            const finalOptimalLines = calculateOptimalLines(finalStructuredSolution);
+            // SỬA LỖI: Luôn tính toán dựa trên lời giải sư phạm (pedagogicalSolution).
+            const finalOptimalBlocks = calculateTotalBlocksInSolution(pedagogicalSolution);
 
+            const referenceOptimalBlocks = calculateTotalBlocksInSolution(technicallyOptimalSolution);
+
+            const finalOptimalLines = calculateOptimalLines(pedagogicalSolution);
+
+            const referenceOptimalLines = calculateOptimalLines(technicallyOptimalSolution);
+ 
             // THÊM MỚI: Tạo một phiên bản "basicSolution" đã được chuẩn hóa từ rawActions.
             // Điều này đảm bảo basicSolution cũng sử dụng định dạng { type: 'maze_turn', direction: '...' }
             const basicSolutionMain = convertRawToStructuredActions(path);
@@ -1153,7 +1411,11 @@ const aStarPathSolver = (gameConfig: GameConfig, solutionConfig: Solution, block
                 optimalBlocks: finalOptimalBlocks,
                 optimalLines: finalOptimalLines,
                 rawActions: path,
-                structuredSolution: finalStructuredSolution,
+                structuredSolution: pedagogicalSolution, // Lời giải chính thức theo sư phạm
+                referenceSolution: technicallyOptimalSolution, // Lời giải tham khảo tối ưu nhất
+                referenceOptimalBlocks: referenceOptimalBlocks,
+                referenceOptimalLines: referenceOptimalLines,
+
                 basicSolution: { main: basicSolutionMain, procedures: {} } // Trả về basicSolution đã chuẩn hóa
             };
         }

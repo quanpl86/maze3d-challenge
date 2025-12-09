@@ -64,6 +64,9 @@ function App() {
   const sceneRef = useRef<SceneController>(null);
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null); // Ref cho right-sidebar
+  // THÊM MỚI: Ref để trỏ đến khu vực JsonOutputPanel
+  const questDetailsRef = useRef<HTMLElement>(null); // THÊM MỚI: Ref cho QuestDetailsPanel
+  const jsonOutputRef = useRef<HTMLDivElement>(null);
 
   // --- START: LOGIC CUỘN SIDEBAR LÊN KHI CHỌN ĐỐI TƯỢNG ---
   useEffect(() => {
@@ -135,6 +138,16 @@ function App() {
     };
   }, []);
   // --- END: LOGIC THAY ĐỔI KÍCH THƯỚC SIDEBAR ---
+
+  // THÊM MỚI: Hàm xử lý cuộn đến đầu Quest Details
+  const handleScrollToQuestDetails = () => {
+    questDetailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // THÊM MỚI: Hàm xử lý cuộn đến khu vực soạn thảo JSON
+  const handleScrollToJsonOutput = () => {
+    jsonOutputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   // Hàm mới để cập nhật trạng thái và lưu vào lịch sử
   const setPlacedObjectsWithHistory = useCallback((updater: PlacedObject[] | ((prev: PlacedObject[]) => PlacedObject[])) => {
@@ -520,43 +533,60 @@ function App() {
 
   const handleSelectAsset = (asset: BuildableAsset) => {
     // --- LOGIC MỚI: THAY THẾ ĐỐI TƯỢNG ĐÃ CHỌN ---
+    // SỬA ĐỔI: Logic này giờ sẽ xử lý việc thay thế một hoặc nhiều đối tượng.
     if (selectedObjectIds.length > 0) {
+      // TÍNH NĂNG MỚI: Không cho phép thay thế nhiều đối tượng thành loại 'special'
+      if (selectedObjectIds.length > 1 && asset.type === 'special') {
+        alert("Cannot replace multiple objects with a 'special' asset (Player Start/Finish) because they must be unique.");
+        return;
+      }
+
       setPlacedObjectsWithHistory(prev => {
-        const objectIndex = prev.findIndex(obj => obj.id === selectedObjectIds[0]); // Chỉ thay thế đối tượng đầu tiên nếu chọn nhiều
-        if (objectIndex === -1) return prev;
+        const selectedIdsSet = new Set(selectedObjectIds);
+        let updatedObjects = [...prev];
 
-        const oldObject = prev[objectIndex];
-        let finalObjects = [...prev];
-
-        // Nếu asset mới là loại duy nhất (start/finish), xóa các asset cùng loại khác
+        // Nếu asset mới là loại duy nhất (start/finish), xóa tất cả các asset cùng loại hiện có.
         if (asset.key === 'finish' || asset.key === 'player_start') {
-          finalObjects = finalObjects.filter(o => o.asset.key !== asset.key || o.id === oldObject.id);
+          // Khi thay thế một đối tượng, chúng ta chỉ cần xóa các đối tượng khác cùng loại,
+          // không phải đối tượng đang được chọn để thay thế.
+          updatedObjects = updatedObjects.filter(o => o.asset.key !== asset.key && !selectedIdsSet.has(o.id));
         }
 
-        // Tạo đối tượng mới để thay thế, giữ lại ID và vị trí
-        const replacedObject: PlacedObject = {
-          id: oldObject.id,
-          position: oldObject.position,
-          rotation: oldObject.rotation, // Giữ lại rotation khi thay thế
-          asset: asset,
-          // SỬA LỖI: Giữ lại các thuộc tính cũ và chỉ thêm các thuộc tính mặc định mới nếu chưa có.
-          // Điều này đảm bảo giá trị 'direction' đã được chỉnh sửa (dưới dạng số) không bị ghi đè.
-          properties: { ...asset.defaultProperties, ...oldObject.properties },
-        };
+        // Ánh xạ qua các đối tượng và chỉ cập nhật những đối tượng được chọn và hợp lệ.
+        return updatedObjects.map(obj => {
+          if (selectedIdsSet.has(obj.id)) {
+            const oldType = obj.asset.type;
+            const newType = asset.type;
 
-        // Cập nhật đối tượng trong mảng
-        const updatedIndex = finalObjects.findIndex(obj => obj.id === selectedObjectIds[0]);
-        finalObjects[updatedIndex] = replacedObject;
+            // Điều kiện thay thế:
+            // 1. Block có thể thay thế bằng block.
+            // 2. Collectible/Interactible có thể thay thế lẫn nhau.
+            // 3. Bất kỳ đối tượng nào (khi chỉ chọn 1) có thể được thay thế bằng Special.
+            const canReplace =
+              (oldType === 'block' && newType === 'block') ||
+              ((oldType === 'collectible' || oldType === 'interactible') && (newType === 'collectible' || newType === 'interactible')) ||
+              (newType === 'special'); // Logic chặn chọn nhiều đã xử lý ở trên
 
-        return finalObjects;
+            if (canReplace) {
+              return {
+                ...obj,
+                asset: asset, // Thay thế bằng asset mới
+                properties: { ...asset.defaultProperties, ...obj.properties },
+              };
+            }
+          }
+          // Giữ nguyên các đối tượng không được chọn hoặc không hợp lệ để thay thế.
+          return obj;
+        });
       });
-      // Sau khi thay thế, không cần đặt selectedAsset nữa và giữ nguyên lựa chọn
+
+      // Sau khi thay thế, bỏ chọn asset đang chờ xây dựng và giữ nguyên các đối tượng đang được chọn.
       setSelectedAsset(null);
       return;
     }
     // --- KẾT THÚC LOGIC MỚI ---
 
-    // Logic cũ: Nếu không có đối tượng nào được chọn, chuẩn bị để xây dựng
+    // Logic cũ: Nếu không có đối tượng nào được chọn, đặt asset này để chuẩn bị xây dựng.
     setSelectedAsset(asset);
     setBuilderMode('build-single');
   };
@@ -1319,7 +1349,7 @@ function App() {
       const solution = solveMaze(currentGC, currentSC, currentBC);
 
       if (solution && solution.rawActions) {
-        // --- START: CẬP NHẬT METADATA VỚI LỜI GIẢI MỚI ---
+        // --- SỬA ĐỔI: Cập nhật metadata với lời giải mới ---
         const newOptimalBlocks = solution.optimalBlocks || 0;
         const newMaxBlocks = newOptimalBlocks + 5;
 
@@ -1347,10 +1377,12 @@ function App() {
           },
           // Hợp nhất solution config cũ với kết quả mới từ solver
           solution: {
-            ...currentSC,
+            // Bắt đầu với solution config hiện tại để giữ lại các thiết lập như itemGoals
+            ...currentSC, 
             type: 'reach_target', // SỬA LỖI: Đảm bảo trường type luôn tồn tại
-            ...solution,
-            basicSolution: basicSolution // Lưu lời giải cơ bản vào metadata
+            ...solution, // Hợp nhất tất cả các trường từ kết quả của solver
+            structuredSolution: solution.structuredSolution, // Ghi đè structuredSolution bằng lời giải sư phạm
+            basicSolution: basicSolution, // Ghi đè/thêm lời giải cơ bản
           },
         }));
         alert("Đã tìm thấy lời giải và cập nhật thành công!");
@@ -1443,7 +1475,7 @@ function App() {
       <div ref={sidebarRef} className="right-sidebar" style={{ width: `${sidebarWidth}px` }}>
         <PropertiesPanel 
           selectedObjects={placedObjects.filter(obj => selectedObjectIds.includes(obj.id))}
-          onUpdateObject={handleUpdateObject}
+          onUpdateObject={handleUpdateObject} // Sửa lỗi: onUpdateObject chưa được truyền
           onDeleteSelection={() => handleRemoveMultipleObjects(selectedObjectIds)}
           onAddObject={handleAddNewObject} // Thêm prop onAddObject
           onCopyAsset={handleCopyObject} // Thêm prop onCopyAsset
@@ -1455,18 +1487,24 @@ function App() {
           onClearSelection={() => { setSelectedObjectIds([]); setSelectionStart(null); setSelectionEnd(null); }}
         />
         {/* --- COMPONENT MỚI ĐƯỢC THÊM VÀO --- */}
-        <QuestDetailsPanel 
+        <QuestDetailsPanel
+          ref={questDetailsRef} // THÊM MỚI: Gán ref
           metadata={questMetadata}
           onMetadataChange={handleMetadataChange}
           onSolveMaze={handleSolveMaze} // SỬA ĐỔI: Truyền hàm giải không cần tham số
+          onScrollToTop={handleScrollToQuestDetails} // THÊM MỚI: Truyền hàm cuộn lên
+          onScrollToJson={handleScrollToJsonOutput} // THÊM MỚI: Truyền hàm xử lý cuộn
         />
-        <JsonOutputPanel 
-          questId={questMetadata?.id || 'untitled-quest'}
-          editedJson={editedJson}
-          onJsonChange={setEditedJson}
-          onRender={handleRenderEditedJson}
-          //onSave={handleSaveMap} // Bỏ ghi chú dòng này để kích hoạt lại nút Save
-        />
+        {/* THÊM MỚI: Bọc JsonOutputPanel trong một div với ref */}
+        <div ref={jsonOutputRef}>
+          <JsonOutputPanel 
+            questId={questMetadata?.id || 'untitled-quest'}
+            editedJson={editedJson}
+            onJsonChange={setEditedJson}
+            onRender={handleRenderEditedJson}
+            //onSave={handleSaveMap} // Bỏ ghi chú dòng này để kích hoạt lại nút Save
+          />
+        </div>
       </div>
       {/* --- END: THÊM THANH RESIZER VÀ ÁP DỤNG WIDTH ĐỘNG --- */}
       {contextMenu.visible && (

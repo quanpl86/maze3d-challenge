@@ -8,13 +8,13 @@
   "descriptionKey": "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Description",
   "translations": {
     "vi": {
-      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Title": "Vượt qua Bãi mìn",
-      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Description": "Con đường đến đích đầy những hố cạm bẫy xuất hiện ngẫu nhiên. Bạn bắt buộc phải dùng lệnh `if (path ahead)` để kiểm tra đường đi trước mỗi bước di chuyển để đảm bảo an toàn.",
+      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Title": "Vượt qua con đường băng giá",
+      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Description": "Con đường đến đích đầy những hố cạm bẫy xuất hiện ngẫu nhiên. Bạn bắt buộc phải dùng lệnh if (path ahead) để kiểm tra đường đi trước mỗi bước di chuyển để đảm bảo an toàn.",
       "topic-title-coding_conditionals_application": "Lập trình Phòng thủ"
     },
     "en": {
-      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Title": "Navigating the Minefield",
-      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Description": "The path to the goal is filled with randomly appearing holes. You must use an `if (path ahead)` command to check the path before every move to stay safe.",
+      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Title": "Crossing the Icy Path",
+      "Challenge.CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10.Description": "The path to the goal is filled with treacherous, randomly appearing holes. You must use the if (path ahead) command to check the path before each move to ensure a safe passage.",
       "topic-title-coding_conditionals_application": "Lập trình Phòng thủ"
     }
   },
@@ -162,7 +162,11 @@
       ]
     },
     "maxBlocks": 15,
+<<<<<<<< HEAD:apps/map-builder-app/public/maps/demo/CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10-var1.json
     "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"controls_if\"><mutation elseif=\"1\" else=\"1\"/><value name=\"IF0\"><block type=\"maze_is_path\"><field name=\"DIR\">path to the right</field></block></value><statement name=\"DO0\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"/></next></block></statement><value name=\"IF1\"><block type=\"maze_is_path\"><field name=\"DIR\">path ahead</field></block></value><statement name=\"DO1\"><block type=\"maze_moveForward\"/></statement><statement name=\"ELSE\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></statement></block></statement></block></statement></block></xml>",
+========
+    "startBlocks": "",
+>>>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable):apps/map-builder-app/public/maps/CONDITIONALS_G58.CODING_CONDITIONALS_APPLICATION.COMPLEX_APPLY.C10-var1.json
     "toolboxPresetKey": "algorithms_full_solver"
   },
   "gameConfig": {
@@ -212,14 +216,6 @@
       {
         "modelKey": "ice.ice01",
         "position": {
-          "x": 5,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ice.ice01",
-        "position": {
           "x": 6,
           "y": 0,
           "z": 12
@@ -263,14 +259,6 @@
           "x": 3,
           "y": 0,
           "z": 12
-        }
-      },
-      {
-        "modelKey": "ice.ice01",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 9
         }
       },
       {
@@ -412,14 +400,6 @@
       {
         "modelKey": "ice.ice01",
         "position": {
-          "x": 6,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ice.ice01",
-        "position": {
           "x": 5,
           "y": 0,
           "z": 5
@@ -511,6 +491,198 @@
           "x": 3,
           "y": 0,
           "z": 7
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "lava.lava01",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "lava.lava01",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "lava.lava01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "lava.lava01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "lava.lava01",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "water.water01",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "lava.lava01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ice.ice01",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 12
         }
       }
     ],
@@ -545,19 +717,23 @@
       "moveForward",
       "turnLeft",
       "moveForward",
+      "turnRight",
+      "moveForward",
       "moveForward",
       "turnRight",
       "moveForward",
       "turnLeft",
       "moveForward",
-      "turnRight",
+      "moveForward",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "moveForward",
       "moveForward",
       "turnLeft",
       "moveForward",
       "turnRight",
       "moveForward",
-      "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
       "turnLeft",
@@ -674,6 +850,12 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
           "type": "maze_moveForward"
         },
         {
@@ -689,7 +871,19 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -705,12 +899,6 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"

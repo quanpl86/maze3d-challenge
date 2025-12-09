@@ -80,7 +80,11 @@
     },
     "maxBlocks": 16,
     "startBlocks": "",
+<<<<<<< HEAD
     "toolboxPresetKey": "variables_l3_game_data"
+=======
+    "toolboxPresetKey": "variables_comprehensive"
+>>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
   },
   "gameConfig": {
     "type": "maze",

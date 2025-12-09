@@ -162,7 +162,11 @@
       ]
     },
     "maxBlocks": 15,
+<<<<<<< HEAD
     "startBlocks": "",
+=======
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"controls_if\"><mutation elseif=\"1\" else=\"1\"/><value name=\"IF0\"><block type=\"maze_is_path\"><field name=\"DIR\">path to the right</field></block></value><statement name=\"DO0\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"/></next></block></statement><value name=\"IF1\"><block type=\"maze_is_path\"><field name=\"DIR\">path ahead</field></block></value><statement name=\"DO1\"><block type=\"maze_moveForward\"/></statement><statement name=\"ELSE\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></statement></block></statement></block></statement></block></xml>",
+>>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
     "toolboxPresetKey": "algorithms_full_solver"
   },
   "gameConfig": {

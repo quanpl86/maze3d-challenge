@@ -1083,6 +1083,7 @@ export const toolboxPresets: Record<string, any> = {
           { "kind": "block", "type": "controls_if" },
           { "kind": "block", "type": "maze_is_path" },
           { "kind": "block", "type": "maze_is_item_present" },
+          { "kind": "block", "type": "maze_is_switch_state" },
           { "kind": "block", "type": "maze_at_finish" }
         ]
       },
@@ -1132,6 +1133,7 @@ export const toolboxPresets: Record<string, any> = {
           { "kind": "block", "type": "logic_compare" },
           { "kind": "block", "type": "maze_is_path" },
           { "kind": "block", "type": "maze_is_item_present" },
+          { "kind": "block", "type": "maze_is_switch_state" },
           { "kind": "block", "type": "maze_at_finish" }
         ]
       },
@@ -1374,6 +1376,7 @@ export const toolboxPresets: Record<string, any> = {
           { "kind": "block", "type": "logic_compare" },
           { "kind": "block", "type": "maze_is_path" },
           { "kind": "block", "type": "maze_is_item_present" },
+          { "kind": "block", "type": "maze_is_switch_state" },
           { "kind": "block", "type": "maze_at_finish" }
         ]
       },
