@@ -199,27 +199,17 @@ const jsonToXml = (structuredSolution: any): string => {
         if (action.value) {
           const value = doc.createElement('value');
           value.setAttribute('name', 'VALUE');
-          // NÂNG CẤP: Xử lý cả giá trị là khối đơn (math_number) và khối phức hợp (math_arithmetic).
-          // Bằng cách gọi đệ quy, ta có thể xử lý các cấu trúc lồng nhau bất kỳ.
-          jsonToXmlRecursive([action.value], value);
+          // Giả định giá trị là một khối đơn giản như math_number
+          // Có thể mở rộng để xử lý các khối giá trị phức tạp hơn
+          const valueBlock = doc.createElement('block');
+          valueBlock.setAttribute('type', action.value.type || 'math_number');
+          const valueField = doc.createElement('field');
+          valueField.setAttribute('name', 'NUM');
+          valueField.textContent = action.value.value?.toString() || '0';
+          valueBlock.appendChild(valueField);
+          value.appendChild(valueBlock);
           block.appendChild(value);
         }
-      } else if (action.type === 'math_arithmetic') {
-        // THÊM MỚI: Xử lý khối toán học, cần thiết cho tối ưu hóa cấp số nhân.
-        const opField = doc.createElement('field');
-        opField.setAttribute('name', 'OP');
-        opField.textContent = action.op || 'ADD';
-        block.appendChild(opField);
-
-        const valueA = doc.createElement('value');
-        valueA.setAttribute('name', 'A');
-        jsonToXmlRecursive([action.A], valueA);
-        block.appendChild(valueA);
-
-        const valueB = doc.createElement('value');
-        valueB.setAttribute('name', 'B');
-        jsonToXmlRecursive([action.B], valueB);
-        block.appendChild(valueB);
       } else if (action.type === 'variables_get') {
         // THÊM MỚI: Xử lý khối lấy giá trị của biến (dùng trong các khối khác)
         const field = doc.createElement('field');

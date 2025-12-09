@@ -1,19 +1,21 @@
 {
-  "id": "NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295",
+  "id": "VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8-var1",
   "gameType": "maze",
-  "topic": "topic-title-coding_commands",
-  "level": 1,
-  "titleKey": "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Title",
-  "questTitleKey": "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Description",
-  "descriptionKey": "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Description",
+  "topic": "topic-title-coding_variables_configuration",
+  "level": 8,
+  "titleKey": "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Title",
+  "questTitleKey": "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Description",
+  "descriptionKey": "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Description",
   "translations": {
     "vi": {
-      "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Title": "Tiêu đề mới",
-      "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Description": "Mô tả mới"
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Title": "Mê cung Xoắn ốc Giảm dần",
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Description": "Con đường vào tâm mê cung này tuân theo một quy luật: sau mỗi khúc cua, đoạn đường thẳng lại ngắn đi một chút. Hãy dùng một biến số để lưu lại độ dài của mỗi cạnh, sau đó truyền biến số đó vào một vòng lặp để đi đúng số bước. Đừng quên giảm giá trị của biến sau mỗi lần rẽ nhé!",
+      "topic-title-coding_variables_configuration": "Cấu hình Chương trình bằng Biến"
     },
     "en": {
-      "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Title": "New Title",
-      "Challenge.NEW_QUEST.0434EB95-5FD1-4CD1-8C8C-83EA4A6A4295.Description": "New Description"
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Title": "The Shrinking Spiral Maze",
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_APPLICATION.COMPLEX_APPLY.C8.Description": "The path to this maze's center follows a rule: after each turn, the straight path gets shorter. Use a variable to store the length of each side, then pass that variable into a loop to walk the correct number of steps. Don't forget to decrease the variable's value after each turn!",
+      "topic-title-coding_variables_configuration": "Cấu hình Chương trình bằng Biến"
     }
   },
   "supportedEditors": [
@@ -21,7 +23,6 @@
     "monaco"
   ],
   "blocklyConfig": {
-    "toolboxPresetKey": "loops_l4_for_loop_only",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [
@@ -66,31 +67,892 @@
           "contents": [
             {
               "kind": "block",
-              "type": "maze_repeat",
+              "type": "maze_repeat"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMATH}",
+          "categorystyle": "math_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "math_number"
+            },
+            {
+              "kind": "block",
+              "type": "math_arithmetic",
               "inputs": {
-                "TIMES": {
+                "A": {
                   "shadow": {
                     "type": "math_number",
                     "fields": {
-                      "NUM": 4
+                      "NUM": 1
+                    }
+                  }
+                },
+                "B": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 1
                     }
                   }
                 }
               }
+            },
+            {
+              "kind": "block",
+              "type": "maze_item_count"
             }
           ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATVARIABLES}",
+          "custom": "VARIABLE",
+          "categorystyle": "variable_category"
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 35,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">13</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">11</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">9</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">7</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">5</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></statement><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 15,
+    "startBlocks": "<xml><variables><variable id=\"(kcYM`Qd5DwcQmb~]H,p\">i_0</variable></variables><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">6</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"variables_set\"><field name=\"VAR\" id=\"(kcYM`Qd5DwcQmb~]H,p\">i_0</field><value name=\"VALUE\"><block type=\"math_number\"><field name=\"NUM\">13</field></block></value><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">13</field></shadow></value><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><block type=\"variables_get\"><field name=\"VAR\" id=\"(kcYM`Qd5DwcQmb~]H,p\">i_0</field></block></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"math_change\"><field name=\"VAR\" id=\"(kcYM`Qd5DwcQmb~]H,p\">i_0</field><value name=\"DELTA\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value></block></next></block></next></block></statement></block></next></block></next></block></next></block></statement></block></xml>",
+    "toolboxPresetKey": "variables_comprehensive"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 13,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 12,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 11,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 10,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 9,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 8,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 8
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 9
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 10
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 11
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 12
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 4,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 5,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 13
+        }
+      },
+      {
+        "modelKey": "ground.snow",
+        "position": {
+          "x": 7,
+          "y": 0,
+          "z": 13
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 7,
+          "y": 1,
+          "z": 13,
+          "direction": 0
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [],
+    "finish": {
+      "x": 7,
+      "y": 1,
+      "z": 6
+    }
   },
   "solution": {
     "type": "reach_target",
     "itemGoals": {},
-    "optimalBlocks": 30,
-    "optimalLines": 29,
+    "optimalBlocks": 10,
+    "optimalLines": 10,
     "rawActions": [
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
       "turnRight",
       "moveForward",
       "moveForward",
@@ -105,7 +967,7 @@
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -118,8 +980,8 @@
       "moveForward",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -130,10 +992,10 @@
       "moveForward",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -141,25 +1003,26 @@
       "moveForward",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -167,67 +1030,71 @@
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
-      "turnLeft",
       "moveForward",
       "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnLeft",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnLeft",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnLeft",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnLeft",
-      "moveForward",
-      "moveForward",
-      "turnLeft",
+      "turnRight",
       "moveForward"
     ],
     "structuredSolution": {
       "main": [
         {
           "type": "maze_turn",
-          "direction": "turnRight"
+          "direction": "turnLeft"
         },
         {
           "type": "maze_repeat",
-          "times": 3,
+          "times": 6,
           "actions": [
             {
+              "type": "maze_moveForward"
+            }
+          ]
+        },
+        {
+          "type": "variables_set",
+          "variable": "i_0",
+          "value": {
+            "type": "math_number",
+            "value": 13
+          }
+        },
+        {
+          "type": "maze_repeat",
+          "times": 13,
+          "actions": [
+            {
+              "type": "maze_turn",
+              "direction": "turnRight"
+            },
+            {
               "type": "maze_repeat",
-              "times": 13,
+              "times": {
+                "type": "variables_get",
+                "variable": "i_0"
+              },
               "actions": [
                 {
                   "type": "maze_moveForward"
@@ -235,19 +1102,25 @@
               ]
             },
             {
-              "type": "maze_turn",
-              "direction": "turnLeft"
+              "type": "math_change",
+              "variable": "i_0",
+              "value": {
+                "type": "math_number",
+                "value": -1
+              }
             }
           ]
+        }
+      ]
+    },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_collect"
         },
         {
-          "type": "maze_repeat",
-          "times": 11,
-          "actions": [
-            {
-              "type": "maze_moveForward"
-            }
-          ]
+          "type": "maze_turn",
+          "direction": "turnLeft"
         },
         {
           "type": "maze_turn",
@@ -257,91 +1130,83 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_repeat",
-          "times": 3,
-          "actions": [
-            {
-              "type": "maze_repeat",
-              "times": 9,
-              "actions": [
-                {
-                  "type": "maze_moveForward"
-                }
-              ]
-            },
-            {
-              "type": "maze_turn",
-              "direction": "turnLeft"
-            }
-          ]
-        },
-        {
-          "type": "maze_repeat",
-          "times": 7,
-          "actions": [
-            {
-              "type": "maze_moveForward"
-            }
-          ]
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_repeat",
-          "times": 3,
-          "actions": [
-            {
-              "type": "maze_repeat",
-              "times": 5,
-              "actions": [
-                {
-                  "type": "maze_moveForward"
-                }
-              ]
-            },
-            {
-              "type": "maze_turn",
-              "direction": "turnLeft"
-            }
-          ]
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_collect"
         },
         {
           "type": "maze_repeat",
           "times": 2,
-          "actions": [
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_moveForward"
-            },
+          "body": [
             {
               "type": "maze_turn",
               "direction": "turnLeft"
+            },
+            {
+              "type": "CALL",
+              "name": "PROCEDURE_1"
             }
           ]
         },
         {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         }
-      ]
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_repeat",
+            "times": 2,
+            "body": [
+              {
+                "type": "maze_moveForward"
+              },
+              {
+                "type": "maze_collect"
+              }
+            ]
+          }
+        ]
+      }
     },
     "basicSolution": {
       "main": [
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
         {
           "type": "maze_turnRight"
         },
@@ -385,7 +1250,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -424,54 +1289,9 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
-          "type": "maze_turnLeft"
-        },
-        {
           "type": "maze_moveForward"
         },
         {
@@ -503,12 +1323,9 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -541,7 +1358,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -569,12 +1386,9 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -601,7 +1415,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -623,12 +1437,9 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -649,7 +1460,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -665,12 +1476,9 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnLeft"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -685,7 +1493,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -697,7 +1505,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -706,7 +1514,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -718,925 +1526,5 @@
   "sounds": {
     "win": "/assets/maze/win.mp3",
     "fail": "/assets/maze/fail_pegman.mp3"
-  },
-  "gameConfig": {
-    "type": "maze",
-    "renderer": "3d",
-    "blocks": [
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 1
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 1
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 6
-        }
-      }
-    ],
-    "players": [
-      {
-        "id": "player1",
-        "start": {
-          "x": 0,
-          "y": 1,
-          "z": 13,
-          "direction": 0
-        }
-      }
-    ],
-    "collectibles": [],
-    "interactibles": [],
-    "finish": {
-      "x": 6,
-      "y": 1,
-      "z": 6
-    }
   }
 }

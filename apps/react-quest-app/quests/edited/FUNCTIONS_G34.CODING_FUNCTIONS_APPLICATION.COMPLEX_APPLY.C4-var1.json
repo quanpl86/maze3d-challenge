@@ -72,7 +72,7 @@
       ]
     },
     "maxBlocks": 26,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_2\"/></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"100\"><field name=\"NAME\">PROCEDURE_1</field><statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\" x=\"400\" y=\"250\"><field name=\"NAME\">PROCEDURE_2</field><statement name=\"STACK\"><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"PROCEDURE_1\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
+    "startBlocks": "",
     "toolboxPresetKey": "functions_l4_comprehensive"
   },
   "gameConfig": {
@@ -80,7 +80,7 @@
     "renderer": "3d",
     "blocks": [
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 6,
           "y": 0,
@@ -88,7 +88,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 6,
           "y": 0,
@@ -96,7 +96,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 6,
           "y": 0,
@@ -104,7 +104,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 7,
           "y": 0,
@@ -112,7 +112,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 8,
           "y": 0,
@@ -120,7 +120,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 11,
           "y": 0,
@@ -128,7 +128,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 11,
           "y": 0,
@@ -136,7 +136,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 11,
           "y": 0,
@@ -144,7 +144,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 12,
           "y": 0,
@@ -152,7 +152,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 13,
           "y": 0,
@@ -160,7 +160,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 5,
           "y": 0,
@@ -168,7 +168,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 9,
           "y": 0,
@@ -176,7 +176,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 10,
           "y": 0,
@@ -184,7 +184,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 7,
           "y": 0,
@@ -192,7 +192,7 @@
         }
       },
       {
-        "modelKey": "stone.stone01",
+        "modelKey": "stone.stone03",
         "position": {
           "x": 12,
           "y": 0,

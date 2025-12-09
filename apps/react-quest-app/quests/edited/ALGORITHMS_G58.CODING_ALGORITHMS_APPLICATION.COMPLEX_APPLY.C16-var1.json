@@ -187,7 +187,7 @@
       ]
     },
     "maxBlocks": 21,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"controls_if\"><mutation elseif=\"1\" else=\"1\"/><value name=\"IF0\"><block type=\"maze_is_path\"><field name=\"DIR\">path to the right</field></block></value><statement name=\"DO0\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"/></next></block></statement><value name=\"IF1\"><block type=\"maze_is_path\"><field name=\"DIR\">path ahead</field></block></value><statement name=\"DO1\"><block type=\"maze_moveForward\"/></statement><statement name=\"ELSE\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></statement><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_item_present\"><field name=\"TYPE\">crystal</field></block></value><statement name=\"DO0\"><block type=\"maze_collect\"/></statement><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_switch_state\"><field name=\"STATE\">off</field></block></value><statement name=\"DO0\"><block type=\"maze_toggle_switch\"/></statement></block></next></block></next></block></statement></block></statement></block></xml>",
+    "startBlocks": "",
     "toolboxPresetKey": "full_toolbox"
   },
   "gameConfig": {
@@ -195,7 +195,7 @@
     "renderer": "3d",
     "blocks": [
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "stone.stone06",
         "position": {
           "x": 1,
           "y": 0,
@@ -203,7 +203,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -211,7 +211,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -219,7 +219,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -227,7 +227,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -235,7 +235,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -243,7 +243,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -251,7 +251,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -259,7 +259,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -267,7 +267,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 1,
           "y": 0,
@@ -275,7 +275,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 2,
           "y": 0,
@@ -283,7 +283,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 2,
           "y": 0,
@@ -291,7 +291,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 2,
           "y": 0,
@@ -299,7 +299,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 2,
           "y": 0,
@@ -307,7 +307,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -315,7 +315,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -323,7 +323,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -331,7 +331,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -339,7 +339,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -347,7 +347,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -355,7 +355,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -363,7 +363,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 3,
           "y": 0,
@@ -371,7 +371,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 4,
           "y": 0,
@@ -379,7 +379,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 4,
           "y": 0,
@@ -387,7 +387,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 4,
           "y": 0,
@@ -395,7 +395,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 4,
           "y": 0,
@@ -403,7 +403,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -411,7 +411,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -419,7 +419,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -427,7 +427,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -435,7 +435,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -443,7 +443,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -451,7 +451,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -459,7 +459,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -467,7 +467,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 5,
           "y": 0,
@@ -475,7 +475,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 6,
           "y": 0,
@@ -483,7 +483,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 6,
           "y": 0,
@@ -491,7 +491,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 6,
           "y": 0,
@@ -499,7 +499,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -507,7 +507,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -515,7 +515,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -523,7 +523,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -531,7 +531,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -539,7 +539,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -547,7 +547,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -555,7 +555,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 7,
           "y": 0,
@@ -563,7 +563,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 8,
           "y": 0,
@@ -571,7 +571,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 8,
           "y": 0,
@@ -579,7 +579,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 8,
           "y": 0,
@@ -587,7 +587,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 8,
           "y": 0,
@@ -595,7 +595,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -603,7 +603,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -611,7 +611,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -619,7 +619,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -627,7 +627,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -635,7 +635,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -643,7 +643,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -651,7 +651,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 9,
           "y": 0,
@@ -659,7 +659,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 10,
           "y": 0,
@@ -667,7 +667,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 10,
           "y": 0,
@@ -675,7 +675,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 10,
           "y": 0,
@@ -683,7 +683,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -691,7 +691,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -699,7 +699,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -707,7 +707,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -715,7 +715,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -723,7 +723,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -731,7 +731,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -739,7 +739,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -747,7 +747,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -755,7 +755,7 @@
         }
       },
       {
-        "modelKey": "stone.stone05",
+        "modelKey": "ground.earth",
         "position": {
           "x": 11,
           "y": 0,
@@ -1554,7 +1554,7 @@
           "x": 1,
           "y": 1,
           "z": 1,
-          "direction": 1
+          "direction": 0
         }
       }
     ],
@@ -1563,9 +1563,9 @@
         "id": "c1",
         "type": "crystal",
         "position": {
-          "x": 1,
+          "x": 9,
           "y": 1,
-          "z": 3
+          "z": 9
         }
       }
     ],
@@ -1575,9 +1575,9 @@
         "type": "switch",
         "initialState": "off",
         "position": {
-          "x": 3,
+          "x": 7,
           "y": 1,
-          "z": 1
+          "z": 11
         }
       }
     ],
@@ -1596,14 +1596,29 @@
     "optimalBlocks": 16,
     "optimalLines": 12,
     "rawActions": [
-      "moveForward",
-      "moveForward",
-      "toggleSwitch",
       "turnRight",
+      "moveForward",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
       "turnRight",
       "moveForward",
       "moveForward",
       "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
       "moveForward",
       "moveForward",
       "collect",
@@ -1611,15 +1626,13 @@
       "turnRight",
       "moveForward",
       "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnRight",
+      "moveForward",
+      "moveForward",
+      "turnLeft",
       "moveForward",
       "moveForward",
       "turnLeft",
@@ -1627,7 +1640,21 @@
       "moveForward",
       "moveForward",
       "moveForward",
-      "turnLeft",
+      "moveForward",
+      "moveForward",
+      "toggleSwitch",
+      "turnRight",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "moveForward",
+      "turnRight",
+      "moveForward",
+      "moveForward",
+      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
@@ -1841,16 +1868,28 @@
     "basicSolution": {
       "main": [
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_toggleSwitch"
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_turnRight"
@@ -1863,6 +1902,39 @@
         },
         {
           "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
@@ -1886,16 +1958,7 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
-        },
-        {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -1910,7 +1973,10 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
@@ -1934,7 +2000,49 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnLeft"
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"

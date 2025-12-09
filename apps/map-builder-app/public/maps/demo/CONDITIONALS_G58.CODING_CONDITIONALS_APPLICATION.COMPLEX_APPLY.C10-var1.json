@@ -47,20 +47,16 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATLOGIC}",
-          "categorystyle": "logic_category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
           "contents": [
             {
               "kind": "block",
-              "type": "controls_if"
+              "type": "maze_collect"
             },
             {
               "kind": "block",
-              "type": "maze_is_path"
-            },
-            {
-              "kind": "block",
-              "type": "maze_at_finish"
+              "type": "maze_toggle_switch"
             }
           ]
         },
@@ -71,15 +67,103 @@
           "contents": [
             {
               "kind": "block",
+              "type": "maze_forever"
+            },
+            {
+              "kind": "block",
+              "type": "controls_whileUntil"
+            },
+            {
+              "kind": "block",
               "type": "maze_repeat"
             }
           ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATLOGIC}",
+          "categorystyle": "logic_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "controls_if"
+            },
+            {
+              "kind": "block",
+              "type": "logic_operation"
+            },
+            {
+              "kind": "block",
+              "type": "logic_negate"
+            },
+            {
+              "kind": "block",
+              "type": "logic_compare"
+            },
+            {
+              "kind": "block",
+              "type": "logic_boolean"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_path"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_item_present"
+            },
+            {
+              "kind": "block",
+              "type": "maze_is_switch_state"
+            },
+            {
+              "kind": "block",
+              "type": "maze_at_finish"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATMATH}",
+          "categorystyle": "math_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "math_number"
+            },
+            {
+              "kind": "block",
+              "type": "math_arithmetic"
+            },
+            {
+              "kind": "block",
+              "type": "maze_item_count"
+            }
+          ]
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATVARIABLES}",
+          "custom": "VARIABLE",
+          "categorystyle": "variable_category"
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 23,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"/></next></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></next></block></next></block></statement><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
-    "toolboxPresetKey": "conditionals_l1_movement_sensing"
+    "maxBlocks": 15,
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"controls_if\"><mutation elseif=\"1\" else=\"1\"/><value name=\"IF0\"><block type=\"maze_is_path\"><field name=\"DIR\">path to the right</field></block></value><statement name=\"DO0\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"/></next></block></statement><value name=\"IF1\"><block type=\"maze_is_path\"><field name=\"DIR\">path ahead</field></block></value><statement name=\"DO1\"><block type=\"maze_moveForward\"/></statement><statement name=\"ELSE\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field></block></statement></block></statement></block></statement></block></xml>",
+    "toolboxPresetKey": "algorithms_full_solver"
   },
   "gameConfig": {
     "type": "maze",
@@ -452,8 +536,8 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {},
-    "optimalBlocks": 18,
-    "optimalLines": 17,
+    "optimalBlocks": 10,
+    "optimalLines": 8,
     "rawActions": [
       "moveForward",
       "turnLeft",
@@ -483,69 +567,44 @@
     "structuredSolution": {
       "main": [
         {
-          "type": "maze_repeat",
-          "times": 2,
+          "type": "maze_forever",
           "actions": [
             {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_turn",
-              "direction": "turnLeft"
-            },
-            {
-              "type": "maze_moveForward"
+              "type": "controls_if",
+              "condition": {
+                "type": "maze_is_path",
+                "direction": "path to the right"
+              },
+              "if_actions": [
+                {
+                  "type": "maze_turn",
+                  "direction": "turnRight"
+                },
+                {
+                  "type": "maze_moveForward"
+                }
+              ],
+              "else_if_actions": [
+                {
+                  "condition": {
+                    "type": "maze_is_path",
+                    "direction": "path ahead"
+                  },
+                  "actions": [
+                    {
+                      "type": "maze_moveForward"
+                    }
+                  ]
+                }
+              ],
+              "else_actions": [
+                {
+                  "type": "maze_turn",
+                  "direction": "turnLeft"
+                }
+              ]
             }
           ]
-        },
-        {
-          "type": "maze_repeat",
-          "times": 2,
-          "actions": [
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_turn",
-              "direction": "turnRight"
-            },
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_turn",
-              "direction": "turnLeft"
-            }
-          ]
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turn",
-          "direction": "turnRight"
-        },
-        {
-          "type": "maze_repeat",
-          "times": 2,
-          "actions": [
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_moveForward"
-            },
-            {
-              "type": "maze_turn",
-              "direction": "turnLeft"
-            }
-          ]
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
         }
       ]
     },

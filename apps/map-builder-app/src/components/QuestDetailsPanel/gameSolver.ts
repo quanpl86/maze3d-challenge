@@ -630,13 +630,6 @@ const optimizeWithVariablesAndLoops = (
           commonDifference: chunk2[k].count - chunk1[k].count
         }));
 
-        // NÂNG CẤP: Kiểm tra cả quy luật cấp số nhân (geometric)
-        const isGeometric = diffIndices.every(k => chunk1[k].count !== 0 && chunk2[k].count % chunk1[k].count === 0);
-        const ratios = isGeometric ? diffIndices.map(k => ({
-          initialValue: chunk1[k].count,
-          commonRatio: chunk2[k].count / chunk1[k].count
-        })) : [];
-
         // Xác định xem quy luật này kéo dài bao lâu
         let repeats = 2;
         while (i + (repeats + 1) * chunkSize <= groupedActions.length) {
@@ -645,18 +638,8 @@ const optimizeWithVariablesAndLoops = (
           // SỬA LỖI: Kiểm tra xem tất cả các hành động thay đổi có tuân theo quy luật không.
           let patternHolds = true;
           for (let k = 0; k < chunkSize; k++) {
-            const diffIndex = diffIndices.indexOf(k);
-            if (diffIndex !== -1) { // Nếu đây là một hành động thay đổi
-              let expectedValue;
-              if (isGeometric && ratios[diffIndex].commonRatio > 0) {
-                // Quy luật cấp số nhân
-                expectedValue = ratios[diffIndex].initialValue * Math.pow(ratios[diffIndex].commonRatio, repeats);
-              } else {
-                // Quy luật cấp số cộng
-                expectedValue = differences[diffIndex].initialValue + repeats * differences[diffIndex].commonDifference;
-              }
-
-              if (nextChunk[k].count !== expectedValue) {
+            if (chunk1[k].count !== chunk2[k].count) { // Nếu đây là một hành động thay đổi
+              if (nextChunk[k].count !== chunk1[k].count + repeats * (chunk2[k].count - chunk1[k].count)) {
                 patternHolds = false;
                 break;
               }
@@ -716,27 +699,11 @@ const optimizeWithVariablesAndLoops = (
 
           // Thêm các khối thay đổi giá trị cho tất cả các biến vào cuối thân vòng lặp
           diffIndices.forEach((k, index) => {
-            const varName = `i_${index}`;
-            if (isGeometric && ratios[index].commonRatio > 1) {
-              // NÂNG CẤP: Tạo khối `set i = i * ratio` cho cấp số nhân
-              loopBody.push({
-                type: 'variables_set',
-                variable: varName,
-                value: {
-                  type: 'math_arithmetic',
-                  op: 'MULTIPLY',
-                  A: { type: 'variables_get', variable: varName },
-                  B: { type: 'math_number', value: ratios[index].commonRatio }
-                }
-              });
-            } else {
-              // Giữ nguyên khối `change i by diff` cho cấp số cộng
-              loopBody.push({
-                type: 'math_change',
-                variable: varName,
-                value: { type: 'math_number', value: differences[index].commonDifference }
-              });
-            }
+            loopBody.push({
+              type: 'math_change',
+              variable: `i_${index}`,
+              value: { type: 'math_number', value: differences[index].commonDifference }
+            });
           });
 
           // SỬA LỖI: Khai báo `beforePattern` và `afterPattern`.

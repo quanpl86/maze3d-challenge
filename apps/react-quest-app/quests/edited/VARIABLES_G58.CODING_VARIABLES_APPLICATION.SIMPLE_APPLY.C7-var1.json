@@ -1,19 +1,21 @@
 {
-  "id": "NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE",
+  "id": "VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7-var1",
   "gameType": "maze",
-  "topic": "topic-title-coding_commands",
-  "level": 2,
-  "titleKey": "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Title",
-  "questTitleKey": "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Description",
-  "descriptionKey": "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Description",
+  "topic": "topic-title-coding_variables_conditionals",
+  "level": 7,
+  "titleKey": "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Title",
+  "questTitleKey": "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Description",
+  "descriptionKey": "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Description",
   "translations": {
     "vi": {
-      "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Title": "Xoắn ốc",
-      "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Description": "Mô tả mới"
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Title": "Tháp Hiệu chỉnh Năng lượng",
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Description": "Hãy leo lên đỉnh của tòa tháp xoắn ốc cổ đại và kích hoạt cơ chế tối thượng! Trên đường đi có nhiều công tắc năng lượng, nhưng cơ chế trên đỉnh rất nhạy cảm: nó sẽ chỉ hoạt động nếu bạn đã bật chính xác 7 công tắc trước đó. Hãy dùng một biến số để đếm thật cẩn thận!",
+      "topic-title-coding_variables_conditionals": "Biến số và Logic Điều kiện"
     },
     "en": {
-      "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Title": "New Title",
-      "Challenge.NEW_QUEST.B5FD7A34-31BA-47B1-B118-607852AD64FE.Description": "New Description"
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Title": "The Energy Calibration Tower",
+      "Challenge.VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7.Description": "Climb to the top of the ancient spiral tower and activate the ultimate mechanism! There are many power switches along the way, but the mechanism at the top is sensitive: it will only work if you have flipped exactly 7 switches beforehand. Use a variable to count carefully!",
+      "topic-title-coding_variables_conditionals": "Biến số và Logic Điều kiện"
     }
   },
   "supportedEditors": [
@@ -21,7 +23,6 @@
     "monaco"
   ],
   "blocklyConfig": {
-    "toolboxPresetKey": "variables_comprehensive",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [
@@ -37,25 +38,6 @@
             {
               "kind": "block",
               "type": "maze_turn"
-            },
-            {
-              "kind": "block",
-              "type": "maze_jump"
-            }
-          ]
-        },
-        {
-          "kind": "category",
-          "name": "%{BKY_GAMES_CATACTIONS}",
-          "categorystyle": "actions_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_collect"
-            },
-            {
-              "kind": "block",
-              "type": "maze_toggle_switch"
             }
           ]
         },
@@ -81,28 +63,6 @@
             },
             {
               "kind": "block",
-              "type": "math_arithmetic",
-              "inputs": {
-                "A": {
-                  "shadow": {
-                    "type": "math_number",
-                    "fields": {
-                      "NUM": 1
-                    }
-                  }
-                },
-                "B": {
-                  "shadow": {
-                    "type": "math_number",
-                    "fields": {
-                      "NUM": 1
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "kind": "block",
               "type": "maze_item_count"
             }
           ]
@@ -115,171 +75,403 @@
           "name": "%{BKY_GAMES_CATVARIABLES}",
           "custom": "VARIABLE",
           "categorystyle": "variable_category"
-        },
-        {
-          "kind": "sep"
-        },
-        {
-          "kind": "category",
-          "name": "%{BKY_GAMES_CATPROCEDURES}",
-          "custom": "PROCEDURE",
-          "categorystyle": "procedure_category"
         }
       ]
     },
-    "maxBlocks": 14,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">13</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"variables_set\"><field name=\"VAR\">i_0</field><value name=\"VALUE\"><block type=\"math_number\"><field name=\"NUM\">13</field></block></value><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">13</field></shadow></value><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><block type=\"variables_get\"><field name=\"VAR\">i_0</field></block></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"math_change\"><field name=\"VAR\">i_0</field><value name=\"DELTA\"><block type=\"math_number\"><field name=\"NUM\">-1</field></block></value></block></next></block></next></block></statement></block></next></block></next></block></statement></block></xml>"
+    "maxBlocks": 16,
+    "startBlocks": "",
+    "toolboxPresetKey": "variables_l3_game_data"
+  },
+  "gameConfig": {
+    "type": "maze",
+    "renderer": "3d",
+    "blocks": [
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 3,
+          "y": 3,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 2,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 4,
+          "y": 3,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 3,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 5,
+          "y": 2,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 5,
+          "y": 2,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 5,
+          "y": 2,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 5,
+          "y": 3,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 4,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 2,
+          "y": 3,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 1,
+          "y": 4,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 3,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 5,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 6,
+          "y": 5,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 7
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 6
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 5
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 3
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 2
+        }
+      },
+      {
+        "modelKey": "stone.stone01",
+        "position": {
+          "x": 7,
+          "y": 6,
+          "z": 1
+        }
+      }
+    ],
+    "players": [
+      {
+        "id": "player1",
+        "start": {
+          "x": 3,
+          "y": 1,
+          "z": 4,
+          "direction": 0
+        }
+      }
+    ],
+    "collectibles": [],
+    "interactibles": [
+      {
+        "id": "s1",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 7,
+          "y": 7,
+          "z": 7
+        }
+      },
+      {
+        "id": "s2",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 1,
+          "y": 6,
+          "z": 7
+        }
+      },
+      {
+        "id": "s3",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 1,
+          "y": 5,
+          "z": 2
+        }
+      },
+      {
+        "id": "s4",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 5,
+          "y": 4,
+          "z": 2
+        }
+      },
+      {
+        "id": "s5",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 5,
+          "y": 3,
+          "z": 5
+        }
+      },
+      {
+        "id": "s6",
+        "type": "switch",
+        "initialState": "off",
+        "position": {
+          "x": 3,
+          "y": 2,
+          "z": 5
+        }
+      }
+    ],
+    "finish": {
+      "x": 7,
+      "y": 7,
+      "z": 1
+    }
   },
   "solution": {
     "type": "reach_target",
-    "itemGoals": {},
-    "optimalBlocks": 9,
-    "optimalLines": 9,
+    "itemGoals": {
+      "switch": 6
+    },
+    "optimalBlocks": 11,
+    "optimalLines": 11,
     "rawActions": [
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
       "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
       "turnRight",
+      "jump",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
+      "jump",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
       "moveForward",
+      "jump",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
       "moveForward",
       "moveForward",
+      "jump",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
+      "jump",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
       "moveForward",
-      "turnRight",
       "moveForward",
       "moveForward",
       "moveForward",
+      "jump",
+      "toggleSwitch",
+      "turnLeft",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
       "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "turnRight",
-      "moveForward",
-      "moveForward",
-      "turnRight",
       "moveForward"
     ],
     "structuredSolution": {
       "main": [
         {
-          "type": "maze_repeat",
-          "times": 13,
-          "actions": [
-            {
-              "type": "maze_moveForward"
-            }
-          ]
+          "type": "maze_turn",
+          "direction": "turnRight"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnRight"
         },
         {
           "type": "variables_set",
           "variable": "i_0",
           "value": {
             "type": "math_number",
-            "value": 13
+            "value": 1
           }
         },
         {
           "type": "maze_repeat",
-          "times": 13,
+          "times": 6,
           "actions": [
             {
+              "type": "maze_jump"
+            },
+            {
+              "type": "maze_toggle_switch"
+            },
+            {
               "type": "maze_turn",
-              "direction": "turnRight"
+              "direction": "turnLeft"
             },
             {
               "type": "maze_repeat",
@@ -298,275 +490,109 @@
               "variable": "i_0",
               "value": {
                 "type": "math_number",
-                "value": -1
+                "value": 1
               }
             }
           ]
         }
       ]
     },
+    "structuredSolution_fixbug_version": {
+      "main": [
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_turn",
+          "direction": "turnLeft"
+        },
+        {
+          "type": "maze_repeat",
+          "times": 2,
+          "body": [
+            {
+              "type": "maze_moveForward"
+            },
+            {
+              "type": "CALL",
+              "name": "PROCEDURE_1"
+            }
+          ]
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "CALL",
+          "name": "PROCEDURE_1"
+        },
+        {
+          "type": "maze_collect"
+        }
+      ],
+      "procedures": {
+        "PROCEDURE_1": [
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_moveForward"
+          },
+          {
+            "type": "maze_turn",
+            "direction": "turnRight"
+          },
+          {
+            "type": "maze_jump"
+          }
+        ]
+      }
+    },
     "basicSolution": {
       "main": [
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_turnRight"
         },
         {
           "type": "maze_turnRight"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
+          "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
@@ -578,13 +604,13 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
@@ -599,13 +625,13 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
@@ -615,9 +641,6 @@
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -626,13 +649,13 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_jump"
         },
         {
-          "type": "maze_moveForward"
+          "type": "maze_toggleSwitch"
         },
         {
-          "type": "maze_turnRight"
+          "type": "maze_turnLeft"
         },
         {
           "type": "maze_moveForward"
@@ -644,16 +667,10 @@
           "type": "maze_moveForward"
         },
         {
-          "type": "maze_turnRight"
-        },
-        {
           "type": "maze_moveForward"
         },
         {
           "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_turnRight"
         },
         {
           "type": "maze_moveForward"
@@ -665,869 +682,5 @@
   "sounds": {
     "win": "/assets/maze/win.mp3",
     "fail": "/assets/maze/fail_pegman.mp3"
-  },
-  "gameConfig": {
-    "type": "maze",
-    "renderer": "3d",
-    "blocks": [
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 13
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 12
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 11
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 10
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 9
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 8
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 7
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 6
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 3
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 2
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 1
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 13,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 12,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 11,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 10,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 9,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 8,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 7,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 6,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 5,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 4,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 3,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 0
-        }
-      },
-      {
-        "modelKey": "ground.checker",
-        "position": {
-          "x": 0,
-          "y": 0,
-          "z": 0
-        }
-      }
-    ],
-    "players": [
-      {
-        "id": "player1",
-        "start": {
-          "x": 0,
-          "y": 1,
-          "z": 0,
-          "direction": 1
-        }
-      }
-    ],
-    "collectibles": [],
-    "interactibles": [],
-    "finish": {
-      "x": 7,
-      "y": 1,
-      "z": 7
-    }
   }
 }

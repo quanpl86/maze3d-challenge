@@ -96,7 +96,7 @@
         }
       ]
     },
-    "maxBlocks": 7,
+    "maxBlocks": 8,
     "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></statement></block></xml>",
     "toolboxPresetKey": "while_l2_conditional_custom"
   },
@@ -239,8 +239,8 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {},
-    "optimalBlocks": 2,
-    "optimalLines": 1,
+    "optimalBlocks": 3,
+    "optimalLines": 2,
     "rawActions": [
       "moveForward",
       "moveForward",

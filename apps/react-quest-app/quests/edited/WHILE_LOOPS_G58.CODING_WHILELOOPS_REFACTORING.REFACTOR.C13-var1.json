@@ -8,13 +8,13 @@
   "descriptionKey": "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Description",
   "translations": {
     "vi": {
-      "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Title": "Đi đến Cùng đường",
-      "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Description": "Chương trình này dùng nhiều khối `if` để đi hết một con đường dài. Thật dài dòng! Hãy dùng vòng lặp `repeat until` để đi đến đích một cách hiệu quả và đạt 3 sao.",
+      "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Title": "Đi đến cuối cùng con đường",
+      "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Description": "Chương trình này chưa tối ưu nhất, hãy tối ưu chương trình để đạt tối đa 3 sao nhé!",
       "topic-title-coding_whileloops_refactoring": "Tái cấu trúc bằng While"
     },
     "en": {
       "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Title": "Reaching the End",
-      "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Description": "This program uses many `if` blocks to walk a long path. It's so inefficient! Use a `repeat until` loop to reach the goal efficiently and earn 3 stars.",
+      "Challenge.WHILE_LOOPS_G58.CODING_WHILELOOPS_REFACTORING.REFACTOR.C13.Description": "This program isn't fully optimized. Optimize it to get all 3 stars!",
       "topic-title-coding_whileloops_refactoring": "Tái cấu trúc bằng While"
     }
   },
@@ -37,11 +37,11 @@
             },
             {
               "kind": "block",
-              "type": "maze_jump"
+              "type": "maze_turn"
             },
             {
               "kind": "block",
-              "type": "maze_turn"
+              "type": "maze_jump"
             }
           ]
         },
@@ -60,17 +60,7 @@
             },
             {
               "kind": "block",
-              "type": "maze_repeat",
-              "inputs": {
-                "TIMES": {
-                  "shadow": {
-                    "type": "math_number",
-                    "fields": {
-                      "NUM": 5
-                    }
-                  }
-                }
-              }
+              "type": "maze_repeat"
             }
           ]
         },
@@ -85,10 +75,6 @@
             },
             {
               "kind": "block",
-              "type": "logic_compare"
-            },
-            {
-              "kind": "block",
               "type": "logic_operation"
             },
             {
@@ -97,7 +83,7 @@
             },
             {
               "kind": "block",
-              "type": "logic_boolean"
+              "type": "logic_compare"
             },
             {
               "kind": "block",
@@ -106,10 +92,6 @@
             {
               "kind": "block",
               "type": "maze_is_item_present"
-            },
-            {
-              "kind": "block",
-              "type": "maze_is_switch_state"
             },
             {
               "kind": "block",
@@ -134,68 +116,33 @@
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATMATH}",
-          "categorystyle": "math_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_item_count"
-            },
-            {
-              "kind": "block",
-              "type": "math_number"
-            },
-            {
-              "kind": "block",
-              "type": "math_arithmetic",
-              "inputs": {
-                "A": {
-                  "shadow": {
-                    "type": "math_number",
-                    "fields": {
-                      "NUM": 1
-                    }
-                  }
-                },
-                "B": {
-                  "shadow": {
-                    "type": "math_number",
-                    "fields": {
-                      "NUM": 1
-                    }
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          "kind": "sep"
-        },
-        {
-          "kind": "category",
           "name": "%{BKY_GAMES_CATVARIABLES}",
           "custom": "VARIABLE",
           "categorystyle": "variable_category"
         },
         {
           "kind": "category",
-          "name": "%{BKY_GAMES_CATPROCEDURES}",
-          "custom": "PROCEDURE",
-          "categorystyle": "procedure_category"
+          "name": "%{BKY_GAMES_CATMATH}",
+          "categorystyle": "math_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "math_number"
+            }
+          ]
         }
       ]
     },
     "maxBlocks": 14,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_item_present\"><field name=\"TYPE\">crystal</field></block></value><statement name=\"DO0\"><block type=\"maze_collect\"/></statement><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_switch_state\"><field name=\"STATE\">off</field></block></value><statement name=\"DO0\"><block type=\"maze_toggle_switch\"/></statement></block></next></block></next></block></statement></block></statement></block></xml>",
-    "toolboxPresetKey": "full_toolbox"
+    "startBlocks": "",
+    "toolboxPresetKey": "while_l3_full_logic"
   },
   "gameConfig": {
     "type": "maze",
     "renderer": "3d",
     "blocks": [
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 1,
           "y": 0,
@@ -203,7 +150,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 2,
           "y": 0,
@@ -211,7 +158,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 3,
           "y": 0,
@@ -219,7 +166,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 4,
           "y": 0,
@@ -227,7 +174,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 5,
           "y": 0,
@@ -235,7 +182,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 6,
           "y": 0,
@@ -243,7 +190,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 7,
           "y": 0,
@@ -251,7 +198,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 8,
           "y": 0,
@@ -259,7 +206,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 9,
           "y": 0,
@@ -267,7 +214,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 10,
           "y": 0,
@@ -275,7 +222,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 11,
           "y": 0,
@@ -283,7 +230,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 0,
           "y": 0,
@@ -291,7 +238,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 12,
           "y": 0,
@@ -299,7 +246,7 @@
         }
       },
       {
-        "modelKey": "stone.stone03",
+        "modelKey": "ground.snow",
         "position": {
           "x": 13,
           "y": 0,
@@ -323,7 +270,7 @@
         "id": "c1",
         "type": "crystal",
         "position": {
-          "x": 11,
+          "x": 4,
           "y": 1,
           "z": 10
         }
@@ -332,7 +279,7 @@
         "id": "c2",
         "type": "crystal",
         "position": {
-          "x": 3,
+          "x": 8,
           "y": 1,
           "z": 10
         }
@@ -344,7 +291,7 @@
         "type": "switch",
         "initialState": "off",
         "position": {
-          "x": 6,
+          "x": 2,
           "y": 1,
           "z": 10
         }
@@ -352,9 +299,9 @@
       {
         "id": "s2",
         "type": "switch",
-        "initialState": "on",
+        "initialState": "off",
         "position": {
-          "x": 9,
+          "x": 11,
           "y": 1,
           "z": 10
         }
@@ -377,18 +324,19 @@
     "rawActions": [
       "moveForward",
       "moveForward",
+      "toggleSwitch",
+      "moveForward",
+      "moveForward",
+      "collect",
+      "moveForward",
+      "moveForward",
+      "moveForward",
       "moveForward",
       "collect",
       "moveForward",
       "moveForward",
       "moveForward",
       "toggleSwitch",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "moveForward",
-      "collect",
       "moveForward",
       "moveForward"
     ],
@@ -437,6 +385,27 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_toggleSwitch"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_moveForward"
+        },
+        {
           "type": "maze_moveForward"
         },
         {
@@ -453,24 +422,6 @@
         },
         {
           "type": "maze_toggleSwitch"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_moveForward"
-        },
-        {
-          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"

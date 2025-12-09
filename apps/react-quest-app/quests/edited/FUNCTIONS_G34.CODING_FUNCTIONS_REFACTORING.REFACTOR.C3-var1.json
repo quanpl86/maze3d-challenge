@@ -23,21 +23,9 @@
     "monaco"
   ],
   "blocklyConfig": {
-    "toolbox_preset": "functions_l4_comprehensive",
     "toolbox": {
       "kind": "categoryToolbox",
       "contents": [
-        {
-          "kind": "category",
-          "name": "%{BKY_GAMES_CATEVENTS}",
-          "categorystyle": "events_category",
-          "contents": [
-            {
-              "kind": "block",
-              "type": "maze_start"
-            }
-          ]
-        },
         {
           "kind": "category",
           "name": "%{BKY_GAMES_CATMOVEMENT}",
@@ -84,14 +72,15 @@
       ]
     },
     "maxBlocks": 31,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"clear_branch\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"clear_branch\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"procedures_callnoreturn\"><mutation name=\"clear_branch\"/><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\"><field name=\"NAME\">clear_branch</field><comment pinned=\"false\" h=\"80\" w=\"160\">Describe this function...</comment><statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>"
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block><block type=\"procedures_defnoreturn\"><field name=\"NAME\">clear_branch</field><comment pinned=\"false\" h=\"80\" w=\"160\">Describe this function...</comment><statement name=\"STACK\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
+    "toolboxPresetKey": "functions_l4_comprehensive"
   },
   "gameConfig": {
     "type": "maze",
     "renderer": "3d",
     "blocks": [
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 1,
           "y": 0,
@@ -99,7 +88,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 2,
           "y": 0,
@@ -107,7 +96,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 3,
           "y": 0,
@@ -115,7 +104,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 4,
           "y": 0,
@@ -123,7 +112,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 4,
           "y": 0,
@@ -131,7 +120,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 4,
           "y": 0,
@@ -139,7 +128,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 5,
           "y": 0,
@@ -147,7 +136,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 5,
           "y": 0,
@@ -155,7 +144,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 5,
           "y": 0,
@@ -163,7 +152,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 6,
           "y": 0,
@@ -171,7 +160,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 6,
           "y": 0,
@@ -179,7 +168,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 6,
           "y": 0,
@@ -187,7 +176,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 7,
           "y": 0,
@@ -195,7 +184,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 8,
           "y": 0,
@@ -203,7 +192,7 @@
         }
       },
       {
-        "modelKey": "stone.stone02",
+        "modelKey": "ground.earthChecker",
         "position": {
           "x": 9,
           "y": 0,

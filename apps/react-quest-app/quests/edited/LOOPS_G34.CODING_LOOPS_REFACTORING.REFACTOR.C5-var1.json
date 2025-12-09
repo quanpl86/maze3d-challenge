@@ -9,12 +9,12 @@
   "translations": {
     "vi": {
       "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Title": "Vẽ lại Hình vuông",
-      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description": "Đoạn code này dùng 12 khối lệnh để vẽ một hình vuông cạnh 3. Hãy dùng vòng lặp `repeat` để viết lại chương trình chỉ với vài khối lệnh và đạt 3 sao!",
+      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description": "Đoạn code này dùng dùng nhiều khối lệnh để thực hiện hành động di chuyển, quay và thu thập pha lê, hãy kiểm tra xem quy luật nào ở bản đồ này có tính chất lặp lại không để áp dụng vòng lặp giảm đi số khối lệnh lập trình sử dụng.",
       "topic-title-coding_loops_refactoring": "Tái cấu trúc bằng Vòng lặp"
     },
     "en": {
       "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Title": "Redrawing the Square",
-      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description": "This code uses 12 blocks to draw a square with a side length of 3. Use a `repeat` loop to rewrite the program with just a few blocks and earn 3 stars!",
+      "Challenge.LOOPS_G34.CODING_LOOPS_REFACTORING.REFACTOR.C5.Description": "This code uses many blocks to perform the move, turn, and collect actions. Check if there is a repeating pattern on the map that would allow you to use a loop and reduce the number of programming blocks.",
       "topic-title-coding_loops_refactoring": "Tái cấu trúc bằng Vòng lặp"
     }
   },
@@ -83,8 +83,8 @@
         }
       ]
     },
-    "maxBlocks": 14,
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_turn\"><field name=\"DIR\">turnLeft</field><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value><statement name=\"DO\"><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement><next><block type=\"maze_collect\"><next><block type=\"maze_turn\"><field name=\"DIR\">turnRight</field></block></next></block></next></block></statement><next><block type=\"maze_repeat\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value><statement name=\"DO\"><block type=\"maze_moveForward\"/></statement></block></next></block></next></block></statement></block></xml>",
+    "maxBlocks": 16,
+    "startBlocks": "",
     "toolboxPresetKey": "loops_l2_with_actions"
   },
   "gameConfig": {
@@ -158,22 +158,6 @@
       {
         "modelKey": "stone.stone07",
         "position": {
-          "x": 1,
-          "y": 0,
-          "z": 4
-        }
-      },
-      {
-        "modelKey": "stone.stone07",
-        "position": {
-          "x": 1,
-          "y": 0,
-          "z": 5
-        }
-      },
-      {
-        "modelKey": "stone.stone07",
-        "position": {
           "x": 2,
           "y": 0,
           "z": 6
@@ -185,6 +169,22 @@
           "x": 3,
           "y": 0,
           "z": 6
+        }
+      },
+      {
+        "modelKey": "stone.stone07",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 4
+        }
+      },
+      {
+        "modelKey": "stone.stone07",
+        "position": {
+          "x": 1,
+          "y": 0,
+          "z": 5
         }
       }
     ],
@@ -217,6 +217,60 @@
           "y": 1,
           "z": 6
         }
+      },
+      {
+        "id": "c3",
+        "type": "crystal",
+        "position": {
+          "x": 2,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "id": "c4",
+        "type": "crystal",
+        "position": {
+          "x": 2,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "id": "c5",
+        "type": "crystal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 6
+        }
+      },
+      {
+        "id": "c6",
+        "type": "crystal",
+        "position": {
+          "x": 3,
+          "y": 1,
+          "z": 3
+        }
+      },
+      {
+        "id": "c7",
+        "type": "crystal",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 4
+        }
+      },
+      {
+        "id": "c8",
+        "type": "crystal",
+        "position": {
+          "x": 4,
+          "y": 1,
+          "z": 5
+        }
       }
     ],
     "interactibles": [],
@@ -229,24 +283,30 @@
   "solution": {
     "type": "reach_target",
     "itemGoals": {
-      "crystal": 2
+      "crystal": 8
     },
-    "optimalBlocks": 9,
-    "optimalLines": 8,
+    "optimalBlocks": 11,
+    "optimalLines": 10,
     "rawActions": [
       "turnLeft",
       "moveForward",
+      "collect",
       "moveForward",
+      "collect",
       "moveForward",
       "collect",
       "turnRight",
       "moveForward",
+      "collect",
       "moveForward",
+      "collect",
       "moveForward",
       "collect",
       "turnRight",
       "moveForward",
+      "collect",
       "moveForward",
+      "collect",
       "moveForward"
     ],
     "structuredSolution": {
@@ -265,11 +325,11 @@
               "actions": [
                 {
                   "type": "maze_moveForward"
+                },
+                {
+                  "type": "maze_collect"
                 }
               ]
-            },
-            {
-              "type": "maze_collect"
             },
             {
               "type": "maze_turn",
@@ -279,12 +339,18 @@
         },
         {
           "type": "maze_repeat",
-          "times": 3,
+          "times": 2,
           "actions": [
             {
               "type": "maze_moveForward"
+            },
+            {
+              "type": "maze_collect"
             }
           ]
+        },
+        {
+          "type": "maze_moveForward"
         }
       ]
     },
@@ -297,7 +363,13 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_collect"
+        },
+        {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
@@ -312,7 +384,13 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_collect"
+        },
+        {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
@@ -327,7 +405,13 @@
           "type": "maze_moveForward"
         },
         {
+          "type": "maze_collect"
+        },
+        {
           "type": "maze_moveForward"
+        },
+        {
+          "type": "maze_collect"
         },
         {
           "type": "maze_moveForward"
