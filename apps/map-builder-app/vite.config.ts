@@ -28,11 +28,5 @@ export default defineConfig({
     fs: {
       allow: [path.resolve(__dirname, '../../')],
     },
-  },
-
-  resolve: {
-    alias: {
-      '@repo/quest-player': path.resolve(__dirname, '../../packages/quest-player/src')
-    }
   }
 });

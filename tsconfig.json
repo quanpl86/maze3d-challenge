@@ -1,13 +1,19 @@
 {
-  "extends": "tsconfig/base.json",
   "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
       "@config/*": ["apps/map-builder-app/src/config/*"],
       "@maps/*": ["apps/map-builder-app/src/maps/*"],
       "@repo/quest-player": ["packages/quest-player/src"]
     }
-  },
-  "include": [],
-  "references": []
+  }
 }

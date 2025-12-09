@@ -138,11 +138,7 @@
       ]
     },
     "maxBlocks": 14,
-<<<<<<< HEAD
     "startBlocks": "",
-=======
-    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_collect\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_toggle_switch\"><next><block type=\"maze_moveForward\"><next><block type=\"maze_moveForward\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></xml>",
->>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
     "toolboxPresetKey": "while_l3_full_logic"
   },
   "gameConfig": {

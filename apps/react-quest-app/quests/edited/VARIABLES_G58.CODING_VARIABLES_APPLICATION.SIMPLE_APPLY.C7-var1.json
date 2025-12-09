@@ -1,5 +1,5 @@
 {
-  "id": "VARIABLES_G58.CODING_VARIABLES_CONDITIONALS.COMPLEX_APPLY.C7-var1",
+  "id": "VARIABLES_G58.CODING_VARIABLES_APPLICATION.SIMPLE_APPLY.C7-var1",
   "gameType": "maze",
   "topic": "topic-title-coding_variables_conditionals",
   "level": 7,
@@ -38,6 +38,25 @@
             {
               "kind": "block",
               "type": "maze_turn"
+            },
+            {
+              "kind": "block",
+              "type": "maze_jump"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATACTIONS}",
+          "categorystyle": "actions_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "maze_collect"
+            },
+            {
+              "kind": "block",
+              "type": "maze_toggle_switch"
             }
           ]
         },
@@ -63,6 +82,28 @@
             },
             {
               "kind": "block",
+              "type": "math_arithmetic",
+              "inputs": {
+                "A": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 1
+                    }
+                  }
+                },
+                "B": {
+                  "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                      "NUM": 1
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "block",
               "type": "maze_item_count"
             }
           ]
@@ -75,16 +116,20 @@
           "name": "%{BKY_GAMES_CATVARIABLES}",
           "custom": "VARIABLE",
           "categorystyle": "variable_category"
+        },
+        {
+          "kind": "sep"
+        },
+        {
+          "kind": "category",
+          "name": "%{BKY_GAMES_CATPROCEDURES}",
+          "custom": "PROCEDURE",
+          "categorystyle": "procedure_category"
         }
       ]
     },
     "maxBlocks": 16,
-    "startBlocks": "",
-<<<<<<< HEAD
-    "toolboxPresetKey": "variables_l3_game_data"
-=======
-    "toolboxPresetKey": "variables_comprehensive"
->>>>>>> ef3f398 (Update logic Switch, Map Buider While Loop, Variable)
+    "startBlocks": "<xml><block type=\"maze_start\" deletable=\"false\" movable=\"false\"><statement name=\"DO\"><block type=\"variables_set\"><field name=\"VAR\">i</field><value name=\"VALUE\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><next><block type=\"maze_forever\"><statement name=\"DO\"><block type=\"maze_moveForward\"><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"maze_is_switch_state\"><field name=\"STATE\">off</field></block></value><statement name=\"DO0\"><block type=\"maze_toggle_switch\"><next><block type=\"math_change\"><field name=\"VAR\">i</field><value name=\"DELTA\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value></block></next></block></statement></block></next></block></statement></block></next></block></statement></block></xml>"
   },
   "gameConfig": {
     "type": "maze",
